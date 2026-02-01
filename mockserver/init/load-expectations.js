@@ -109,7 +109,27 @@ function generateFromSchema(schema, allSchemas) {
 // Main
 // ---------------------------------------------------------------------------
 
+async function waitForMockServer(maxRetries = 30, intervalMs = 2000) {
+  for (let i = 1; i <= maxRetries; i++) {
+    try {
+      const res = await fetch(`${MOCKSERVER_URL}/mockserver/status`, { method: 'PUT' });
+      if (res.ok) {
+        console.log('MockServer is ready.');
+        return;
+      }
+    } catch {
+      // not up yet
+    }
+    console.log(`Waiting for MockServer... (${i}/${maxRetries})`);
+    await new Promise(r => setTimeout(r, intervalMs));
+  }
+  throw new Error('MockServer did not become ready in time');
+}
+
 async function main() {
+  console.log(`Waiting for MockServer at ${MOCKSERVER_URL}...`);
+  await waitForMockServer();
+
   console.log(`Loading OpenAPI specs from ${SPECS_DIR} into MockServer at ${MOCKSERVER_URL}`);
 
   const specFiles = readdirSync(SPECS_DIR).filter(f => f.endsWith('.yaml') || f.endsWith('.yml'));

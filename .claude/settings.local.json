@@ -13,7 +13,19 @@
       "Bash(for:*)",
       "Bash(done)",
       "Bash(for f in examples/payloads/price-specifications/*.json)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(docker compose:*)",
+      "Bash(curl:*)",
+      "Bash(docker exec:*)",
+      "Bash(docker logs:*)",
+      "Bash(docker inspect:*)",
+      "Bash(python3:*)",
+      "Bash(echo \"---EXIT:$?\")",
+      "Bash(npm run devkit:*)",
+      "Bash(node --version:*)",
+      "Bash(source ~/.nvm/nvm.sh)",
+      "Bash(nvm ls:*)"
     ]
   }
 }

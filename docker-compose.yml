@@ -10,11 +10,6 @@ services:
     volumes:
       - ./specs:/specs:ro
       - ./mockserver:/config:ro
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:1080/mockserver/status"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
     networks:
       - devkit
 
@@ -27,7 +22,7 @@ services:
     environment:
       PORT: 3001
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3001/health"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -58,7 +53,7 @@ services:
       dockerfile: Dockerfile
     depends_on:
       mockserver:
-        condition: service_healthy
+        condition: service_started
     environment:
       MOCKSERVER_URL: http://mockserver:1080
     volumes:

@@ -58,11 +58,11 @@ export function registerVerifyCommand(program) {
         return;
       }
 
-      // Filter out server-set fields that are expected to differ
-      const ignoredPaths = ['created', 'modified', 'version', 'revision'];
+      // Filter out server-set fields that are expected to differ (at any depth)
+      const ignoredFields = new Set(['created', 'modified', 'version', 'revision']);
       const meaningful = differences.filter(d => {
-        const topField = d.path?.[0];
-        return !ignoredPaths.includes(topField);
+        const lastField = d.path?.[d.path.length - 1];
+        return !ignoredFields.has(lastField);
       });
 
       if (meaningful.length === 0) {
