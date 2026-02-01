@@ -1,0 +1,71 @@
+services:
+  mockserver:
+    image: mockserver/mockserver:5.15.0
+    ports:
+      - "${MOCKSERVER_PORT:-1080}:1080"
+    environment:
+      MOCKSERVER_INITIALIZATION_JSON_PATH: /config/expectations/init-expectations.json
+      MOCKSERVER_LOG_LEVEL: INFO
+      MOCKSERVER_ENABLE_CORS_FOR_ALL_RESPONSES: "true"
+    volumes:
+      - ./specs:/specs:ro
+      - ./mockserver:/config:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:1080/mockserver/status"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+    networks:
+      - devkit
+
+  state-server:
+    build:
+      context: ./state-server
+      dockerfile: Dockerfile
+    ports:
+      - "${STATE_SERVER_PORT:-3001}:3001"
+    environment:
+      PORT: 3001
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - devkit
+
+  swagger-ui:
+    image: swaggerapi/swagger-ui:v5.17.14
+    ports:
+      - "${SWAGGER_UI_PORT:-8080}:8080"
+    environment:
+      URLS: >-
+        [
+          {"url": "/specs/v1/item-input-api.yaml", "name": "Item Input API"},
+          {"url": "/specs/v1/price-specification-input-api.yaml", "name": "Price Specification Input API"},
+          {"url": "/specs/v1/item-identifier-input-api.yaml", "name": "Item Identifier Input API"},
+          {"url": "/specs/v1/complete-item-query-api.yaml", "name": "Complete Item Query API"}
+        ]
+    volumes:
+      - ./specs:/usr/share/nginx/html/specs:ro
+    networks:
+      - devkit
+
+  # One-shot container: waits for MockServer, then loads OpenAPI expectations
+  mockserver-init:
+    build:
+      context: ./mockserver/init
+      dockerfile: Dockerfile
+    depends_on:
+      mockserver:
+        condition: service_healthy
+    environment:
+      MOCKSERVER_URL: http://mockserver:1080
+    volumes:
+      - ./specs:/specs:ro
+    networks:
+      - devkit
+
+networks:
+  devkit:
+    driver: bridge

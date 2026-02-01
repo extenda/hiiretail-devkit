@@ -1,0 +1,21 @@
+{
+  "id": "erp-item-10004",
+  "name": "Gift Wrapping Service",
+  "description": "In-store gift wrapping service. Includes wrapping paper, ribbon, and gift tag.",
+  "type": "SERVICE",
+  "status": "ACTIVE",
+  "salesUnitOfMeasurement": "EA",
+  "referencePriceUnitOfMeasurement": "EA",
+  "referencePriceConversionFactor": 1.0,
+  "availableInPos": true,
+  "needsManualSending": false,
+  "needsApproval": false,
+  "needsLabelPrinting": false,
+  "assortmentPolicyType": "LOCAL",
+  "businessUnitGroupId": "bug-001",
+  "tags": [
+    "service",
+    "gift",
+    "seasonal"
+  ]
+}

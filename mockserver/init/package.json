@@ -1,0 +1,10 @@
+{
+  "name": "hiiretail-devkit-mockserver-init",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Loads OpenAPI expectations into MockServer on startup",
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "id": "erp-price-20005",
+  "itemId": "erp-item-10005",
+  "type": "CAMPAIGN",
+  "value": 44.90,
+  "currencyId": "SEK",
+  "taxableGroupId": "tax-food-12",
+  "validFrom": "2025-03-01T00:00:00Z",
+  "validTo": "2025-03-31T23:59:59Z",
+  "status": "ACTIVE",
+  "businessUnitGroupId": "bug-001"
+}

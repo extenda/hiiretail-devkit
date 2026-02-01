@@ -1,0 +1,43 @@
+{
+  "id": "erp-item-10001",
+  "name": "Organic Whole Milk 1L",
+  "description": "Fresh organic whole milk, 3% fat. 1 litre carton.",
+  "type": "STOCK_ITEM",
+  "status": "ACTIVE",
+  "salesUnitOfMeasurement": "EA",
+  "referencePriceUnitOfMeasurement": "LTR",
+  "referencePriceConversionFactor": 1.0,
+  "availableInPos": true,
+  "needsManualSending": false,
+  "needsApproval": false,
+  "needsLabelPrinting": false,
+  "assortmentPolicyType": "INCLUDED",
+  "businessUnitGroupId": "bug-001",
+  "brand": "EcoFarm",
+  "netContent": 1.0,
+  "itemCategoryId": "cat-dairy-001",
+  "tags": ["dairy", "organic", "chilled"],
+  "priceSpecifications": [
+    {
+      "id": "erp-price-20001",
+      "itemId": "erp-item-10001",
+      "type": "NORMAL",
+      "value": 24.90,
+      "currencyId": "SEK",
+      "taxableGroupId": "tax-food-12",
+      "validFrom": "2025-01-01T00:00:00Z",
+      "status": "ACTIVE",
+      "businessUnitGroupId": "bug-001"
+    }
+  ],
+  "itemIdentifiers": [
+    {
+      "id": "erp-ident-30001",
+      "itemId": "erp-item-10001",
+      "value": "7310001000002",
+      "type": "GTIN13",
+      "status": "ACTIVE",
+      "businessUnitGroupId": "bug-001"
+    }
+  ]
+}

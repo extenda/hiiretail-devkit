@@ -1,0 +1,29 @@
+{
+  "id": "erp-item-10005",
+  "name": "Sparkling Water Lemon 6-Pack",
+  "description": "Sparkling mineral water with natural lemon flavor. 6 x 500ml PET bottles.",
+  "type": "BUNDLE",
+  "status": "ACTIVE",
+  "salesUnitOfMeasurement": "EA",
+  "referencePriceUnitOfMeasurement": "LTR",
+  "referencePriceConversionFactor": 3.0,
+  "availableInPos": true,
+  "needsManualSending": false,
+  "needsApproval": false,
+  "needsLabelPrinting": false,
+  "assortmentPolicyType": "INCLUDED",
+  "businessUnitGroupId": "bug-001",
+  "brand": "Loka",
+  "netContent": 3.0,
+  "itemCategoryId": "cat-beverages-001",
+  "tags": [
+    "beverages",
+    "water",
+    "sparkling",
+    "multipack"
+  ],
+  "depositAndFeeRuleIds": [
+    "pant-pet-500ml",
+    "recycling-fee-plastic"
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "id": "erp-item-10003",
+  "name": "Banana (Loose)",
+  "description": "Loose bananas sold by weight. Origin: Costa Rica / Ecuador. Rainforest Alliance certified.",
+  "type": "STOCK_ITEM",
+  "status": "ACTIVE",
+  "salesUnitOfMeasurement": "KG",
+  "referencePriceUnitOfMeasurement": "KG",
+  "referencePriceConversionFactor": 1.0,
+  "availableInPos": true,
+  "needsManualSending": false,
+  "needsApproval": false,
+  "needsLabelPrinting": true,
+  "assortmentPolicyType": "INCLUDED",
+  "businessUnitGroupId": "bug-001",
+  "itemCategoryId": "cat-produce-001",
+  "tags": [
+    "produce",
+    "fruit",
+    "weighed",
+    "rainforest-alliance"
+  ]
+}

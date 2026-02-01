@@ -1,0 +1,212 @@
+openapi: 3.0.3
+info:
+  title: Hii Retail Complete Item Query API
+  description: |
+    Query for composed item views that aggregate Item, Price Specification,
+    and Item Identifier data into a single response. Used to verify that
+    submitted inputs produce the expected complete item view.
+  version: 1.0.0
+  contact:
+    name: Hii Retail
+    url: https://developer.hiiretail.com
+
+servers:
+  - url: /api/v1/complete-item-query
+    description: Complete Item Query API
+
+paths:
+  /api/v1/complete-items/{itemId}:
+    get:
+      operationId: getCompleteItem
+      summary: Get a complete item view
+      description: |
+        Returns a composed view of an item including its price specifications,
+        item identifiers, and related metadata. This endpoint aggregates data
+        from the Item, Price Specification, and Item Identifier domains.
+      tags: [Complete Items]
+      parameters:
+        - name: itemId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The item identifier
+        - name: businessUnitGroupId
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Filter by business unit group
+      responses:
+        '200':
+          description: The composed complete item view
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CompleteItem'
+              example:
+                id: "item-001"
+                name: "Organic Whole Milk 1L"
+                description: "Fresh organic whole milk, 1 litre"
+                type: STOCK_ITEM
+                status: ACTIVE
+                salesUnitOfMeasurement: EA
+                referencePriceUnitOfMeasurement: LTR
+                referencePriceConversionFactor: 1.0
+                availableInPos: true
+                brand: "EcoFarm"
+                netContent: 1.0
+                tags: ["dairy", "organic", "milk"]
+                businessUnitGroupId: "bug-001"
+                priceSpecifications:
+                  - id: "price-001"
+                    itemId: "item-001"
+                    type: NORMAL
+                    value: 2.49
+                    currencyId: "SEK"
+                    taxableGroupId: "tax-food-12"
+                    validFrom: "2025-01-01T00:00:00Z"
+                    status: ACTIVE
+                itemIdentifiers:
+                  - id: "ident-001"
+                    itemId: "item-001"
+                    value: "7310865085801"
+                    type: GTIN13
+                    status: ACTIVE
+        '404':
+          description: Item not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+
+components:
+  schemas:
+    CompleteItem:
+      type: object
+      properties:
+        id:
+          type: string
+        correlationId:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum: [STOCK_ITEM, SERVICE, BUNDLE, MODEL]
+        status:
+          type: string
+          enum: [ACTIVE, DELETED]
+        salesUnitOfMeasurement:
+          type: string
+        referencePriceUnitOfMeasurement:
+          type: string
+        referencePriceConversionFactor:
+          type: number
+        availableInPos:
+          type: boolean
+        needsManualSending:
+          type: boolean
+        needsApproval:
+          type: boolean
+        needsLabelPrinting:
+          type: boolean
+        assortmentPolicyType:
+          type: string
+        brand:
+          type: string
+        netContent:
+          type: number
+        tags:
+          type: array
+          items:
+            type: string
+        itemCategoryId:
+          type: string
+        businessUnitGroupId:
+          type: string
+        businessUnitIds:
+          type: array
+          items:
+            type: string
+        version:
+          type: integer
+        created:
+          type: string
+          format: date-time
+        modified:
+          type: string
+          format: date-time
+        priceSpecifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmbeddedPriceSpecification'
+        itemIdentifiers:
+          type: array
+          items:
+            $ref: '#/components/schemas/EmbeddedItemIdentifier'
+
+    EmbeddedPriceSpecification:
+      type: object
+      properties:
+        id:
+          type: string
+        itemId:
+          type: string
+        type:
+          type: string
+        value:
+          type: number
+        minPrice:
+          type: number
+        maxPrice:
+          type: number
+        currencyId:
+          type: string
+        taxableGroupId:
+          type: string
+        validFrom:
+          type: string
+          format: date-time
+        validTo:
+          type: string
+          format: date-time
+        status:
+          type: string
+        excludingTax:
+          type: boolean
+
+    EmbeddedItemIdentifier:
+      type: object
+      properties:
+        id:
+          type: string
+        itemId:
+          type: string
+        value:
+          type: string
+        type:
+          type: string
+        status:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+        message:
+          type: string
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []

@@ -1,0 +1,22 @@
+{
+  "name": "hiiretail-devkit",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "CLI toolkit for Hii Retail ERP integration development",
+  "bin": {
+    "devkit": "./bin/devkit.js"
+  },
+  "scripts": {
+    "devkit": "node bin/devkit.js",
+    "test": "node --test src/**/*.test.js"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "commander": "^12.1.0",
+    "js-yaml": "^4.1.0",
+    "chalk": "^5.3.0",
+    "deep-diff": "^1.0.2"
+  }
+}

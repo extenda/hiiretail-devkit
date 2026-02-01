@@ -1,0 +1,28 @@
+{
+  "id": "erp-item-10002",
+  "name": "Artisan Sourdough Bread 500g",
+  "description": "Hand-crafted sourdough bread baked with stone-ground wheat flour. 500g loaf.",
+  "type": "STOCK_ITEM",
+  "status": "ACTIVE",
+  "salesUnitOfMeasurement": "EA",
+  "referencePriceUnitOfMeasurement": "KG",
+  "referencePriceConversionFactor": 0.5,
+  "availableInPos": true,
+  "needsManualSending": false,
+  "needsApproval": false,
+  "needsLabelPrinting": false,
+  "assortmentPolicyType": "INCLUDED",
+  "businessUnitGroupId": "bug-001",
+  "brand": "Artisan Bakers",
+  "netContent": 0.5,
+  "itemCategoryId": "cat-bakery-001",
+  "tags": [
+    "bakery",
+    "bread",
+    "sourdough",
+    "fresh"
+  ],
+  "assortmentTags": [
+    "in-store-bakery"
+  ]
+}

@@ -1,0 +1,182 @@
+{
+  "item": {
+    "erp_sku": {
+      "hiiRetailField": "id",
+      "transform": "prefix with 'erp-item-' and lowercase",
+      "example": "ERP-10001 -> erp-item-10001",
+      "notes": "Used as the item ID. The prefix convention distinguishes ERP-sourced items from other sources."
+    },
+    "name": {
+      "hiiRetailField": "name",
+      "transform": "direct",
+      "example": "Organic Whole Milk 1L -> Organic Whole Milk 1L",
+      "notes": "Display name shown in POS and back-office systems."
+    },
+    "description": {
+      "hiiRetailField": "description",
+      "transform": "direct",
+      "example": "Fresh organic whole milk 1 litre -> Fresh organic whole milk 1 litre",
+      "notes": "Optional detailed description of the item."
+    },
+    "category": {
+      "hiiRetailField": "tags",
+      "transform": "lowercase and include in tags array",
+      "example": "Dairy -> [\"dairy\"]",
+      "notes": "ERP category is mapped to tags for searchability. Can also be mapped to itemCategoryId if category IDs are set up."
+    },
+    "brand": {
+      "hiiRetailField": "brand",
+      "transform": "direct",
+      "example": "EcoFarm -> EcoFarm",
+      "notes": "Product brand name."
+    },
+    "unit_of_sale": {
+      "hiiRetailField": "salesUnitOfMeasurement",
+      "transform": "direct (values already match the enum)",
+      "example": "EA -> EA",
+      "notes": "Must be one of: EA, KG, KRM, GRM, LTR, MLT, MTR, CMT, MMT, M2, M3."
+    },
+    "net_content": {
+      "hiiRetailField": "netContent",
+      "transform": "direct numeric",
+      "example": "1.0 -> 1.0",
+      "notes": "Product net content quantity."
+    },
+    "is_active": {
+      "hiiRetailField": "status",
+      "transform": "true -> ACTIVE, false -> DELETED",
+      "example": "true -> ACTIVE",
+      "notes": "Controls whether the item is active or soft-deleted."
+    },
+    "_derived": {
+      "type": {
+        "hiiRetailField": "type",
+        "transform": "Derived from ERP category: Services -> SERVICE, all others -> STOCK_ITEM",
+        "notes": "Item classification type. Most ERP products map to STOCK_ITEM."
+      },
+      "referencePriceUnitOfMeasurement": {
+        "hiiRetailField": "referencePriceUnitOfMeasurement",
+        "transform": "Derived from unit_of_sale: KG -> KG, LTR -> LTR, EA with liquid content -> LTR, otherwise -> EA",
+        "notes": "Unit for the comparison price label (e.g. price per litre)."
+      },
+      "referencePriceConversionFactor": {
+        "hiiRetailField": "referencePriceConversionFactor",
+        "transform": "Calculated from net_content and reference unit. For 1L milk sold EA with reference LTR: factor = 1.0",
+        "notes": "Conversion factor for calculating the reference (comparison) price."
+      },
+      "availableInPos": {
+        "hiiRetailField": "availableInPos",
+        "transform": "Default true for active items",
+        "notes": "Whether the item can be sold at POS terminals."
+      },
+      "assortmentPolicyType": {
+        "hiiRetailField": "assortmentPolicyType",
+        "transform": "Default INCLUDED for active items",
+        "notes": "Controls whether item is included in the store assortment."
+      },
+      "businessUnitGroupId": {
+        "hiiRetailField": "businessUnitGroupId",
+        "transform": "Set from integration configuration, not from ERP data",
+        "notes": "The tenant's business unit group. Configured per integration, not per product."
+      }
+    }
+  },
+  "priceSpecification": {
+    "erp_sku": {
+      "hiiRetailField": "itemId",
+      "transform": "Same transform as item.id: prefix with 'erp-item-' and lowercase",
+      "example": "ERP-10001 -> erp-item-10001",
+      "notes": "References the item this price belongs to. Must match the item ID."
+    },
+    "_derived_id": {
+      "hiiRetailField": "id",
+      "transform": "Derived as 'price-' + lowercase erp_sku suffix",
+      "example": "ERP-10001 -> price-10001",
+      "notes": "Unique price specification identifier."
+    },
+    "price": {
+      "hiiRetailField": "value",
+      "transform": "direct numeric",
+      "example": "24.90 -> 24.90",
+      "notes": "The price value. Includes tax by default (excludingTax: false)."
+    },
+    "currency": {
+      "hiiRetailField": "currencyId",
+      "transform": "direct (ISO 4217)",
+      "example": "SEK -> SEK",
+      "notes": "ISO 4217 currency code."
+    },
+    "tax_group": {
+      "hiiRetailField": "taxableGroupId",
+      "transform": "direct",
+      "example": "tax-food-12 -> tax-food-12",
+      "notes": "Tax group identifier. Must match a configured tax group in Hii Retail."
+    },
+    "valid_from": {
+      "hiiRetailField": "validFrom",
+      "transform": "Append T00:00:00Z to convert date to ISO 8601 datetime",
+      "example": "2025-01-01 -> 2025-01-01T00:00:00Z",
+      "notes": "Start of price validity. Time zone assumed UTC."
+    },
+    "_derived": {
+      "type": {
+        "hiiRetailField": "type",
+        "transform": "Default NORMAL for standard ERP prices",
+        "notes": "Price type. ERP base prices map to NORMAL. Campaign/promo prices map to CAMPAIGN."
+      },
+      "status": {
+        "hiiRetailField": "status",
+        "transform": "Default ACTIVE for valid prices",
+        "notes": "Price lifecycle status."
+      },
+      "excludingTax": {
+        "hiiRetailField": "excludingTax",
+        "transform": "Default false (ERP prices are assumed tax-inclusive)",
+        "notes": "Set to true if ERP exports prices without VAT."
+      },
+      "businessUnitGroupId": {
+        "hiiRetailField": "businessUnitGroupId",
+        "transform": "Set from integration configuration",
+        "notes": "Must match the item's business unit group."
+      }
+    }
+  },
+  "itemIdentifier": {
+    "erp_sku": {
+      "hiiRetailField": "itemId",
+      "transform": "Same transform as item.id: prefix with 'erp-item-' and lowercase",
+      "example": "ERP-10001 -> erp-item-10001",
+      "notes": "References the item this identifier belongs to. Must match the item ID."
+    },
+    "_derived_id": {
+      "hiiRetailField": "id",
+      "transform": "Derived as 'ident-' + lowercase erp_sku suffix",
+      "example": "ERP-10001 -> ident-10001",
+      "notes": "Unique identifier record ID."
+    },
+    "gtin": {
+      "hiiRetailField": "value",
+      "transform": "direct",
+      "example": "7310865085801 -> 7310865085801",
+      "notes": "The actual barcode or code value. GTIN types are validated for correct check digit."
+    },
+    "identifier_type": {
+      "hiiRetailField": "type",
+      "transform": "direct (values already match the enum)",
+      "example": "GTIN13 -> GTIN13",
+      "notes": "Must be one of: GTIN8, GTIN12, GTIN13, GTIN14, GTIN, PLU, SKU, QR, ECC200, etc."
+    },
+    "_derived": {
+      "status": {
+        "hiiRetailField": "status",
+        "transform": "Default ACTIVE for active items",
+        "notes": "Identifier lifecycle status."
+      },
+      "businessUnitGroupId": {
+        "hiiRetailField": "businessUnitGroupId",
+        "transform": "Set from integration configuration",
+        "notes": "Must match the item's business unit group."
+      }
+    }
+  }
+}

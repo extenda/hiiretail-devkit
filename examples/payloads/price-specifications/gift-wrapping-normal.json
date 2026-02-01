@@ -1,0 +1,11 @@
+{
+  "id": "erp-price-20004",
+  "itemId": "erp-item-10004",
+  "type": "NORMAL",
+  "value": 39.00,
+  "currencyId": "SEK",
+  "taxableGroupId": "tax-standard-25",
+  "validFrom": "2025-01-01T00:00:00Z",
+  "status": "ACTIVE",
+  "businessUnitGroupId": "bug-001"
+}

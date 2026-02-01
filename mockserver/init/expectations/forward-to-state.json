@@ -1,0 +1,189 @@
+[
+  {
+    "id": "forward-item-post-to-state",
+    "priority": 10,
+    "httpRequest": {
+      "method": "POST",
+      "path": "/api/v1/items"
+    },
+    "httpOverrideForwardedRequest": {
+      "requestOverride": {
+        "socketAddress": {
+          "host": "state-server",
+          "port": 3001,
+          "scheme": "HTTP"
+        }
+      }
+    }
+  },
+  {
+    "id": "forward-item-put-to-state",
+    "priority": 10,
+    "httpRequest": {
+      "method": "PUT",
+      "path": "/api/v1/items/.*"
+    },
+    "httpOverrideForwardedRequest": {
+      "requestOverride": {
+        "socketAddress": {
+          "host": "state-server",
+          "port": 3001,
+          "scheme": "HTTP"
+        }
+      }
+    }
+  },
+  {
+    "id": "forward-item-delete-to-state",
+    "priority": 10,
+    "httpRequest": {
+      "method": "DELETE",
+      "path": "/api/v1/items/.*"
+    },
+    "httpOverrideForwardedRequest": {
+      "requestOverride": {
+        "socketAddress": {
+          "host": "state-server",
+          "port": 3001,
+          "scheme": "HTTP"
+        }
+      }
+    }
+  },
+  {
+    "id": "forward-price-post-to-state",
+    "priority": 10,
+    "httpRequest": {
+      "method": "POST",
+      "path": "/api/v1/price-specifications"
+    },
+    "httpOverrideForwardedRequest": {
+      "requestOverride": {
+        "socketAddress": {
+          "host": "state-server",
+          "port": 3001,
+          "scheme": "HTTP"
+        }
+      }
+    }
+  },
+  {
+    "id": "forward-price-put-to-state",
+    "priority": 10,
+    "httpRequest": {
+      "method": "PUT",
+      "path": "/api/v1/price-specifications/.*"
+    },
+    "httpOverrideForwardedRequest": {
+      "requestOverride": {
+        "socketAddress": {
+          "host": "state-server",
+          "port": 3001,
+          "scheme": "HTTP"
+        }
+      }
+    }
+  },
+  {
+    "id": "forward-price-delete-to-state",
+    "priority": 10,
+    "httpRequest": {
+      "method": "DELETE",
+      "path": "/api/v1/price-specifications/.*"
+    },
+    "httpOverrideForwardedRequest": {
+      "requestOverride": {
+        "socketAddress": {
+          "host": "state-server",
+          "port": 3001,
+          "scheme": "HTTP"
+        }
+      }
+    }
+  },
+  {
+    "id": "forward-identifier-post-to-state",
+    "priority": 10,
+    "httpRequest": {
+      "method": "POST",
+      "path": "/api/v1/item-identifiers"
+    },
+    "httpOverrideForwardedRequest": {
+      "requestOverride": {
+        "socketAddress": {
+          "host": "state-server",
+          "port": 3001,
+          "scheme": "HTTP"
+        }
+      }
+    }
+  },
+  {
+    "id": "forward-identifier-put-to-state",
+    "priority": 10,
+    "httpRequest": {
+      "method": "PUT",
+      "path": "/api/v1/item-identifiers/.*"
+    },
+    "httpOverrideForwardedRequest": {
+      "requestOverride": {
+        "socketAddress": {
+          "host": "state-server",
+          "port": 3001,
+          "scheme": "HTTP"
+        }
+      }
+    }
+  },
+  {
+    "id": "forward-identifier-delete-to-state",
+    "priority": 10,
+    "httpRequest": {
+      "method": "DELETE",
+      "path": "/api/v1/item-identifiers/.*"
+    },
+    "httpOverrideForwardedRequest": {
+      "requestOverride": {
+        "socketAddress": {
+          "host": "state-server",
+          "port": 3001,
+          "scheme": "HTTP"
+        }
+      }
+    }
+  },
+  {
+    "id": "forward-complete-item-to-state",
+    "priority": 10,
+    "httpRequest": {
+      "method": "GET",
+      "path": "/api/v1/complete-items/.*"
+    },
+    "httpOverrideForwardedRequest": {
+      "requestOverride": {
+        "socketAddress": {
+          "host": "state-server",
+          "port": 3001,
+          "scheme": "HTTP"
+        }
+      }
+    }
+  },
+  {
+    "id": "forward-reset-to-state",
+    "priority": 10,
+    "httpRequest": {
+      "method": "POST",
+      "path": "/api/v1/_reset"
+    },
+    "httpOverrideForwardedRequest": {
+      "requestOverride": {
+        "socketAddress": {
+          "host": "state-server",
+          "port": 3001,
+          "scheme": "HTTP"
+        }
+      }
+    }
+  }
+]

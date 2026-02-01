@@ -1,0 +1,20 @@
+[
+  {
+    "id": "health-check",
+    "priority": 100,
+    "httpRequest": {
+      "method": "GET",
+      "path": "/health"
+    },
+    "httpResponse": {
+      "statusCode": 200,
+      "headers": {
+        "Content-Type": ["application/json"]
+      },
+      "body": {
+        "type": "JSON",
+        "json": "{\"status\":\"ok\",\"service\":\"hiiretail-devkit-mockserver\"}"
+      }
+    }
+  }
+]
