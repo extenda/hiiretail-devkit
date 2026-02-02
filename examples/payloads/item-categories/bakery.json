@@ -1,0 +1,13 @@
+{
+  "id": "cat-bakery-001",
+  "name": "Bakery",
+  "status": "ACTIVE",
+  "businessUnitGroupId": "bug-001",
+  "description": "Bread, pastries, and baked goods",
+  "type": "USER_DEFINED",
+  "sortOrder": 200,
+  "tags": [
+    "bakery",
+    "bread"
+  ]
+}

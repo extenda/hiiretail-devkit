@@ -153,6 +153,159 @@
     }
   },
   {
+    "id": "forward-bug-post-to-state",
+    "priority": 10,
+    "httpRequest": {
+      "method": "POST",
+      "path": "/api/v1/business-unit-groups"
+    },
+    "httpOverrideForwardedRequest": {
+      "requestOverride": {
+        "socketAddress": {
+          "host": "state-server",
+          "port": 3001,
+          "scheme": "HTTP"
+        }
+      }
+    }
+  },
+  {
+    "id": "forward-bug-put-to-state",
+    "priority": 10,
+    "httpRequest": {
+      "method": "PUT",
+      "path": "/api/v1/business-unit-groups/.*"
+    },
+    "httpOverrideForwardedRequest": {
+      "requestOverride": {
+        "socketAddress": {
+          "host": "state-server",
+          "port": 3001,
+          "scheme": "HTTP"
+        }
+      }
+    }
+  },
+  {
+    "id": "forward-bug-delete-to-state",
+    "priority": 10,
+    "httpRequest": {
+      "method": "DELETE",
+      "path": "/api/v1/business-unit-groups/.*"
+    },
+    "httpOverrideForwardedRequest": {
+      "requestOverride": {
+        "socketAddress": {
+          "host": "state-server",
+          "port": 3001,
+          "scheme": "HTTP"
+        }
+      }
+    }
+  },
+  {
+    "id": "forward-bu-post-to-state",
+    "priority": 10,
+    "httpRequest": {
+      "method": "POST",
+      "path": "/api/v1/business-units"
+    },
+    "httpOverrideForwardedRequest": {
+      "requestOverride": {
+        "socketAddress": {
+          "host": "state-server",
+          "port": 3001,
+          "scheme": "HTTP"
+        }
+      }
+    }
+  },
+  {
+    "id": "forward-bu-put-to-state",
+    "priority": 10,
+    "httpRequest": {
+      "method": "PUT",
+      "path": "/api/v1/business-units/.*"
+    },
+    "httpOverrideForwardedRequest": {
+      "requestOverride": {
+        "socketAddress": {
+          "host": "state-server",
+          "port": 3001,
+          "scheme": "HTTP"
+        }
+      }
+    }
+  },
+  {
+    "id": "forward-bu-delete-to-state",
+    "priority": 10,
+    "httpRequest": {
+      "method": "DELETE",
+      "path": "/api/v1/business-units/.*"
+    },
+    "httpOverrideForwardedRequest": {
+      "requestOverride": {
+        "socketAddress": {
+          "host": "state-server",
+          "port": 3001,
+          "scheme": "HTTP"
+        }
+      }
+    }
+  },
+  {
+    "id": "forward-category-post-to-state",
+    "priority": 10,
+    "httpRequest": {
+      "method": "POST",
+      "path": "/api/v1/item-categories"
+    },
+    "httpOverrideForwardedRequest": {
+      "requestOverride": {
+        "socketAddress": {
+          "host": "state-server",
+          "port": 3001,
+          "scheme": "HTTP"
+        }
+      }
+    }
+  },
+  {
+    "id": "forward-category-put-to-state",
+    "priority": 10,
+    "httpRequest": {
+      "method": "PUT",
+      "path": "/api/v1/item-categories/.*"
+    },
+    "httpOverrideForwardedRequest": {
+      "requestOverride": {
+        "socketAddress": {
+          "host": "state-server",
+          "port": 3001,
+          "scheme": "HTTP"
+        }
+      }
+    }
+  },
+  {
+    "id": "forward-category-delete-to-state",
+    "priority": 10,
+    "httpRequest": {
+      "method": "DELETE",
+      "path": "/api/v1/item-categories/.*"
+    },
+    "httpOverrideForwardedRequest": {
+      "requestOverride": {
+        "socketAddress": {
+          "host": "state-server",
+          "port": 3001,
+          "scheme": "HTTP"
+        }
+      }
+    }
+  },
+  {
     "id": "forward-complete-item-to-state",
     "priority": 10,
     "httpRequest": {

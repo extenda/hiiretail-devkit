@@ -1,0 +1,13 @@
+{
+  "id": "cat-beverages-001",
+  "name": "Beverages",
+  "status": "ACTIVE",
+  "businessUnitGroupId": "bug-001",
+  "description": "Non-alcoholic drinks including water, juice, and soft drinks",
+  "type": "USER_DEFINED",
+  "sortOrder": 300,
+  "tags": [
+    "beverages",
+    "drinks"
+  ]
+}

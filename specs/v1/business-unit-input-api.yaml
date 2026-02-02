@@ -1,0 +1,232 @@
+openapi: 3.0.3
+info:
+  title: Hii Retail Business Unit Input API
+  description: |
+    Create, update and delete Business Unit data in Hii Retail services.
+    A business unit represents a physical or virtual location such as
+    a store, warehouse, or webshop within the retail organization.
+  version: 1.0.0
+  contact:
+    name: Hii Retail
+    url: https://developer.hiiretail.com
+
+servers:
+  - url: /api/v1/business-unit-input
+    description: Business Unit Input API
+
+paths:
+  /api/v1/business-units:
+    post:
+      operationId: createBusinessUnit
+      summary: Create a new business unit
+      description: |
+        Creates a new business unit in Hii Retail. Returns 202 Accepted on success.
+        Timestamps (created, modified) are set server-side.
+      tags: [Business Units]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BusinessUnitInput'
+            example:
+              id: "bu-stockholm-001"
+              name: "Stockholm City Store"
+              type: STORE
+              status: ACTIVE
+              businessUnitGroupId: "bug-001"
+              description: "Flagship store in Stockholm city center"
+              address:
+                street: "Drottninggatan 50"
+                city: "Stockholm"
+                postalCode: "111 21"
+                country: "SE"
+              tags: ["stockholm", "flagship", "city-center"]
+      responses:
+        '202':
+          description: Accepted — business unit submitted for processing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcceptedResponse'
+        '400':
+          description: Bad Request — validation failed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+        '403':
+          description: Forbidden
+
+  /api/v1/business-units/{businessUnitId}:
+    put:
+      operationId: updateBusinessUnit
+      summary: Update an existing business unit
+      tags: [Business Units]
+      parameters:
+        - $ref: '#/components/parameters/businessUnitId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BusinessUnitInput'
+      responses:
+        '202':
+          description: Accepted — update submitted for processing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AcceptedResponse'
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+        '404':
+          description: Business unit not found
+    delete:
+      operationId: deleteBusinessUnit
+      summary: Soft-delete a business unit
+      description: Sets the business unit status to DELETED.
+      tags: [Business Units]
+      parameters:
+        - $ref: '#/components/parameters/businessUnitId'
+      responses:
+        '202':
+          description: Accepted — deletion submitted for processing
+        '401':
+          description: Unauthorized
+        '404':
+          description: Business unit not found
+
+components:
+  parameters:
+    businessUnitId:
+      name: businessUnitId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: The business unit identifier
+
+  schemas:
+    BusinessUnitInput:
+      type: object
+      required:
+        - id
+        - name
+        - type
+        - status
+        - businessUnitGroupId
+      properties:
+        id:
+          type: string
+          description: External business unit identifier
+          example: "bu-stockholm-001"
+        correlationId:
+          type: string
+          description: ID for tracing an entity through the application
+        name:
+          type: string
+          description: Display name of the business unit
+          example: "Stockholm City Store"
+        type:
+          type: string
+          enum: [STORE, WAREHOUSE, WEBSHOP, DISTRIBUTION_CENTER, HEADQUARTERS]
+          description: |
+            Business unit type:
+            - STORE: Physical retail store
+            - WAREHOUSE: Storage/distribution warehouse
+            - WEBSHOP: Online store
+            - DISTRIBUTION_CENTER: Distribution hub
+            - HEADQUARTERS: Corporate headquarters
+          example: STORE
+        status:
+          type: string
+          enum: [ACTIVE, DELETED]
+          description: Entity lifecycle status
+          example: ACTIVE
+        businessUnitGroupId:
+          type: string
+          description: Business unit group this unit belongs to
+          example: "bug-001"
+        description:
+          type: string
+          description: Detailed description of the business unit
+          example: "Flagship store in Stockholm city center"
+        address:
+          $ref: '#/components/schemas/Address'
+        tags:
+          type: array
+          items:
+            type: string
+          description: Searchable classification tags
+          example: ["stockholm", "flagship", "city-center"]
+        version:
+          type: integer
+          description: Ever-increasing version integer (set server-side on update)
+
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+          description: Street address
+          example: "Drottninggatan 50"
+        city:
+          type: string
+          description: City name
+          example: "Stockholm"
+        postalCode:
+          type: string
+          description: Postal/ZIP code
+          example: "111 21"
+        country:
+          type: string
+          description: ISO 3166-1 alpha-2 country code
+          example: "SE"
+
+    AcceptedResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Request accepted for processing"
+        id:
+          type: string
+          description: The entity ID
+
+    ErrorResponse:
+      type: object
+      properties:
+        status:
+          type: integer
+          example: 400
+        message:
+          type: string
+          example: "Validation failed"
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: OAuth2 JWT token from Hii Retail IAM
+
+security:
+  - bearerAuth: []

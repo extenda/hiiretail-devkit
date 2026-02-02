@@ -1,0 +1,13 @@
+{
+  "id": "bug-003",
+  "name": "Sweden Tax Group",
+  "type": "TAX",
+  "status": "ACTIVE",
+  "description": "Tax configuration group for Swedish VAT rules",
+  "parentBusinessUnitGroupId": "bug-001",
+  "tags": [
+    "sweden",
+    "tax",
+    "vat"
+  ]
+}

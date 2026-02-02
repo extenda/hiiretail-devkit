@@ -1,0 +1,13 @@
+{
+  "id": "cat-dairy-001",
+  "name": "Dairy Products",
+  "status": "ACTIVE",
+  "businessUnitGroupId": "bug-001",
+  "description": "Milk, cheese, yoghurt and other dairy products",
+  "type": "USER_DEFINED",
+  "sortOrder": 100,
+  "tags": [
+    "dairy",
+    "chilled"
+  ]
+}

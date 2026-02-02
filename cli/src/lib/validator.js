@@ -12,6 +12,9 @@ const API_SPEC_MAP = {
   item: { file: 'item-input-api.yaml', schema: 'ItemInput' },
   price: { file: 'price-specification-input-api.yaml', schema: 'PriceSpecificationInput' },
   identifier: { file: 'item-identifier-input-api.yaml', schema: 'ItemIdentifierInput' },
+  bug: { file: 'business-unit-group-input-api.yaml', schema: 'BusinessUnitGroupInput' },
+  bu: { file: 'business-unit-input-api.yaml', schema: 'BusinessUnitInput' },
+  category: { file: 'item-category-input-api.yaml', schema: 'ItemCategoryInput' },
 };
 
 /**

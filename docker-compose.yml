@@ -39,7 +39,10 @@ services:
           {"url": "/specs/v1/item-input-api.yaml", "name": "Item Input API"},
           {"url": "/specs/v1/price-specification-input-api.yaml", "name": "Price Specification Input API"},
           {"url": "/specs/v1/item-identifier-input-api.yaml", "name": "Item Identifier Input API"},
-          {"url": "/specs/v1/complete-item-query-api.yaml", "name": "Complete Item Query API"}
+          {"url": "/specs/v1/complete-item-query-api.yaml", "name": "Complete Item Query API"},
+          {"url": "/specs/v1/business-unit-group-input-api.yaml", "name": "Business Unit Group Input API"},
+          {"url": "/specs/v1/business-unit-input-api.yaml", "name": "Business Unit Input API"},
+          {"url": "/specs/v1/item-category-input-api.yaml", "name": "Item Category Input API"}
         ]
     volumes:
       - ./specs:/usr/share/nginx/html/specs:ro

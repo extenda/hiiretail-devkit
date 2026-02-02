@@ -1,0 +1,18 @@
+{
+  "id": "bu-gothenburg-001",
+  "name": "Gothenburg Nordstan Store",
+  "type": "STORE",
+  "status": "ACTIVE",
+  "businessUnitGroupId": "bug-001",
+  "description": "Store located in Nordstan shopping center, Gothenburg",
+  "address": {
+    "street": "Nordstadstorget 6",
+    "city": "Gothenburg",
+    "postalCode": "411 05",
+    "country": "SE"
+  },
+  "tags": [
+    "gothenburg",
+    "shopping-center"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "id": "bug-002",
+  "name": "Nordic Region Pricing",
+  "type": "PRICING",
+  "status": "ACTIVE",
+  "description": "Pricing group covering all Nordic countries",
+  "parentBusinessUnitGroupId": "bug-001",
+  "tags": [
+    "nordic",
+    "pricing",
+    "region"
+  ]
+}

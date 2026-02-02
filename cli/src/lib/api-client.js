@@ -2,6 +2,9 @@ const API_PATH_MAP = {
   item: '/api/v1/items',
   price: '/api/v1/price-specifications',
   identifier: '/api/v1/item-identifiers',
+  bug: '/api/v1/business-unit-groups',
+  bu: '/api/v1/business-units',
+  category: '/api/v1/item-categories',
 };
 
 const COMPLETE_ITEM_PATH = '/api/v1/complete-items';

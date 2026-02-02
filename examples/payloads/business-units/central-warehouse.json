@@ -1,0 +1,19 @@
+{
+  "id": "bu-warehouse-001",
+  "name": "Central Distribution Warehouse",
+  "type": "WAREHOUSE",
+  "status": "ACTIVE",
+  "businessUnitGroupId": "bug-001",
+  "description": "Main distribution warehouse serving all Swedish stores",
+  "address": {
+    "street": "Logistikvägen 12",
+    "city": "Jönköping",
+    "postalCode": "553 02",
+    "country": "SE"
+  },
+  "tags": [
+    "warehouse",
+    "distribution",
+    "central"
+  ]
+}
