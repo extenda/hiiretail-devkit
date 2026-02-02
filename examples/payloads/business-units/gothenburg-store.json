@@ -1,18 +1,18 @@
 {
-  "id": "bu-gothenburg-001",
-  "name": "Gothenburg Nordstan Store",
+  "id": "bu-northgate-001",
+  "name": "Northgate Mall Store",
   "type": "STORE",
   "status": "ACTIVE",
   "businessUnitGroupId": "bug-001",
-  "description": "Store located in Nordstan shopping center, Gothenburg",
+  "description": "Store located in Northgate Mall shopping center",
   "address": {
-    "street": "Nordstadstorget 6",
-    "city": "Gothenburg",
-    "postalCode": "411 05",
-    "country": "SE"
+    "street": "55 Northgate Boulevard",
+    "city": "Oakdale",
+    "postalCode": "30301",
+    "country": "US"
   },
   "tags": [
-    "gothenburg",
+    "mall",
     "shopping-center"
   ]
 }

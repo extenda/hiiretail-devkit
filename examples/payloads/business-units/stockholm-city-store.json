@@ -1,19 +1,19 @@
 {
-  "id": "bu-stockholm-001",
-  "name": "Stockholm City Store",
+  "id": "bu-downtown-001",
+  "name": "Downtown Flagship Store",
   "type": "STORE",
   "status": "ACTIVE",
   "businessUnitGroupId": "bug-001",
-  "description": "Flagship store in Stockholm city center",
+  "description": "Flagship store in the downtown shopping district",
   "address": {
-    "street": "Drottninggatan 50",
-    "city": "Stockholm",
-    "postalCode": "111 21",
-    "country": "SE"
+    "street": "100 Main Street",
+    "city": "Millbrook",
+    "postalCode": "10002",
+    "country": "US"
   },
   "tags": [
-    "stockholm",
     "flagship",
+    "downtown",
     "city-center"
   ]
 }

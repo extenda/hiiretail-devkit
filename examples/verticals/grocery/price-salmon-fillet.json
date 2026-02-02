@@ -1,0 +1,11 @@
+{
+  "id": "grocery-price-salmon",
+  "itemId": "grocery-item-salmon",
+  "type": "NORMAL",
+  "value": 89.90,
+  "currencyId": "SEK",
+  "taxableGroupId": "tax-food-12",
+  "validFrom": "2025-01-01T00:00:00Z",
+  "status": "ACTIVE",
+  "businessUnitGroupId": "grocery-bug-001"
+}

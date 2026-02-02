@@ -1,0 +1,14 @@
+{
+  "id": "grocery-cat-fresh-001",
+  "name": "Fresh & Chilled",
+  "status": "ACTIVE",
+  "businessUnitGroupId": "grocery-bug-001",
+  "description": "Fresh produce, dairy, deli, and chilled ready meals",
+  "type": "USER_DEFINED",
+  "sortOrder": 100,
+  "tags": [
+    "fresh",
+    "chilled",
+    "perishable"
+  ]
+}

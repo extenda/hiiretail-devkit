@@ -1,0 +1,19 @@
+{
+  "id": "fashion-bu-001",
+  "name": "Threadline Flagship — High Street",
+  "type": "STORE",
+  "status": "ACTIVE",
+  "businessUnitGroupId": "fashion-bug-001",
+  "description": "Fashion flagship store on the high street",
+  "address": {
+    "street": "45 High Street",
+    "city": "Kensington",
+    "postalCode": "W8 4PT",
+    "country": "GB"
+  },
+  "tags": [
+    "fashion",
+    "flagship",
+    "high-street"
+  ]
+}

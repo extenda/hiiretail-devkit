@@ -1,0 +1,14 @@
+{
+  "id": "diy-cat-power-tools-001",
+  "name": "Power Tools",
+  "status": "ACTIVE",
+  "businessUnitGroupId": "diy-bug-001",
+  "description": "Cordless and corded power tools for drilling, cutting, and sanding",
+  "type": "USER_DEFINED",
+  "sortOrder": 100,
+  "tags": [
+    "tools",
+    "power-tools",
+    "electrical"
+  ]
+}

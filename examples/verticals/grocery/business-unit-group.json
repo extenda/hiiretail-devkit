@@ -1,0 +1,12 @@
+{
+  "id": "grocery-bug-001",
+  "name": "GreenLeaf Grocery Group",
+  "type": "ASSORTMENT",
+  "status": "ACTIVE",
+  "description": "Product assortment group for grocery retail stores",
+  "tags": [
+    "grocery",
+    "assortment",
+    "retail"
+  ]
+}

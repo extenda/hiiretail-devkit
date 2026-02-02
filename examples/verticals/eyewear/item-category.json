@@ -1,0 +1,14 @@
+{
+  "id": "eyewear-cat-frames-001",
+  "name": "Prescription Frames",
+  "status": "ACTIVE",
+  "businessUnitGroupId": "eyewear-bug-001",
+  "description": "Optical frames for prescription lenses including full-rim, semi-rimless, and rimless styles",
+  "type": "USER_DEFINED",
+  "sortOrder": 100,
+  "tags": [
+    "frames",
+    "prescription",
+    "optical"
+  ]
+}

@@ -1,0 +1,19 @@
+{
+  "id": "diy-bu-001",
+  "name": "Hammerstone Retail Park",
+  "type": "STORE",
+  "status": "ACTIVE",
+  "businessUnitGroupId": "diy-bug-001",
+  "description": "DIY warehouse store in the south retail park",
+  "address": {
+    "street": "800 Commerce Drive",
+    "city": "Lakewood",
+    "postalCode": "80401",
+    "country": "US"
+  },
+  "tags": [
+    "diy",
+    "warehouse-store",
+    "retail-park"
+  ]
+}

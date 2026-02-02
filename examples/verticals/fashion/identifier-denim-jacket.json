@@ -1,0 +1,8 @@
+{
+  "id": "fashion-ident-denim-jacket",
+  "itemId": "fashion-item-denim-jacket",
+  "value": "7332627052010",
+  "type": "GTIN13",
+  "status": "ACTIVE",
+  "businessUnitGroupId": "fashion-bug-001"
+}

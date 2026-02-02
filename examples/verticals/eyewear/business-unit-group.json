@@ -1,0 +1,12 @@
+{
+  "id": "eyewear-bug-001",
+  "name": "BrightSight Eyewear Group",
+  "type": "ASSORTMENT",
+  "status": "ACTIVE",
+  "description": "Product assortment group for optical retail stores",
+  "tags": [
+    "eyewear",
+    "optical",
+    "assortment"
+  ]
+}

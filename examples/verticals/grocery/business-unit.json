@@ -1,0 +1,19 @@
+{
+  "id": "grocery-bu-001",
+  "name": "FreshMart Downtown",
+  "type": "STORE",
+  "status": "ACTIVE",
+  "businessUnitGroupId": "grocery-bug-001",
+  "description": "Full-range grocery supermarket in the downtown shopping district",
+  "address": {
+    "street": "120 Market Street",
+    "city": "Riverside",
+    "postalCode": "10001",
+    "country": "US"
+  },
+  "tags": [
+    "grocery",
+    "supermarket",
+    "downtown"
+  ]
+}

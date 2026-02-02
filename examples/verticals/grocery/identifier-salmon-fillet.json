@@ -1,0 +1,8 @@
+{
+  "id": "grocery-ident-salmon",
+  "itemId": "grocery-item-salmon",
+  "value": "2000100001009",
+  "type": "GTIN13",
+  "status": "ACTIVE",
+  "businessUnitGroupId": "grocery-bug-001"
+}

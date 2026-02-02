@@ -1,11 +1,11 @@
 {
   "id": "bug-001",
-  "name": "Sweden Stores Assortment",
+  "name": "Demo Retail Group",
   "type": "ASSORTMENT",
   "status": "ACTIVE",
-  "description": "Assortment group for all Swedish retail stores",
+  "description": "Assortment group for all retail stores",
   "tags": [
-    "sweden",
+    "demo",
     "assortment",
     "retail"
   ]

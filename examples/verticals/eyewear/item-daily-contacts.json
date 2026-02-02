@@ -1,0 +1,28 @@
+{
+  "id": "eyewear-item-dailies",
+  "name": "ClearVue DayFresh — 30 pack",
+  "description": "ClearVue DayFresh daily disposable contact lenses. Water gradient technology for all-day comfort. Box of 30 lenses.",
+  "type": "STOCK_ITEM",
+  "status": "ACTIVE",
+  "salesUnitOfMeasurement": "EA",
+  "referencePriceUnitOfMeasurement": "EA",
+  "referencePriceConversionFactor": 1.0,
+  "availableInPos": true,
+  "needsManualSending": false,
+  "needsApproval": false,
+  "needsLabelPrinting": false,
+  "assortmentPolicyType": "INCLUDED",
+  "businessUnitGroupId": "eyewear-bug-001",
+  "brand": "ClearVue",
+  "itemCategoryId": "eyewear-cat-frames-001",
+  "tags": [
+    "contact-lenses",
+    "daily",
+    "disposable"
+  ],
+  "additionalProperties": [
+    { "key": "pack_quantity", "value": "30" },
+    { "key": "lens_type", "value": "Daily Disposable" },
+    { "key": "material", "value": "Delefilcon A" }
+  ]
+}

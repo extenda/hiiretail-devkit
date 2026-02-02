@@ -1,0 +1,11 @@
+{
+  "id": "diy-price-cordless-drill",
+  "itemId": "diy-item-cordless-drill",
+  "type": "NORMAL",
+  "value": 1495.00,
+  "currencyId": "SEK",
+  "taxableGroupId": "tax-standard-25",
+  "validFrom": "2025-01-01T00:00:00Z",
+  "status": "ACTIVE",
+  "businessUnitGroupId": "diy-bug-001"
+}

@@ -1,0 +1,11 @@
+{
+  "id": "eyewear-price-wayfarer",
+  "itemId": "eyewear-item-wayfarer",
+  "type": "NORMAL",
+  "value": 1890.00,
+  "currencyId": "SEK",
+  "taxableGroupId": "tax-standard-25",
+  "validFrom": "2025-01-01T00:00:00Z",
+  "status": "ACTIVE",
+  "businessUnitGroupId": "eyewear-bug-001"
+}

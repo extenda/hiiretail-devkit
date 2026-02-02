@@ -1,0 +1,19 @@
+{
+  "id": "eyewear-bu-001",
+  "name": "BrightSight Gallery Mall",
+  "type": "STORE",
+  "status": "ACTIVE",
+  "businessUnitGroupId": "eyewear-bug-001",
+  "description": "Optical retail store in the Gallery Mall shopping center",
+  "address": {
+    "street": "22 Gallery Lane",
+    "city": "Mayfair",
+    "postalCode": "W1K 3AB",
+    "country": "GB"
+  },
+  "tags": [
+    "eyewear",
+    "optical",
+    "shopping-center"
+  ]
+}

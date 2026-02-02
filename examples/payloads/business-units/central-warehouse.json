@@ -4,12 +4,12 @@
   "type": "WAREHOUSE",
   "status": "ACTIVE",
   "businessUnitGroupId": "bug-001",
-  "description": "Main distribution warehouse serving all Swedish stores",
+  "description": "Main distribution warehouse serving all stores",
   "address": {
-    "street": "Logistikvägen 12",
-    "city": "Jönköping",
-    "postalCode": "553 02",
-    "country": "SE"
+    "street": "1200 Logistics Parkway",
+    "city": "Centerville",
+    "postalCode": "45459",
+    "country": "US"
   },
   "tags": [
     "warehouse",

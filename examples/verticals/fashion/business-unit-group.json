@@ -1,0 +1,12 @@
+{
+  "id": "fashion-bug-001",
+  "name": "Threadline Fashion Group",
+  "type": "ASSORTMENT",
+  "status": "ACTIVE",
+  "description": "Product assortment group for fashion retail stores",
+  "tags": [
+    "fashion",
+    "assortment",
+    "apparel"
+  ]
+}

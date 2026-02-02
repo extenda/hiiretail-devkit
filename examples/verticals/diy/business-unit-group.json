@@ -1,0 +1,12 @@
+{
+  "id": "diy-bug-001",
+  "name": "Hammerstone DIY Group",
+  "type": "ASSORTMENT",
+  "status": "ACTIVE",
+  "description": "Product assortment group for home improvement stores",
+  "tags": [
+    "diy",
+    "home-improvement",
+    "assortment"
+  ]
+}

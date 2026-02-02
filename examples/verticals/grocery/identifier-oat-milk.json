@@ -1,0 +1,8 @@
+{
+  "id": "grocery-ident-oat-milk",
+  "itemId": "grocery-item-oat-milk",
+  "value": "7394376616013",
+  "type": "GTIN13",
+  "status": "ACTIVE",
+  "businessUnitGroupId": "grocery-bug-001"
+}

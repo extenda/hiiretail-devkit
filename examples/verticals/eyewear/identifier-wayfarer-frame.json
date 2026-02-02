@@ -1,0 +1,8 @@
+{
+  "id": "eyewear-ident-wayfarer",
+  "itemId": "eyewear-item-wayfarer",
+  "value": "8056597140010",
+  "type": "GTIN13",
+  "status": "ACTIVE",
+  "businessUnitGroupId": "eyewear-bug-001"
+}

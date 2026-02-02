@@ -1,0 +1,25 @@
+{
+  "id": "grocery-item-oat-milk",
+  "name": "GreenField Oat Drink Barista Edition 1L",
+  "description": "Oat-based drink designed for frothing and coffee. 1 litre carton.",
+  "type": "STOCK_ITEM",
+  "status": "ACTIVE",
+  "salesUnitOfMeasurement": "EA",
+  "referencePriceUnitOfMeasurement": "LTR",
+  "referencePriceConversionFactor": 1.0,
+  "availableInPos": true,
+  "needsManualSending": false,
+  "needsApproval": false,
+  "needsLabelPrinting": false,
+  "assortmentPolicyType": "INCLUDED",
+  "businessUnitGroupId": "grocery-bug-001",
+  "brand": "GreenField",
+  "netContent": 1.0,
+  "itemCategoryId": "grocery-cat-fresh-001",
+  "tags": [
+    "dairy-alternative",
+    "oat",
+    "chilled",
+    "plant-based"
+  ]
+}

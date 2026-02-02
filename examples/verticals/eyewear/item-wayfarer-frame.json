@@ -1,0 +1,30 @@
+{
+  "id": "eyewear-item-wayfarer",
+  "name": "Ridgeline Explorer RE-200 — Black 50mm",
+  "description": "Classic wayfarer-style frame in black acetate. 50mm lens width, 22mm bridge, 150mm temple. Suitable for prescription or plano lenses.",
+  "type": "STOCK_ITEM",
+  "status": "ACTIVE",
+  "salesUnitOfMeasurement": "EA",
+  "referencePriceUnitOfMeasurement": "EA",
+  "referencePriceConversionFactor": 1.0,
+  "availableInPos": true,
+  "needsManualSending": false,
+  "needsApproval": false,
+  "needsLabelPrinting": false,
+  "assortmentPolicyType": "INCLUDED",
+  "businessUnitGroupId": "eyewear-bug-001",
+  "brand": "Ridgeline",
+  "itemCategoryId": "eyewear-cat-frames-001",
+  "tags": [
+    "frames",
+    "full-rim",
+    "acetate",
+    "unisex"
+  ],
+  "additionalProperties": [
+    { "key": "frame_material", "value": "Acetate" },
+    { "key": "lens_width_mm", "value": "50" },
+    { "key": "bridge_mm", "value": "22" },
+    { "key": "temple_mm", "value": "150" }
+  ]
+}

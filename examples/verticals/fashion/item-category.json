@@ -1,0 +1,14 @@
+{
+  "id": "fashion-cat-outerwear-001",
+  "name": "Outerwear",
+  "status": "ACTIVE",
+  "businessUnitGroupId": "fashion-bug-001",
+  "description": "Jackets, coats, blazers, and outer layers",
+  "type": "USER_DEFINED",
+  "sortOrder": 100,
+  "tags": [
+    "outerwear",
+    "jackets",
+    "coats"
+  ]
+}
