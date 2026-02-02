@@ -8,12 +8,15 @@ production.
 
 ## Supported APIs
 
-| API | Description |
-|-----|-------------|
-| **Item Input** | Create, update, delete items (products) |
-| **Price Specification Input** | Set prices, campaigns, validity periods |
-| **Item Identifier Input** | Assign GTINs, PLUs, SKUs, QR codes to items |
-| **Complete Item Query** | Read a composed view (item + prices + identifiers) |
+| API | CLI `--api` key | Description |
+|-----|-----------------|-------------|
+| **Item Input** | `item` | Create, update, delete items (products) |
+| **Price Specification Input** | `price` | Set prices, campaigns, validity periods |
+| **Item Identifier Input** | `identifier` | Assign GTINs, PLUs, SKUs, QR codes to items |
+| **Business Unit Group Input** | `bug` | Define organizational groups (assortment, pricing, tax) |
+| **Business Unit Input** | `bu` | Define stores, warehouses, webshops |
+| **Item Category Input** | `category` | Define product category hierarchies |
+| **Complete Item Query** | — | Read a composed view (item + prices + identifiers) |
 
 ## Prerequisites
 
@@ -87,9 +90,10 @@ npm run devkit --prefix cli -- verify --item-id erp-item-10001 --target mock --e
    forwarding rules proxy mutations to the state server.
 
 2. **State Server** (port 3001) is a lightweight Express service that stores
-   items, prices, and identifiers in memory. It exposes a
-   `/api/v1/complete-items/:id` endpoint that returns a composed view — the
-   same shape you'd get from Hii Retail's Complete Item Query API.
+   items, prices, identifiers, business unit groups, business units, and item
+   categories in memory. It exposes a `/api/v1/complete-items/:id` endpoint
+   that returns a composed view — the same shape you'd get from Hii Retail's
+   Complete Item Query API.
 
 3. **Swagger UI** (port 8080) serves the bundled OpenAPI specs for interactive
    exploration.
@@ -125,14 +129,17 @@ devkit mock status          # show container status
 devkit mock reset           # clear all in-memory state (keeps containers)
 ```
 
-### `devkit validate <payload.json> --api <item|price|identifier>`
+### `devkit validate <payload.json> --api <name>`
 
 Validate a JSON file against the Hii Retail OpenAPI schema offline (no running
 server needed). Prints human-friendly errors with JSON pointers and suggestions.
 
 ```bash
 devkit validate payload.json --api item
-devkit validate prices.json --api price        # also supports JSON arrays
+devkit validate prices.json --api price          # also supports JSON arrays
+devkit validate store.json --api bu              # business unit
+devkit validate group.json --api bug             # business unit group
+devkit validate category.json --api category     # item category
 ```
 
 ### `devkit push --api <api> --file <file> --target <mock|sandbox>`
@@ -143,6 +150,7 @@ the payload first (skip with `--skip-validation`).
 ```bash
 devkit push --api item --file items/organic-milk.json --target mock
 devkit push --api price --file prices/organic-milk-normal.json --target sandbox
+devkit push --api bug --file business-unit-groups/demo-group.json --target mock
 ```
 
 ### `devkit verify --item-id <id> --target <mock|sandbox>`
@@ -204,21 +212,47 @@ To add a new Hii Retail API (e.g. Item Link Input):
 2. Add the schema mapping to `cli/src/lib/validator.js` (`API_SPEC_MAP`)
 3. Add the path mapping to `cli/src/lib/api-client.js` (`API_PATH_MAP`)
 4. Add forwarding expectations in `mockserver/init/expectations/`
-5. Restart: `devkit mock down && devkit mock up`
+5. Add routes in `state-server/server.js` if stateful behavior is needed
+6. Restart: `devkit mock down && devkit mock up`
 
 ## Example Payloads
 
-Pre-built examples in `examples/payloads/`:
+### Individual payloads (`examples/payloads/`)
 
-| File | API | Description |
-|------|-----|-------------|
-| `items/organic-milk.json` | item | Organic whole milk (STOCK_ITEM) |
-| `items/sourdough-bread.json` | item | Artisan sourdough bread |
-| `items/banana-loose.json` | item | Loose bananas, sold by KG |
-| `items/gift-wrapping.json` | item | Gift wrapping service (SERVICE) |
-| `items/sparkling-water-6pack.json` | item | Sparkling water bundle (BUNDLE) |
-| `price-specifications/*` | price | Normal and campaign prices |
-| `item-identifiers/*` | identifier | GTIN13, PLU, and SKU codes |
+| Directory | API | Contents |
+|-----------|-----|----------|
+| `items/` | `item` | Organic milk, sourdough bread, bananas (KG), gift wrapping (SERVICE), sparkling water (BUNDLE) |
+| `price-specifications/` | `price` | Normal and campaign prices |
+| `item-identifiers/` | `identifier` | GTIN13, PLU, and SKU codes |
+| `business-unit-groups/` | `bug` | Assortment, pricing, and tax groups |
+| `business-units/` | `bu` | Stores and warehouses |
+| `item-categories/` | `category` | Product categories with hierarchy |
+
+### Vertical examples (`examples/verticals/`)
+
+Complete end-to-end examples for four retail verticals. Each vertical
+contains all six API payload types with correctly cross-referenced IDs
+(items reference their group and category, prices and identifiers reference
+their items).
+
+| Vertical | Directory | Items | Store |
+|----------|-----------|-------|-------|
+| **Grocery** | `verticals/grocery/` | Oat milk, salmon fillet | FreshMart Downtown |
+| **Fashion** | `verticals/fashion/` | Denim jacket, wool scarf | Threadline Flagship |
+| **DIY** | `verticals/diy/` | Cordless drill, wood screws | Hammerstone Retail Park |
+| **Eyewear** | `verticals/eyewear/` | Prescription frames, daily contacts | BrightSight Gallery Mall |
+
+Each vertical directory contains 9 files:
+
+```
+verticals/<name>/
+  business-unit-group.json    # organizational group
+  business-unit.json          # store / warehouse
+  item-category.json          # product category
+  item-*.json (x2)            # two products
+  price-*.json (x2)           # prices for each product
+  identifier-*.json (x2)      # barcodes for each product
+```
 
 ## Datasets
 
