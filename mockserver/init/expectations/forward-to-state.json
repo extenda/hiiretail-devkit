@@ -338,5 +338,73 @@
         }
       }
     }
+  },
+  {
+    "id": "forward-webhook-post-to-state",
+    "priority": 10,
+    "httpRequest": {
+      "method": "POST",
+      "path": "/api/v1/webhooks"
+    },
+    "httpOverrideForwardedRequest": {
+      "requestOverride": {
+        "socketAddress": {
+          "host": "state-server",
+          "port": 3001,
+          "scheme": "HTTP"
+        }
+      }
+    }
+  },
+  {
+    "id": "forward-webhook-list-to-state",
+    "priority": 10,
+    "httpRequest": {
+      "method": "GET",
+      "path": "/api/v1/webhooks"
+    },
+    "httpOverrideForwardedRequest": {
+      "requestOverride": {
+        "socketAddress": {
+          "host": "state-server",
+          "port": 3001,
+          "scheme": "HTTP"
+        }
+      }
+    }
+  },
+  {
+    "id": "forward-webhook-get-to-state",
+    "priority": 10,
+    "httpRequest": {
+      "method": "GET",
+      "path": "/api/v1/webhooks/.*"
+    },
+    "httpOverrideForwardedRequest": {
+      "requestOverride": {
+        "socketAddress": {
+          "host": "state-server",
+          "port": 3001,
+          "scheme": "HTTP"
+        }
+      }
+    }
+  },
+  {
+    "id": "forward-webhook-delete-to-state",
+    "priority": 10,
+    "httpRequest": {
+      "method": "DELETE",
+      "path": "/api/v1/webhooks/.*"
+    },
+    "httpOverrideForwardedRequest": {
+      "requestOverride": {
+        "socketAddress": {
+          "host": "state-server",
+          "port": 3001,
+          "scheme": "HTTP"
+        }
+      }
+    }
   }
 ]

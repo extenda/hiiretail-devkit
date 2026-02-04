@@ -27,6 +27,8 @@ npm run devkit --prefix cli -- mock down
 npm run devkit --prefix cli -- validate <payload.json> --api <item|price|identifier>
 npm run devkit --prefix cli -- push --api <api> --file <file> --target <mock|sandbox>
 npm run devkit --prefix cli -- verify --item-id <id> --target <mock|sandbox>
+npm run devkit --prefix cli -- webhook list
+npm run devkit --prefix cli -- webhook logs
 
 # Run CLI tests
 cd cli && npm test
@@ -38,11 +40,14 @@ cd cli && npm test
   source of truth for schema validation and MockServer expectations. Four specs:
   item-input-api, price-specification-input-api, item-identifier-input-api, complete-item-query-api.
 
-- **`docker-compose.yml`** — Orchestrates four services:
+- **`docker-compose.yml`** — Orchestrates five services:
   - `mockserver` (port 1080): MockServer 5.15.0 — single entry point for all mocked endpoints.
     Loads static expectations from `mockserver/expectations/init-expectations.json` on startup.
   - `state-server` (port 3001): Express.js in-memory store. Receives forwarded POST/PUT/DELETE
     from MockServer and stores items/prices/identifiers. Serves composed complete-item views.
+    Dispatches webhook events on every mutation.
+  - `webhook-receiver` (port 3002): Built-in webhook receiver. Stores events in memory for
+    inspection via CLI (`devkit webhook logs`) or direct HTTP.
   - `swagger-ui` (port 8080): Swagger UI serving the bundled specs.
   - `mockserver-init`: One-shot container that waits for MockServer health, then loads
     OpenAPI-derived expectations and custom forwarding rules via the MockServer REST API.
@@ -56,7 +61,13 @@ cd cli && npm test
 
 - **`state-server/`** — Lightweight Express app (ESM, Node 22). Stores entities in
   `Map` objects. Exposes same REST paths as the real APIs plus `GET /api/v1/complete-items/:id`
-  for composed views and `POST /api/v1/_reset` for clearing state.
+  for composed views and `POST /api/v1/_reset` for clearing state. Also manages webhook
+  subscriptions (`/api/v1/webhooks` CRUD) and dispatches events on every mutation.
+
+- **`webhook-receiver/`** — Lightweight Express app (ESM, Node 22). Receives and stores
+  webhook events in memory (capped at 1000). Endpoints: `POST /api/v1/webhook-events`,
+  `GET /api/v1/webhook-events` (with filters), `GET /api/v1/webhook-events/:id`,
+  `POST /api/v1/_reset`.
 
 - **`cli/`** — Node.js CLI (ESM, Commander.js). Commands:
   - `mock up|down|status|reset` — Docker Compose wrapper.
@@ -66,6 +77,7 @@ cd cli && npm test
     Sandbox auth uses OAuth2 client_credentials flow.
   - `verify` — GETs complete item, optionally diffs against expected JSON using deep-diff.
     Ignores server-set fields (created, modified, version, revision).
+  - `webhook register|list|remove|logs` — Manage webhook subscriptions and view events.
 
 - **`examples/payloads/`** — Realistic JSON payloads for each API, ready to validate and push.
 
@@ -79,6 +91,9 @@ cd cli && npm test
 - GTIN identifiers are validated for length and check digit by the real API.
 - The `status` field uses soft-delete: set to `DELETED` instead of removing.
 - The `version` field is an ever-increasing integer managed server-side.
+- Every mutation dispatches webhook events to registered subscribers (fire-and-forget).
+- A default webhook to the built-in receiver is auto-registered on startup and after reset.
+- 18 event types: `{item|price|identifier|business-unit-group|business-unit|item-category}.{created|updated|deleted}`
 
 ## Adding a New API
 

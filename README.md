@@ -65,12 +65,15 @@ npm run devkit --prefix cli -- verify --item-id erp-item-10001 --target mock --e
 |  |    validation  |             |  - Composed    |                |
 |  |  - Request     |             |    complete    |                |
 |  |    recording   |             |    item view   |                |
+|  +----------------+             |  - Webhook     |                |
+|                                 |    dispatch    |                |
+|  +----------------+             +-------+--------+                |
+|  |  Swagger UI    |                     |                         |
+|  |  :8080         |                     v                         |
 |  +----------------+             +----------------+                |
-|                                                                   |
-|  +----------------+                                               |
-|  |  Swagger UI    |                                               |
-|  |  :8080         |                                               |
-|  +----------------+                                               |
+|                                 | Webhook        |                |
+|                                 | Receiver :3002 |                |
+|                                 +----------------+                |
 +-------------------------------------------------------------------+
 
 +-------------------------------------------------------------------+
@@ -80,6 +83,7 @@ npm run devkit --prefix cli -- verify --item-id erp-item-10001 --target mock --e
 |  validate       - offline schema validation (AJV + OpenAPI)       |
 |  push           - POST payloads to mock or sandbox                |
 |  verify         - GET complete item, diff against expected        |
+|  webhook        - manage subscriptions and view event logs        |
 +-------------------------------------------------------------------+
 ```
 
@@ -98,7 +102,12 @@ npm run devkit --prefix cli -- verify --item-id erp-item-10001 --target mock --e
 3. **Swagger UI** (port 8080) serves the bundled OpenAPI specs for interactive
    exploration.
 
-4. **mockserver-init** is a one-shot container that waits for MockServer to
+4. **Webhook Receiver** (port 3002) is a built-in service that captures webhook
+   events dispatched by the state server. Every mutation (create, update, delete)
+   triggers an async webhook POST to all registered subscribers. The built-in
+   receiver stores events in memory for inspection via `devkit webhook logs`.
+
+5. **mockserver-init** is a one-shot container that waits for MockServer to
    become healthy, then loads expectations from the OpenAPI specs and custom
    forwarding rules.
 
@@ -163,6 +172,26 @@ devkit verify --item-id erp-item-10001 --target mock --expect expected/organic-m
 ```
 
 Server-set fields (`created`, `modified`, `version`, `revision`) are ignored in diffs.
+
+### `devkit webhook`
+
+Manage webhook subscriptions and view event logs. A default webhook pointing to
+the built-in receiver (`http://localhost:3002`) is auto-registered on startup.
+
+```bash
+devkit webhook list                           # show all subscriptions
+devkit webhook register http://localhost:9000/hook  # add a custom webhook
+devkit webhook register http://localhost:9000/hook --events item.created,price.created
+devkit webhook register http://localhost:9000/hook --secret my-signing-key
+devkit webhook remove <id>                    # remove a subscription
+devkit webhook remove default --force         # remove the built-in webhook
+devkit webhook logs                           # show recent events (default: 20)
+devkit webhook logs --type item.created       # filter by event type
+devkit webhook logs --limit 5                 # limit results
+devkit webhook logs --follow                  # poll for new events every 2s
+```
+
+Event types: `{item|price|identifier|business-unit-group|business-unit|item-category}.{created|updated|deleted}`
 
 ## Working with the Sandbox
 

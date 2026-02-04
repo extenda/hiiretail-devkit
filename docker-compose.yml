@@ -13,6 +13,22 @@ services:
     networks:
       - devkit
 
+  webhook-receiver:
+    build:
+      context: ./webhook-receiver
+      dockerfile: Dockerfile
+    ports:
+      - "${WEBHOOK_RECEIVER_PORT:-3002}:3002"
+    environment:
+      PORT: 3002
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3002/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - devkit
+
   state-server:
     build:
       context: ./state-server
@@ -21,6 +37,10 @@ services:
       - "${STATE_SERVER_PORT:-3001}:3001"
     environment:
       PORT: 3001
+      WEBHOOK_DELAY_MS: "${WEBHOOK_DELAY_MS:-0}"
+    depends_on:
+      webhook-receiver:
+        condition: service_healthy
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:3001/health"]
       interval: 5s

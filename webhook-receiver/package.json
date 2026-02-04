@@ -1,0 +1,14 @@
+{
+  "name": "hiiretail-devkit-webhook-receiver",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Built-in webhook receiver for Hii Retail DevKit — stores webhook events for inspection",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}

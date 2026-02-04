@@ -29,12 +29,14 @@ export function registerMockCommand(program) {
         );
         if (opts.detach) {
           console.log('\nServices started:');
-          console.log('  MockServer:  http://localhost:1080');
-          console.log('  State Server: http://localhost:3001');
+          console.log('  MockServer:        http://localhost:1080');
+          console.log('  State Server:      http://localhost:3001');
+          console.log('  Webhook Receiver:  http://localhost:3002');
           if (opts.swagger !== false) {
-            console.log('  Swagger UI:  http://localhost:8080');
+            console.log('  Swagger UI:        http://localhost:8080');
           }
           console.log('\nHealth check:  curl http://localhost:1080/health');
+          console.log('Webhook logs:  devkit webhook logs');
           console.log('Stop with:     devkit mock down');
         }
       } catch (err) {
@@ -77,7 +79,7 @@ export function registerMockCommand(program) {
       try {
         const res = await fetch('http://localhost:3001/api/v1/_reset', { method: 'POST' });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        console.log('State server cleared — all items, prices, and identifiers removed.');
+        console.log('State server cleared — all items, prices, identifiers, and webhook events removed.');
       } catch (err) {
         console.error(`Failed to reset state server: ${err.message}`);
         console.error('Is the mock environment running? Try: devkit mock up');
