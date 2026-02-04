@@ -95,6 +95,30 @@ cd cli && npm test
 - A default webhook to the built-in receiver is auto-registered on startup and after reset.
 - 18 event types: `{item|price|identifier|business-unit-group|business-unit|item-category}.{created|updated|deleted}`
 
+## Spec Driven Development
+
+This project uses spec-driven development. **Write a spec before writing code.**
+
+- **API specs** live in `specs/v1/` (OpenAPI YAML) — source of truth for schema
+  validation, MockServer expectations, and contract testing.
+- **Feature specs** live in `specs/features/` (Markdown) — describe new capabilities
+  before implementation. Each spec should include: summary, new/modified files,
+  data shapes, and verification steps.
+
+### Workflow
+
+1. **Spec first** — Write (or have Claude Code draft in plan mode) a feature spec
+   in `specs/features/<name>.md`. Cover what changes, where, and how to verify.
+2. **Review** — Read the spec, refine until the design is right.
+3. **Implement** — Build from the spec. The spec is the contract.
+4. **Mark done** — Add `Status: Implemented` and the commit hash to the spec header.
+
+### When planning a new feature
+
+Always read existing specs in `specs/features/` first to understand prior decisions
+and patterns. Check `specs/v1/` for API contracts. The spec should be detailed enough
+that implementation requires no further design decisions.
+
 ## Adding a New API
 
 1. Add spec to `specs/v1/<name>.yaml`
