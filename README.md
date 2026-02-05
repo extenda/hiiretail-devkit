@@ -291,6 +291,21 @@ verticals/<name>/
 - `erp-product-catalog.json` — same data as JSON
 - `field-mapping.json` — ERP → Hii Retail field mapping reference
 
+## ERP Integration Testing
+
+If you're integrating an ERP system (SAP, Microsoft Dynamics, Oracle, etc.) with
+Hii Retail, you can point your ERP at the DevKit's MockServer to test payloads
+without touching Hii Retail infrastructure.
+
+See **[ERP Integration Testing Guide](docs/erp-integration-testing.md)** for:
+
+- Configuring your ERP to use MockServer as the API endpoint
+- Handling authentication (MockServer doesn't enforce OAuth2)
+- Verifying what data was received
+- Testing webhook delivery to your middleware
+- Network and firewall configuration
+- Troubleshooting common issues
+
 ## Next Steps (v2 Roadmap)
 
 - **Recording & replay** — capture MockServer request logs and replay them as regression tests
