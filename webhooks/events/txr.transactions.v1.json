@@ -1,0 +1,4 @@
+{
+  "_note": "This event contains a binary payload (zipped XML PosLog). The value below is a base64-encoded sample.",
+  "payload": "UEsDBBQAAAAIAAAAAACKIYq..."
+}

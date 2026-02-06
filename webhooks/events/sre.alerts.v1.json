@@ -1,0 +1,9 @@
+{
+  "alertId": "alert-2024-02-15-00123",
+  "state": "open",
+  "startedAt": "2024-02-15T10:30:00.000Z",
+  "type": "HighErrorRate",
+  "product": "item-service",
+  "component": "api-gateway",
+  "function": "createItem"
+}

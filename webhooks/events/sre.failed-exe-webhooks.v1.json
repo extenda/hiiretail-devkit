@@ -1,0 +1,7 @@
+{
+  "correlationId": "corr-2024-02-15-def456",
+  "eventId": "evt-2024-02-15-001234",
+  "eventSourceId": "scr.stock-corrections.v1",
+  "webhookId": "webhook-erp-integration-001",
+  "lastAttemptDateTime": "2024-02-15T14:45:30.000Z"
+}

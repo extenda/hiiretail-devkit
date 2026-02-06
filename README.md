@@ -179,6 +179,12 @@ Available event sources:
 - `rec.reconciliation.v1` — Cash drawer reconciliation
 - `stc.stock-count-completed.v1` — Inventory count completion
 - `str.store-transfer-completed.v1` — Inter-store transfers
+- `txr.digital-receipts.v1` — Digital receipt publishing
+- `txr.sequencegaps.v1` — Transaction sequence gap detection
+- `txr.transactions.v1` — Raw transaction events (binary PosLog)
+- `sre.alerts.v1` — Internal system alerts
+- `sre.failed-events.v1` — Event processing failure notifications
+- `sre.failed-exe-webhooks.v1` — Webhook delivery failure notifications
 
 ### Webhook Playground UI
 

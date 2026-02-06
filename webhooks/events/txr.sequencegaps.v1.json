@@ -1,0 +1,6 @@
+{
+  "tenantId": "acme-retail",
+  "businessUnitId": "store-001",
+  "transactionId": "txn-20240215-001233",
+  "nextTransactionId": "txn-20240215-001235"
+}

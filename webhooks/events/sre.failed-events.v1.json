@@ -1,0 +1,8 @@
+{
+  "correlationId": "corr-2024-02-15-abc123",
+  "entityType": "ITEM",
+  "businessUnitGroupId": "acme-retail-group",
+  "businessUnitId": "store-001",
+  "status": "FAILED",
+  "reason": "Schema validation failed: missing required field 'description'"
+}
