@@ -1,9 +1,10 @@
-import { readFileSync, readdirSync } from 'fs';
+import { readFileSync, readdirSync, writeFileSync, mkdirSync } from 'fs';
 import { join } from 'path';
 import yaml from 'js-yaml';
 
 const MOCKSERVER_URL = process.env.MOCKSERVER_URL || 'http://localhost:1080';
 const SPEC_URLS_PATH = '/specs/urls.json';
+const SPECS_OUTPUT_DIR = '/output/specs';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -156,6 +157,13 @@ async function main() {
   console.log(`Waiting for MockServer at ${MOCKSERVER_URL}...`);
   await waitForMockServer();
 
+  // Create output directory for specs (used by Swagger UI)
+  try {
+    mkdirSync(SPECS_OUTPUT_DIR, { recursive: true });
+  } catch {
+    // Directory may already exist
+  }
+
   // Load spec URLs from configuration
   let specUrls;
   try {
@@ -167,12 +175,23 @@ async function main() {
   }
 
   let total = 0;
+  const savedSpecs = [];
 
   // Fetch and process each OpenAPI spec
   for (const [name, url] of Object.entries(specUrls)) {
     try {
       const spec = await fetchSpec(name, url);
       console.log(`Processing: ${name}`);
+
+      // Save spec to output directory for Swagger UI
+      // Patch openapi 3.0.4 to 3.0.3 - Swagger UI v5.17.14 doesn't recognize 3.0.4
+      if (spec.openapi === '3.0.4') {
+        spec.openapi = '3.0.3';
+      }
+      const specPath = join(SPECS_OUTPUT_DIR, `${name}.json`);
+      writeFileSync(specPath, JSON.stringify(spec, null, 2));
+      savedSpecs.push({ name, path: `/specs/${name}.json` });
+      console.log(`  → Saved spec to ${specPath}`);
 
       const expectations = buildExpectationsFromSpec(spec);
       for (const exp of expectations) {

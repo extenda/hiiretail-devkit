@@ -24,6 +24,7 @@ services:
       MOCKSERVER_URL: http://mockserver:1080
     volumes:
       - ./specs:/specs:ro
+      - swagger-specs:/output/specs
     networks:
       - devkit
 
@@ -66,17 +67,27 @@ services:
     image: swaggerapi/swagger-ui:v5.17.14
     ports:
       - "${SWAGGER_UI_PORT:-8080}:8080"
+    depends_on:
+      mockserver-init:
+        condition: service_completed_successfully
     environment:
+      URL: "/specs/item-input.json"
       URLS: >-
         [
-          {"url": "https://developer.hiiretail.com/swagger/item-input-api", "name": "Item Input API"},
-          {"url": "https://developer.hiiretail.com/swagger/price-specification-input-api", "name": "Price Specification Input API"},
-          {"url": "https://developer.hiiretail.com/swagger/item-identifier-input-api", "name": "Item Identifier Input API"},
-          {"url": "https://developer.hiiretail.com/swagger/business-unit-api", "name": "Business Unit Management API"},
-          {"url": "https://developer.hiiretail.com/swagger/item-category-input-api", "name": "Item Category Input API"}
+          {"url": "/specs/item-input.json", "name": "Item Input API"},
+          {"url": "/specs/price-specification-input.json", "name": "Price Specification Input API"},
+          {"url": "/specs/item-identifier-input.json", "name": "Item Identifier Input API"},
+          {"url": "/specs/business-unit.json", "name": "Business Unit Management API"},
+          {"url": "/specs/item-category-input.json", "name": "Item Category Input API"}
         ]
+      URLS_PRIMARY_NAME: "Item Input API"
+    volumes:
+      - swagger-specs:/usr/share/nginx/html/specs:ro
     networks:
       - devkit
+
+volumes:
+  swagger-specs:
 
 networks:
   devkit:
