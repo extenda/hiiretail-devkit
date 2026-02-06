@@ -1,0 +1,52 @@
+{
+  "tenantId": "demo-tenant-001",
+  "businessUnitId": "store-stockholm-01",
+  "correlationId": "corr-2026020601",
+  "reconciliationId": "rec-2026020601",
+  "timestamp": "2026-02-06T22:00:00.000Z",
+  "workstationId": "pos-01",
+  "userId": "user-12345",
+  "businessDate": "2026-02-06",
+  "reconciliationType": "CASH_DRAWER",
+  "tenders": [
+    {
+      "tenderId": "CASH",
+      "initialAmount": 1000.00,
+      "expectedAmount": 2500.00,
+      "actualAmount": 2495.00,
+      "deviation": -5.00,
+      "allowedDeviation": 10.00,
+      "expectedQuantity": 50,
+      "actualQuantity": 49,
+      "deviationQuantity": -1,
+      "allowedDeviationQuantity": 2,
+      "denominations": [
+        {
+          "value": 500,
+          "quantity": 3
+        },
+        {
+          "value": 200,
+          "quantity": 4
+        },
+        {
+          "value": 100,
+          "quantity": 1
+        },
+        {
+          "value": 50,
+          "quantity": 1
+        },
+        {
+          "value": 20,
+          "quantity": 2
+        },
+        {
+          "value": 5,
+          "quantity": 1
+        }
+      ]
+    }
+  ],
+  "transactionIds": ["txn-001", "txn-002", "txn-003"]
+}

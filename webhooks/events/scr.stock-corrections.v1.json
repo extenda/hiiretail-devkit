@@ -1,0 +1,10 @@
+{
+  "tenantId": "demo-tenant-001",
+  "businessUnitId": "store-stockholm-01",
+  "transactionDateTime": "2026-02-06T14:30:00.000Z",
+  "itemId": "erp-item-10001",
+  "quantity": -5,
+  "reasonCode": "DAMAGED",
+  "comment": "Items damaged during unloading",
+  "userId": "user-12345"
+}

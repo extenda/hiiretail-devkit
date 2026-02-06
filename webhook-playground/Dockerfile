@@ -1,7 +1,8 @@
 FROM node:22-alpine
 WORKDIR /app
 COPY package.json package-lock.json* ./
-RUN npm ci --production
+RUN npm ci --production || npm install --production
 COPY server.js ./
-EXPOSE 3001
+COPY public/ ./public/
+EXPOSE 8081
 CMD ["node", "server.js"]

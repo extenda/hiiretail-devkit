@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hii Retail DevKit - Webhook Playground</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f5f5f5;
+      color: #333;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      padding: 30px;
+    }
+    h1 {
+      margin: 0 0 10px 0;
+      color: #1a1a1a;
+      font-size: 24px;
+    }
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #0066cc;
+      box-shadow: 0 0 0 3px rgba(0,102,204,0.1);
+    }
+    select {
+      cursor: pointer;
+    }
+    .auth-section {
+      background: #f9f9f9;
+      padding: 15px;
+      border-radius: 4px;
+      margin-top: 10px;
+    }
+    .auth-type {
+      display: flex;
+      gap: 20px;
+      margin-bottom: 15px;
+    }
+    .auth-type label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-weight: normal;
+      cursor: pointer;
+    }
+    .auth-type input[type="radio"] {
+      width: auto;
+    }
+    .auth-fields {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    .headers-section {
+      margin-top: 10px;
+    }
+    .header-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      align-items: center;
+    }
+    .header-row input {
+      flex: 1;
+    }
+    .header-row button {
+      padding: 8px 12px;
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .header-row button:hover {
+      background: #c82333;
+    }
+    .add-header-btn {
+      padding: 8px 16px;
+      background: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .add-header-btn:hover {
+      background: #5a6268;
+    }
+    .payload-preview {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 15px;
+      border-radius: 4px;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 12px;
+      overflow-x: auto;
+      max-height: 300px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 20px;
+    }
+    .btn-primary {
+      padding: 12px 24px;
+      background: #0066cc;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+    }
+    .btn-primary:hover {
+      background: #0052a3;
+    }
+    .btn-primary:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+    .btn-secondary {
+      padding: 12px 24px;
+      background: #6c757d;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+    .response-section {
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #eee;
+    }
+    .response-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+    .status-badge {
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .status-success {
+      background: #d4edda;
+      color: #155724;
+    }
+    .status-error {
+      background: #f8d7da;
+      color: #721c24;
+    }
+    .response-body {
+      background: #f8f9fa;
+      padding: 15px;
+      border-radius: 4px;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 12px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .hidden {
+      display: none;
+    }
+    .loading {
+      opacity: 0.6;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Webhook Playground</h1>
+    <p class="subtitle">Test your webhook receiver by sending sample Hii Retail events</p>
+
+    <div class="form-group">
+      <label for="eventSource">Event Source</label>
+      <select id="eventSource">
+        <option value="">Loading event sources...</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="targetUrl">Target URL</label>
+      <input type="url" id="targetUrl" placeholder="http://localhost:9000/webhook" value="http://webhook-receiver:3002/api/v1/webhook-events">
+    </div>
+
+    <div class="form-group">
+      <label>Authentication</label>
+      <div class="auth-section">
+        <div class="auth-type">
+          <label>
+            <input type="radio" name="authType" value="none" checked> None
+          </label>
+          <label>
+            <input type="radio" name="authType" value="basic"> Basic Auth
+          </label>
+        </div>
+        <div id="authFields" class="auth-fields hidden">
+          <div>
+            <label for="authUsername">Username</label>
+            <input type="text" id="authUsername" placeholder="Username">
+          </div>
+          <div>
+            <label for="authPassword">Password</label>
+            <input type="password" id="authPassword" placeholder="Password">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Custom Headers</label>
+      <div class="headers-section">
+        <div id="headerRows"></div>
+        <button type="button" class="add-header-btn" onclick="addHeaderRow()">+ Add Header</button>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Payload Preview</label>
+      <div id="payloadPreview" class="payload-preview">Select an event source to see the payload</div>
+    </div>
+
+    <div class="buttons">
+      <button type="button" class="btn-primary" id="sendBtn" onclick="sendWebhook()">Send Webhook</button>
+      <button type="button" class="btn-secondary" onclick="resetForm()">Reset</button>
+    </div>
+
+    <div id="responseSection" class="response-section hidden">
+      <h3>Response</h3>
+      <div class="response-header">
+        <span id="statusBadge" class="status-badge"></span>
+        <span id="statusText"></span>
+      </div>
+      <div id="responseBody" class="response-body"></div>
+    </div>
+  </div>
+
+  <script>
+    let currentPayload = null;
+
+    // Load event sources on page load
+    async function loadEventSources() {
+      try {
+        const res = await fetch('/api/event-sources');
+        const sources = await res.json();
+        const select = document.getElementById('eventSource');
+        select.innerHTML = '<option value="">-- Select an event source --</option>';
+        sources.forEach(source => {
+          const option = document.createElement('option');
+          option.value = source;
+          option.textContent = source;
+          select.appendChild(option);
+        });
+      } catch (err) {
+        console.error('Failed to load event sources:', err);
+      }
+    }
+
+    // Load payload when event source changes
+    async function loadPayload(eventSource) {
+      if (!eventSource) {
+        currentPayload = null;
+        document.getElementById('payloadPreview').textContent = 'Select an event source to see the payload';
+        return;
+      }
+      try {
+        const res = await fetch(`/api/event-sources/${eventSource}`);
+        currentPayload = await res.json();
+        document.getElementById('payloadPreview').textContent = JSON.stringify(currentPayload, null, 2);
+      } catch (err) {
+        document.getElementById('payloadPreview').textContent = 'Failed to load payload';
+        currentPayload = null;
+      }
+    }
+
+    // Toggle auth fields visibility
+    function toggleAuthFields() {
+      const authType = document.querySelector('input[name="authType"]:checked').value;
+      const authFields = document.getElementById('authFields');
+      authFields.classList.toggle('hidden', authType !== 'basic');
+    }
+
+    // Add a new header row
+    function addHeaderRow(name = '', value = '') {
+      const container = document.getElementById('headerRows');
+      const row = document.createElement('div');
+      row.className = 'header-row';
+      row.innerHTML = `
+        <input type="text" placeholder="Header name" value="${name}">
+        <input type="text" placeholder="Header value" value="${value}">
+        <button type="button" onclick="this.parentElement.remove()">✕</button>
+      `;
+      container.appendChild(row);
+    }
+
+    // Get custom headers from form
+    function getCustomHeaders() {
+      const headers = {};
+      document.querySelectorAll('#headerRows .header-row').forEach(row => {
+        const inputs = row.querySelectorAll('input');
+        const name = inputs[0].value.trim();
+        const value = inputs[1].value.trim();
+        if (name && value) {
+          headers[name] = value;
+        }
+      });
+      return headers;
+    }
+
+    // Send the webhook
+    async function sendWebhook() {
+      const eventSource = document.getElementById('eventSource').value;
+      const targetUrl = document.getElementById('targetUrl').value;
+
+      if (!eventSource || !targetUrl) {
+        alert('Please select an event source and enter a target URL');
+        return;
+      }
+
+      const authType = document.querySelector('input[name="authType"]:checked').value;
+      const auth = authType === 'basic' ? {
+        type: 'basic',
+        username: document.getElementById('authUsername').value,
+        password: document.getElementById('authPassword').value,
+      } : null;
+
+      const headers = getCustomHeaders();
+
+      const sendBtn = document.getElementById('sendBtn');
+      sendBtn.disabled = true;
+      sendBtn.textContent = 'Sending...';
+
+      try {
+        const res = await fetch('/api/send', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ eventSource, targetUrl, auth, headers }),
+        });
+        const result = await res.json();
+        showResponse(result);
+      } catch (err) {
+        showResponse({ success: false, error: err.message });
+      } finally {
+        sendBtn.disabled = false;
+        sendBtn.textContent = 'Send Webhook';
+      }
+    }
+
+    // Display the response
+    function showResponse(result) {
+      const section = document.getElementById('responseSection');
+      const badge = document.getElementById('statusBadge');
+      const statusText = document.getElementById('statusText');
+      const body = document.getElementById('responseBody');
+
+      section.classList.remove('hidden');
+
+      if (result.success) {
+        badge.className = 'status-badge status-success';
+        badge.textContent = result.status;
+        statusText.textContent = result.statusText || 'OK';
+      } else {
+        badge.className = 'status-badge status-error';
+        badge.textContent = result.status || 'Error';
+        statusText.textContent = result.statusText || result.error || 'Failed';
+      }
+
+      body.textContent = typeof result.body === 'object'
+        ? JSON.stringify(result.body, null, 2)
+        : (result.body || result.error || 'No response body');
+    }
+
+    // Reset the form
+    function resetForm() {
+      document.getElementById('eventSource').value = '';
+      document.getElementById('targetUrl').value = 'http://webhook-receiver:3002/api/v1/webhook-events';
+      document.querySelector('input[name="authType"][value="none"]').checked = true;
+      document.getElementById('authUsername').value = '';
+      document.getElementById('authPassword').value = '';
+      document.getElementById('headerRows').innerHTML = '';
+      document.getElementById('payloadPreview').textContent = 'Select an event source to see the payload';
+      document.getElementById('responseSection').classList.add('hidden');
+      toggleAuthFields();
+      currentPayload = null;
+    }
+
+    // Event listeners
+    document.getElementById('eventSource').addEventListener('change', (e) => loadPayload(e.target.value));
+    document.querySelectorAll('input[name="authType"]').forEach(radio => {
+      radio.addEventListener('change', toggleAuthFields);
+    });
+
+    // Initialize
+    loadEventSources();
+  </script>
+</body>
+</html>

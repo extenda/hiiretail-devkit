@@ -1,0 +1,22 @@
+{
+  "tenantId": "demo-tenant-001",
+  "businessUnitId": "store-stockholm-01",
+  "stockCountId": "sc-2026020601",
+  "completedAt": "2026-02-06T18:30:00.000Z",
+  "completedBy": "user-12345",
+  "countType": "FULL",
+  "items": [
+    {
+      "itemId": "erp-item-10001",
+      "expectedQuantity": 100,
+      "countedQuantity": 98,
+      "variance": -2
+    },
+    {
+      "itemId": "erp-item-10002",
+      "expectedQuantity": 50,
+      "countedQuantity": 52,
+      "variance": 2
+    }
+  ]
+}

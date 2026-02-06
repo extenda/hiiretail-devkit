@@ -1,0 +1,46 @@
+{
+  "customerOrder": {
+    "customerOrderId": "order-2026020601",
+    "status": {
+      "value": "IN_PROGRESS"
+    },
+    "currencyId": "SEK",
+    "customer": {
+      "customerId": "customer-12345",
+      "name": "Anna Andersson",
+      "address": {
+        "name": "Anna Andersson",
+        "line1": "Storgatan 1",
+        "city": "Stockholm",
+        "countryCode": "SE",
+        "postalCode": "11122"
+      }
+    },
+    "items": [
+      {
+        "lineItemId": "line-001",
+        "itemId": "erp-item-10001",
+        "description": "Organic Whole Milk 1L",
+        "quantity": 2,
+        "unitPrice": 15.00,
+        "totalPrice": 30.00
+      },
+      {
+        "lineItemId": "line-002",
+        "itemId": "erp-item-10002",
+        "description": "Sourdough Bread 500g",
+        "quantity": 1,
+        "unitPrice": 45.00,
+        "totalPrice": 45.00
+      }
+    ],
+    "fulfillments": [
+      {
+        "fulfillmentId": "fulfillment-001",
+        "method": "PICKUP_IN_STORE",
+        "businessUnitId": "store-stockholm-01",
+        "status": "PENDING"
+      }
+    ]
+  }
+}

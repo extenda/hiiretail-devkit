@@ -1,22 +1,23 @@
 # Hii Retail ERP Integration DevKit
 
 A Docker-first local development toolkit for integrating ERP systems with
-[Hii Retail](https://developer.hiiretail.com) input APIs. Provides a mock
-environment with schema validation, realistic responses, and an optional
-stateful layer — so you can build and test integrations without touching
-production.
+[Hii Retail](https://developer.hiiretail.com) APIs. Provides a mock environment
+with schema validation based on canonical OpenAPI specs, plus webhook testing
+tools — so you can build and test integrations without touching production.
 
 ## Supported APIs
 
-| API | CLI `--api` key | Description |
-|-----|-----------------|-------------|
-| **Item Input** | `item` | Create, update, delete items (products) |
-| **Price Specification Input** | `price` | Set prices, campaigns, validity periods |
-| **Item Identifier Input** | `identifier` | Assign GTINs, PLUs, SKUs, QR codes to items |
-| **Business Unit Group Input** | `bug` | Define organizational groups (assortment, pricing, tax) |
-| **Business Unit Input** | `bu` | Define stores, warehouses, webshops |
-| **Item Category Input** | `category` | Define product category hierarchies |
-| **Complete Item Query** | — | Read a composed view (item + prices + identifiers) |
+| API | CLI `--api` key | API Path |
+|-----|-----------------|----------|
+| **Item Input** | `item` | `/api/v2/bu-g-items` |
+| **Item Input (BU level)** | `item-bu` | `/api/v2/bu-items` |
+| **Price Specification Input** | `price` | `/api/v2/bu-g-price-specifications` |
+| **Price Specification (BU level)** | `price-bu` | `/api/v2/bu-price-specifications` |
+| **Item Identifier Input** | `identifier` | `/api/v2/bu-g-item-identifiers` |
+| **Item Identifier (BU level)** | `identifier-bu` | `/api/v2/bu-item-identifiers` |
+| **Item Category Input** | `category` | `/api/v2/item-categories` |
+| **Business Unit** | `bu` | `/api/v1/business-units` |
+| **Business Unit Group** | `group` | `/api/v1/groups` |
 
 ## Prerequisites
 
@@ -39,15 +40,13 @@ npm run devkit --prefix cli -- validate examples/payloads/items/organic-milk.jso
 # 4. Push it to the local mock
 npm run devkit --prefix cli -- push --api item --file examples/payloads/items/organic-milk.json --target mock
 
-# 5. Push the price and identifier too
-npm run devkit --prefix cli -- push --api price --file examples/payloads/price-specifications/organic-milk-normal.json --target mock
-npm run devkit --prefix cli -- push --api identifier --file examples/payloads/item-identifiers/organic-milk-gtin.json --target mock
+# 5. Test webhook delivery
+npm run devkit --prefix cli -- webhook events   # list available event sources
+npm run devkit --prefix cli -- webhook send scr.stock-corrections.v1
+npm run devkit --prefix cli -- webhook logs     # view received events
 
-# 6. Verify the composed "complete item" view
-npm run devkit --prefix cli -- verify --item-id erp-item-10001 --target mock
-
-# 7. Or diff against an expected result
-npm run devkit --prefix cli -- verify --item-id erp-item-10001 --target mock --expect examples/expected/organic-milk-complete.json
+# 6. Open the Webhook Playground UI
+open http://localhost:8081
 ```
 
 ## Architecture
@@ -56,60 +55,52 @@ npm run devkit --prefix cli -- verify --item-id erp-item-10001 --target mock --e
 +-------------------------------------------------------------------+
 |  docker compose                                                   |
 |                                                                   |
-|  +----------------+   forward   +----------------+                |
-|  |  MockServer    | ----------> |  State Server  |                |
-|  |  :1080         |             |  :3001         |                |
-|  |                |             |                |                |
-|  |  - OpenAPI     |             |  - In-memory   |                |
-|  |    contract    |             |    item store  |                |
-|  |    validation  |             |  - Composed    |                |
-|  |  - Request     |             |    complete    |                |
-|  |    recording   |             |    item view   |                |
-|  +----------------+             |  - Webhook     |                |
-|                                 |    dispatch    |                |
-|  +----------------+             +-------+--------+                |
-|  |  Swagger UI    |                     |                         |
-|  |  :8080         |                     v                         |
-|  +----------------+             +----------------+                |
-|                                 | Webhook        |                |
-|                                 | Receiver :3002 |                |
-|                                 +----------------+                |
+|  +----------------+             +-------------------+              |
+|  |  MockServer    |             |  Webhook          |              |
+|  |  :1080         |             |  Playground :8081 |              |
+|  |                |             |  (Web UI)         |              |
+|  |  - OpenAPI     |             +-------------------+              |
+|  |    contract    |                     |                         |
+|  |    validation  |                     v                         |
+|  |  - Specs from  |             +-------------------+              |
+|  |    canonical   |             |  Webhook          |              |
+|  |    URLs        |             |  Receiver :3002   |              |
+|  +----------------+             +-------------------+              |
+|                                                                   |
+|  +----------------+                                               |
+|  |  Swagger UI    |                                               |
+|  |  :8080         |                                               |
+|  +----------------+                                               |
 +-------------------------------------------------------------------+
 
 +-------------------------------------------------------------------+
 |  CLI  (devkit)                                                    |
 |                                                                   |
-|  mock up|down   - manage Docker environment                       |
-|  validate       - offline schema validation (AJV + OpenAPI)       |
-|  push           - POST payloads to mock or sandbox                |
-|  verify         - GET complete item, diff against expected        |
-|  webhook        - manage subscriptions and view event logs        |
+|  mock up|down|status|logs - manage Docker environment             |
+|  validate                 - offline schema validation             |
+|  push                     - POST payloads to mock or sandbox      |
+|  webhook events|send|logs|clear - webhook testing                 |
 +-------------------------------------------------------------------+
 ```
 
 ### How It Works
 
-1. **MockServer** (port 1080) is the single entry point for all API calls.
-   OpenAPI-derived expectations handle contract validation. Higher-priority
-   forwarding rules proxy mutations to the state server.
+1. **MockServer** (port 1080) is the entry point for all API calls. OpenAPI specs
+   are fetched from Hii Retail's canonical URLs at startup and used to generate
+   request expectations with contract validation.
 
-2. **State Server** (port 3001) is a lightweight Express service that stores
-   items, prices, identifiers, business unit groups, business units, and item
-   categories in memory. It exposes a `/api/v1/complete-items/:id` endpoint
-   that returns a composed view — the same shape you'd get from Hii Retail's
-   Complete Item Query API.
+2. **Webhook Playground** (port 8081) is a web UI for testing webhook receivers.
+   Select from pre-built event sources (based on real Hii Retail event schemas),
+   configure the target URL, authentication, and custom headers, then send.
 
-3. **Swagger UI** (port 8080) serves the bundled OpenAPI specs for interactive
-   exploration.
+3. **Webhook Receiver** (port 3002) is a built-in service that captures webhook
+   events. Use it as a test target or inspect events via `devkit webhook logs`.
 
-4. **Webhook Receiver** (port 3002) is a built-in service that captures webhook
-   events dispatched by the state server. Every mutation (create, update, delete)
-   triggers an async webhook POST to all registered subscribers. The built-in
-   receiver stores events in memory for inspection via `devkit webhook logs`.
+4. **Swagger UI** (port 8080) serves OpenAPI specs directly from Hii Retail's
+   canonical URLs for interactive exploration.
 
-5. **mockserver-init** is a one-shot container that waits for MockServer to
-   become healthy, then loads expectations from the OpenAPI specs and custom
-   forwarding rules.
+5. **mockserver-init** is a one-shot container that fetches OpenAPI specs from
+   canonical URLs and loads expectations into MockServer.
 
 ## CLI Reference
 
@@ -128,27 +119,28 @@ devkit <command>
 
 ### `devkit mock up`
 
-Start the Docker environment (MockServer + state server + Swagger UI).
+Start the Docker environment.
 
 ```bash
 devkit mock up              # start in background (default)
 devkit mock up --no-swagger # skip Swagger UI container
 devkit mock down            # stop everything
 devkit mock status          # show container status
-devkit mock reset           # clear all in-memory state (keeps containers)
+devkit mock logs            # show container logs
+devkit mock logs -f         # follow logs
 ```
 
 ### `devkit validate <payload.json> --api <name>`
 
-Validate a JSON file against the Hii Retail OpenAPI schema offline (no running
-server needed). Prints human-friendly errors with JSON pointers and suggestions.
+Validate a JSON file against the Hii Retail OpenAPI schema. Specs are fetched
+from canonical URLs at runtime. Prints human-friendly errors with suggestions.
 
 ```bash
 devkit validate payload.json --api item
-devkit validate prices.json --api price          # also supports JSON arrays
-devkit validate store.json --api bu              # business unit
-devkit validate group.json --api bug             # business unit group
-devkit validate category.json --api category     # item category
+devkit validate prices.json --api price
+devkit validate store.json --api bu
+devkit validate group.json --api group
+devkit validate category.json --api category
 ```
 
 ### `devkit push --api <api> --file <file> --target <mock|sandbox>`
@@ -159,44 +151,51 @@ the payload first (skip with `--skip-validation`).
 ```bash
 devkit push --api item --file items/organic-milk.json --target mock
 devkit push --api price --file prices/organic-milk-normal.json --target sandbox
-devkit push --api bug --file business-unit-groups/demo-group.json --target mock
 ```
-
-### `devkit verify --item-id <id> --target <mock|sandbox>`
-
-Fetch the complete item view and optionally diff it against an expected JSON.
-
-```bash
-devkit verify --item-id erp-item-10001 --target mock
-devkit verify --item-id erp-item-10001 --target mock --expect expected/organic-milk-complete.json
-```
-
-Server-set fields (`created`, `modified`, `version`, `revision`) are ignored in diffs.
 
 ### `devkit webhook`
 
-Manage webhook subscriptions and view event logs. A default webhook pointing to
-the built-in receiver (`http://localhost:3002`) is auto-registered on startup.
+Test webhook delivery using event sources based on real Hii Retail event schemas
+from [hiiretail-json-schema-registry](https://github.com/extenda/hiiretail-json-schema-registry).
 
 ```bash
-devkit webhook list                           # show all subscriptions
-devkit webhook register http://localhost:9000/hook  # add a custom webhook
-devkit webhook register http://localhost:9000/hook --events item.created,price.created
-devkit webhook register http://localhost:9000/hook --secret my-signing-key
-devkit webhook remove <id>                    # remove a subscription
-devkit webhook remove default --force         # remove the built-in webhook
-devkit webhook logs                           # show recent events (default: 20)
-devkit webhook logs --type item.created       # filter by event type
-devkit webhook logs --limit 5                 # limit results
-devkit webhook logs --follow                  # poll for new events every 2s
+devkit webhook events                    # list available event sources
+devkit webhook send scr.stock-corrections.v1   # send to built-in receiver
+devkit webhook send grc.goods-received.v1 --target http://localhost:9000/webhook
+devkit webhook send cor.customer-order-updates.v2 --username user --password pass
+devkit webhook send stp.stock-level-updates.v2 -H "X-Custom: value"
+devkit webhook logs                      # show received events (default: 20)
+devkit webhook logs --type scr           # filter by type prefix
+devkit webhook logs --limit 5            # limit results
+devkit webhook logs --follow             # poll for new events every 2s
+devkit webhook clear                     # clear all received events
 ```
 
-Event types: `{item|price|identifier|business-unit-group|business-unit|item-category}.{created|updated|deleted}`
+Available event sources:
+- `scr.stock-corrections.v1` — Stock adjustment events
+- `stp.stock-level-updates.v2` — Inventory level changes
+- `grc.goods-received.v1` — Delivery receipt events
+- `cor.customer-order-updates.v2` — Order status updates
+- `rec.reconciliation.v1` — Cash drawer reconciliation
+- `stc.stock-count-completed.v1` — Inventory count completion
+- `str.store-transfer-completed.v1` — Inter-store transfers
+
+### Webhook Playground UI
+
+For a visual interface, open http://localhost:8081 after starting the environment.
+The web UI provides:
+
+- Dropdown to select event sources
+- Target URL configuration
+- Basic Auth support (username/password)
+- Custom headers (key-value pairs)
+- Payload preview
+- Response display
 
 ## Working with the Sandbox
 
-To push payloads or verify against the real Hii Retail sandbox, copy
-`.env.example` to `.env` and fill in your credentials:
+To push payloads against the real Hii Retail sandbox, copy `.env.example` to
+`.env` and fill in your credentials:
 
 ```bash
 cp .env.example .env
@@ -217,32 +216,7 @@ Then use `--target sandbox`:
 
 ```bash
 devkit push --api item --file examples/payloads/items/organic-milk.json --target sandbox
-devkit verify --item-id erp-item-10001 --target sandbox
 ```
-
-## Happy Path: Full Integration Loop
-
-This is the typical development workflow for ERP integration:
-
-```
-1. AUTHOR     →  Write/export item + price + identifier payloads
-2. VALIDATE   →  devkit validate (catches schema errors instantly)
-3. PUSH MOCK  →  devkit push --target mock (test against contract)
-4. VERIFY     →  devkit verify --target mock (check composed view)
-5. PUSH LIVE  →  devkit push --target sandbox (send to real env)
-6. VERIFY     →  devkit verify --target sandbox (confirm in Hii Retail)
-```
-
-## Adding New OpenAPI Specs
-
-To add a new Hii Retail API (e.g. Item Link Input):
-
-1. Add the spec to `specs/v1/<api-name>.yaml`
-2. Add the schema mapping to `cli/src/lib/validator.js` (`API_SPEC_MAP`)
-3. Add the path mapping to `cli/src/lib/api-client.js` (`API_PATH_MAP`)
-4. Add forwarding expectations in `mockserver/init/expectations/`
-5. Add routes in `state-server/server.js` if stateful behavior is needed
-6. Restart: `devkit mock down && devkit mock up`
 
 ## Example Payloads
 
@@ -253,16 +227,14 @@ To add a new Hii Retail API (e.g. Item Link Input):
 | `items/` | `item` | Organic milk, sourdough bread, bananas (KG), gift wrapping (SERVICE), sparkling water (BUNDLE) |
 | `price-specifications/` | `price` | Normal and campaign prices |
 | `item-identifiers/` | `identifier` | GTIN13, PLU, and SKU codes |
-| `business-unit-groups/` | `bug` | Assortment, pricing, and tax groups |
+| `business-unit-groups/` | `group` | Assortment, pricing, and tax groups |
 | `business-units/` | `bu` | Stores and warehouses |
 | `item-categories/` | `category` | Product categories with hierarchy |
 
 ### Vertical examples (`examples/verticals/`)
 
-Complete end-to-end examples for four retail verticals. Each vertical
-contains all six API payload types with correctly cross-referenced IDs
-(items reference their group and category, prices and identifiers reference
-their items).
+Complete end-to-end examples for four retail verticals. Each vertical contains
+all API payload types with correctly cross-referenced IDs.
 
 | Vertical | Directory | Items | Store |
 |----------|-----------|-------|-------|
@@ -270,18 +242,6 @@ their items).
 | **Fashion** | `verticals/fashion/` | Denim jacket, wool scarf | Threadline Flagship |
 | **DIY** | `verticals/diy/` | Cordless drill, wood screws | Hammerstone Retail Park |
 | **Eyewear** | `verticals/eyewear/` | Prescription frames, daily contacts | BrightSight Gallery Mall |
-
-Each vertical directory contains 9 files:
-
-```
-verticals/<name>/
-  business-unit-group.json    # organizational group
-  business-unit.json          # store / warehouse
-  item-category.json          # product category
-  item-*.json (x2)            # two products
-  price-*.json (x2)           # prices for each product
-  identifier-*.json (x2)      # barcodes for each product
-```
 
 ## Datasets
 
@@ -301,16 +261,13 @@ See **[ERP Integration Testing Guide](docs/erp-integration-testing.md)** for:
 
 - Configuring your ERP to use MockServer as the API endpoint
 - Handling authentication (MockServer doesn't enforce OAuth2)
-- Verifying what data was received
 - Testing webhook delivery to your middleware
 - Network and firewall configuration
 - Troubleshooting common issues
 
-## Next Steps (v2 Roadmap)
+## Adding New APIs
 
-- **Recording & replay** — capture MockServer request logs and replay them as regression tests
-- **Postman collection export** — auto-generate Postman collections from the OpenAPI specs
-- **Language SDK generation** — use OpenAPI Generator to produce client SDKs (TypeScript, Python, C#)
-- **Batch push** — CLI support for pushing entire CSV/JSON datasets in one command
-- **Docker health dashboard** — simple web UI showing service status and recent requests
-- **CI pipeline template** — GitHub Actions workflow for automated validation on PR
+1. Add spec URL to `specs/urls.json`
+2. Add schema mapping in `cli/src/lib/validator.js` (`API_SPEC_MAP`)
+3. Add path mapping in `cli/src/lib/api-client.js` (`API_PATH_MAP`)
+4. Restart: `devkit mock down && devkit mock up`

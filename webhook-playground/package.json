@@ -1,9 +1,9 @@
 {
-  "name": "hiiretail-devkit-state-server",
+  "name": "hiiretail-devkit-webhook-playground",
   "version": "1.0.0",
   "private": true,
   "type": "module",
-  "description": "In-memory state server for Hii Retail DevKit — stores items, prices, and identifiers for local complete-item queries",
+  "description": "Web UI for testing webhook receivers with Hii Retail sample events",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"

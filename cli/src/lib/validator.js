@@ -6,33 +6,71 @@ import addFormats from 'ajv-formats';
 import yaml from 'js-yaml';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const SPECS_DIR = resolve(__dirname, '..', '..', '..', 'specs', 'v1');
+const SPEC_URLS_PATH = resolve(__dirname, '..', '..', '..', 'specs', 'urls.json');
+
+// Cache for fetched specs
+const specCache = new Map();
 
 const API_SPEC_MAP = {
-  item: { file: 'item-input-api.yaml', schema: 'ItemInput' },
-  price: { file: 'price-specification-input-api.yaml', schema: 'PriceSpecificationInput' },
-  identifier: { file: 'item-identifier-input-api.yaml', schema: 'ItemIdentifierInput' },
-  bug: { file: 'business-unit-group-input-api.yaml', schema: 'BusinessUnitGroupInput' },
-  bu: { file: 'business-unit-input-api.yaml', schema: 'BusinessUnitInput' },
-  category: { file: 'item-category-input-api.yaml', schema: 'ItemCategoryInput' },
+  item: { spec: 'item-input', schema: 'ItemInput' },
+  price: { spec: 'price-specification-input', schema: 'PriceSpecificationInput' },
+  identifier: { spec: 'item-identifier-input', schema: 'ItemIdentifierInput' },
+  bu: { spec: 'business-unit', schema: 'BusinessUnit' },
+  group: { spec: 'business-unit', schema: 'BusinessUnitGroup' },
+  category: { spec: 'item-category-input', schema: 'ItemCategory' },
 };
+
+/**
+ * Load spec URLs from the local urls.json file.
+ */
+function loadSpecUrls() {
+  try {
+    return JSON.parse(readFileSync(SPEC_URLS_PATH, 'utf-8'));
+  } catch (err) {
+    throw new Error(`Failed to load spec URLs from ${SPEC_URLS_PATH}: ${err.message}`);
+  }
+}
+
+/**
+ * Fetch an OpenAPI spec from URL (with caching).
+ */
+async function fetchSpec(specName) {
+  if (specCache.has(specName)) {
+    return specCache.get(specName);
+  }
+
+  const urls = loadSpecUrls();
+  const url = urls[specName];
+  if (!url) {
+    throw new Error(`Unknown spec: "${specName}". Available: ${Object.keys(urls).join(', ')}`);
+  }
+
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch spec from ${url}: ${res.status} ${res.statusText}`);
+  }
+
+  const text = await res.text();
+  const spec = yaml.load(text);
+  specCache.set(specName, spec);
+  return spec;
+}
 
 /**
  * Load an OpenAPI spec and extract the named schema as a standalone JSON Schema.
  */
-function loadSchema(apiName) {
+async function loadSchema(apiName) {
   const mapping = API_SPEC_MAP[apiName];
   if (!mapping) {
     throw new Error(`Unknown API: "${apiName}". Valid options: ${Object.keys(API_SPEC_MAP).join(', ')}`);
   }
 
-  const specPath = resolve(SPECS_DIR, mapping.file);
-  const raw = readFileSync(specPath, 'utf-8');
-  const spec = yaml.load(raw);
-
+  const spec = await fetchSpec(mapping.spec);
   const schema = spec.components?.schemas?.[mapping.schema];
   if (!schema) {
-    throw new Error(`Schema "${mapping.schema}" not found in ${mapping.file}`);
+    // Try to find a similar schema name
+    const available = Object.keys(spec.components?.schemas || {}).join(', ');
+    throw new Error(`Schema "${mapping.schema}" not found in ${mapping.spec} spec. Available: ${available}`);
   }
 
   // Resolve internal $refs to inline definitions
@@ -65,8 +103,8 @@ function resolveRefs(obj, allSchemas) {
  * Validate a payload against the schema for the given API.
  * Returns { valid: boolean, errors: FormattedError[] }
  */
-export function validate(payload, apiName) {
-  const schema = loadSchema(apiName);
+export async function validate(payload, apiName) {
+  const schema = await loadSchema(apiName);
 
   const ajv = new Ajv({ allErrors: true, verbose: true, strict: false });
   addFormats(ajv);

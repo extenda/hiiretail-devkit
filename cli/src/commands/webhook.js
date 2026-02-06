@@ -1,107 +1,101 @@
 import chalk from 'chalk';
-import { registerWebhook, listWebhooks, removeWebhook, fetchWebhookLogs } from '../lib/webhook-client.js';
+import { fetchEventSources, sendWebhook, fetchWebhookLogs, clearWebhookLogs } from '../lib/webhook-client.js';
 
 export function registerWebhookCommand(program) {
   const webhook = program
     .command('webhook')
-    .description('Manage webhook subscriptions and view event logs');
+    .description('Send test webhook events and view received event logs');
 
   // -----------------------------------------------------------------------
-  // register
+  // events - list available event sources
   // -----------------------------------------------------------------------
   webhook
-    .command('register <url>')
-    .description('Register a new webhook subscription')
-    .option('--events <types>', 'Comma-separated event types to subscribe to (default: all)', '')
-    .option('--secret <secret>', 'HMAC-SHA256 signing secret')
-    .action(async (url, opts) => {
-      try {
-        const events = opts.events ? opts.events.split(',').map(e => e.trim()) : undefined;
-        const sub = await registerWebhook(url, { events, secret: opts.secret });
-        console.log(chalk.green('Webhook registered:'));
-        console.log(`  ID:     ${sub.id}`);
-        console.log(`  URL:    ${sub.url}`);
-        console.log(`  Events: ${sub.events.join(', ')}`);
-        if (sub.secret) console.log(`  Secret: (set)`);
-      } catch (err) {
-        console.error(chalk.red(`Failed to register webhook: ${err.message}`));
-        console.error('Is the mock environment running? Try: devkit mock up');
-        process.exit(1);
-      }
-    });
-
-  // -----------------------------------------------------------------------
-  // list
-  // -----------------------------------------------------------------------
-  webhook
-    .command('list')
-    .description('List all webhook subscriptions')
+    .command('events')
+    .description('List available event sources for testing')
     .action(async () => {
       try {
-        const subs = await listWebhooks();
-        if (subs.length === 0) {
-          console.log('No webhook subscriptions.');
+        const sources = await fetchEventSources();
+        if (sources.length === 0) {
+          console.log('No event sources available.');
           return;
         }
-        console.log(chalk.bold(`Webhook subscriptions (${subs.length}):\n`));
-        for (const sub of subs) {
-          const isDefault = sub.id === 'default' ? chalk.dim(' (built-in)') : '';
-          console.log(`  ${chalk.cyan(sub.id)}${isDefault}`);
-          console.log(`    URL:    ${sub.url}`);
-          console.log(`    Events: ${sub.events.join(', ')}`);
-          if (sub.secret) console.log(`    Secret: ***`);
-          console.log();
+        console.log(chalk.bold(`Available event sources (${sources.length}):\n`));
+        for (const source of sources) {
+          console.log(`  ${chalk.cyan(source)}`);
         }
+        console.log(chalk.dim('\nUse: devkit webhook send <event-source> --target <url>'));
       } catch (err) {
-        console.error(chalk.red(`Failed to list webhooks: ${err.message}`));
+        console.error(chalk.red(`Failed to list event sources: ${err.message}`));
         console.error('Is the mock environment running? Try: devkit mock up');
         process.exit(1);
       }
     });
 
   // -----------------------------------------------------------------------
-  // remove
+  // send - send an event to a target URL
   // -----------------------------------------------------------------------
   webhook
-    .command('remove <id>')
-    .description('Remove a webhook subscription')
-    .option('--force', 'Force removal (required for the default webhook)')
-    .action(async (id, opts) => {
+    .command('send <event-source>')
+    .description('Send a webhook event to a target URL')
+    .option('--target <url>', 'Target URL to receive the webhook', 'http://webhook-receiver:3002/api/v1/webhook-events')
+    .option('--username <user>', 'Basic auth username')
+    .option('--password <pass>', 'Basic auth password')
+    .option('-H, --header <header>', 'Custom header in "Name: Value" format (repeatable)', collectHeaders, {})
+    .action(async (eventSource, opts) => {
       try {
-        const result = await removeWebhook(id, { force: opts.force });
-        console.log(chalk.green(result.message));
+        const auth = (opts.username && opts.password) ? {
+          type: 'basic',
+          username: opts.username,
+          password: opts.password,
+        } : null;
+
+        const result = await sendWebhook(eventSource, opts.target, {
+          auth,
+          headers: Object.keys(opts.header).length > 0 ? opts.header : undefined,
+        });
+
+        if (result.success) {
+          console.log(chalk.green(`Webhook sent successfully`));
+          console.log(`  Status: ${result.status} ${result.statusText || ''}`);
+          console.log(`  Event:  ${chalk.cyan(eventSource)}`);
+          console.log(`  Target: ${opts.target}`);
+          if (result.body) {
+            console.log(`  Response: ${typeof result.body === 'string' ? result.body : JSON.stringify(result.body)}`);
+          }
+        } else {
+          console.error(chalk.red(`Webhook delivery failed`));
+          console.log(`  Status: ${result.status || 'N/A'} ${result.statusText || ''}`);
+          console.log(`  Error:  ${result.error || 'Unknown error'}`);
+          process.exit(1);
+        }
       } catch (err) {
-        console.error(chalk.red(`Failed to remove webhook: ${err.message}`));
+        console.error(chalk.red(`Failed to send webhook: ${err.message}`));
+        console.error('Is the mock environment running? Try: devkit mock up');
         process.exit(1);
       }
     });
 
   // -----------------------------------------------------------------------
-  // logs
+  // logs - show received webhook events
   // -----------------------------------------------------------------------
   webhook
     .command('logs')
-    .description('Show received webhook events')
-    .option('--type <type>', 'Filter by event type (e.g. item.created)')
+    .description('Show webhook events received by the built-in receiver')
+    .option('--type <type>', 'Filter by event type')
     .option('--limit <n>', 'Maximum number of events to show', '20')
     .option('--follow', 'Poll for new events every 2 seconds')
     .action(async (opts) => {
-      const fetchAndPrint = async (since) => {
+      try {
         const events = await fetchWebhookLogs({
           type: opts.type,
           limit: opts.limit,
-          since,
         });
-        return events;
-      };
-
-      try {
-        const events = await fetchAndPrint();
 
         if (!opts.follow) {
           if (events.length === 0) {
             console.log('No webhook events received yet.');
-            console.log('Push a payload to trigger events: devkit push --api item --file <file> --target mock');
+            console.log('Send test events: devkit webhook send <event-source>');
+            console.log('Or use the Webhook Playground UI: http://localhost:8081');
             return;
           }
           printEvents(events);
@@ -138,14 +132,38 @@ export function registerWebhookCommand(program) {
         process.exit(1);
       }
     });
+
+  // -----------------------------------------------------------------------
+  // clear - clear all received events
+  // -----------------------------------------------------------------------
+  webhook
+    .command('clear')
+    .description('Clear all received webhook events from the built-in receiver')
+    .action(async () => {
+      try {
+        await clearWebhookLogs();
+        console.log(chalk.green('Webhook event logs cleared.'));
+      } catch (err) {
+        console.error(chalk.red(`Failed to clear webhook logs: ${err.message}`));
+        console.error('Is the mock environment running? Try: devkit mock up');
+        process.exit(1);
+      }
+    });
+}
+
+function collectHeaders(value, previous) {
+  const [name, ...rest] = value.split(':');
+  if (name && rest.length > 0) {
+    previous[name.trim()] = rest.join(':').trim();
+  }
+  return previous;
 }
 
 function printEvents(events) {
   for (const evt of events) {
     const time = new Date(evt.timestamp).toLocaleTimeString();
-    const type = chalk.cyan(evt.type);
-    const id = chalk.dim(evt.id);
-    const entityId = evt.metadata?.entityId || '';
-    console.log(`  ${time}  ${type}  ${entityId}  ${id}`);
+    const type = chalk.cyan(evt.type || 'unknown');
+    const id = chalk.dim(evt.id || '');
+    console.log(`  ${time}  ${type}  ${id}`);
   }
 }

@@ -1,0 +1,7 @@
+{
+  "item-input": "https://developer.hiiretail.com/swagger/item-input-api",
+  "item-identifier-input": "https://developer.hiiretail.com/swagger/item-identifier-input-api",
+  "price-specification-input": "https://developer.hiiretail.com/swagger/price-specification-input-api",
+  "business-unit": "https://developer.hiiretail.com/swagger/business-unit-api",
+  "item-category-input": "https://developer.hiiretail.com/swagger/item-category-input-api"
+}

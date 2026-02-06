@@ -4,10 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What This Is
 
-Docker-first ERP Integration DevKit for Hii Retail input APIs. Provides a local
-mock environment (MockServer + stateful sidecar), a Node.js CLI for validation
-and pushing payloads, and bundled OpenAPI specs. Target audience: ERP integration
-developers who need a fast local loop against Hii Retail APIs.
+Docker-first ERP Integration DevKit for Hii Retail APIs. Provides a local mock
+environment (MockServer), webhook testing tools, and a Node.js CLI for validation.
+OpenAPI specs are fetched at startup from Hii Retail's canonical URLs. Target audience:
+ERP integration developers who need a fast local loop against Hii Retail APIs.
 
 ## Commands
 
@@ -15,7 +15,7 @@ developers who need a fast local loop against Hii Retail APIs.
 # Install CLI dependencies
 cd cli && npm install
 
-# Start the full mock environment (MockServer + state server + Swagger UI)
+# Start the full mock environment
 docker compose up -d --build
 
 # Stop everything
@@ -24,11 +24,13 @@ docker compose down
 # Run CLI commands (from repo root)
 npm run devkit --prefix cli -- mock up
 npm run devkit --prefix cli -- mock down
-npm run devkit --prefix cli -- validate <payload.json> --api <item|price|identifier>
+npm run devkit --prefix cli -- mock status
+npm run devkit --prefix cli -- validate <payload.json> --api <item|price|identifier|bu|group|category>
 npm run devkit --prefix cli -- push --api <api> --file <file> --target <mock|sandbox>
-npm run devkit --prefix cli -- verify --item-id <id> --target <mock|sandbox>
-npm run devkit --prefix cli -- webhook list
+npm run devkit --prefix cli -- webhook events
+npm run devkit --prefix cli -- webhook send <event-source> --target <url>
 npm run devkit --prefix cli -- webhook logs
+npm run devkit --prefix cli -- webhook clear
 
 # Run CLI tests
 cd cli && npm test
@@ -36,52 +38,61 @@ cd cli && npm test
 
 ## Architecture
 
-- **`specs/v1/`** — Pinned OpenAPI 3.0.3 YAML specs for Hii Retail APIs. These are the
-  source of truth for schema validation and MockServer expectations. Four specs:
-  item-input-api, price-specification-input-api, item-identifier-input-api, complete-item-query-api.
+- **`specs/urls.json`** — Canonical URLs for Hii Retail OpenAPI specs. These are fetched
+  at startup by MockServer and at runtime by the CLI validator. No local spec copies.
 
-- **`docker-compose.yml`** — Orchestrates five services:
-  - `mockserver` (port 1080): MockServer 5.15.0 — single entry point for all mocked endpoints.
-    Loads static expectations from `mockserver/expectations/init-expectations.json` on startup.
-  - `state-server` (port 3001): Express.js in-memory store. Receives forwarded POST/PUT/DELETE
-    from MockServer and stores items/prices/identifiers. Serves composed complete-item views.
-    Dispatches webhook events on every mutation.
+- **`docker-compose.yml`** — Orchestrates four services:
+  - `mockserver` (port 1080): MockServer 5.15.0 — validates requests against OpenAPI specs.
+    Returns mock responses based on spec definitions.
+  - `mockserver-init`: One-shot container that fetches OpenAPI specs from canonical URLs
+    and loads expectations into MockServer.
   - `webhook-receiver` (port 3002): Built-in webhook receiver. Stores events in memory for
     inspection via CLI (`devkit webhook logs`) or direct HTTP.
-  - `swagger-ui` (port 8080): Swagger UI serving the bundled specs.
-  - `mockserver-init`: One-shot container that waits for MockServer health, then loads
-    OpenAPI-derived expectations and custom forwarding rules via the MockServer REST API.
+  - `webhook-playground` (port 8081): Web UI for sending test webhook events. Select from
+    event sources, configure target URL, auth, and headers.
+  - `swagger-ui` (port 8080): Swagger UI loading specs directly from Hii Retail URLs.
 
 - **`mockserver/`** — MockServer configuration:
-  - `expectations/init-expectations.json` — Static expectations loaded on container start (health endpoint).
-  - `init/load-expectations.js` — Node.js script that parses OpenAPI specs, generates
-    expectations per endpoint, and loads them + custom expectations via PUT /mockserver/expectation.
-  - `init/expectations/forward-to-state.json` — Higher-priority forwarding expectations that
-    proxy all input API mutations + complete-item GETs to the state server.
-
-- **`state-server/`** — Lightweight Express app (ESM, Node 22). Stores entities in
-  `Map` objects. Exposes same REST paths as the real APIs plus `GET /api/v1/complete-items/:id`
-  for composed views and `POST /api/v1/_reset` for clearing state. Also manages webhook
-  subscriptions (`/api/v1/webhooks` CRUD) and dispatches events on every mutation.
+  - `expectations/init-expectations.json` — Static expectations loaded on container start.
+  - `init/load-expectations.js` — Fetches OpenAPI specs from URLs, generates expectations,
+    and loads them into MockServer.
 
 - **`webhook-receiver/`** — Lightweight Express app (ESM, Node 22). Receives and stores
   webhook events in memory (capped at 1000). Endpoints: `POST /api/v1/webhook-events`,
-  `GET /api/v1/webhook-events` (with filters), `GET /api/v1/webhook-events/:id`,
-  `POST /api/v1/_reset`.
+  `GET /api/v1/webhook-events` (with filters), `POST /api/v1/_reset`.
+
+- **`webhook-playground/`** — Express app serving a web UI for webhook testing. Lists
+  available event sources from `webhooks/events/*.json`, sends them to configurable
+  target URLs with optional Basic Auth and custom headers.
+
+- **`webhooks/events/`** — Sample webhook event payloads based on schemas from
+  [hiiretail-json-schema-registry](https://github.com/extenda/hiiretail-json-schema-registry/tree/master/external-events).
+  Event sources like stock corrections, goods received, customer orders, etc.
 
 - **`cli/`** — Node.js CLI (ESM, Commander.js). Commands:
-  - `mock up|down|status|reset` — Docker Compose wrapper.
-  - `validate` — AJV-based offline validation against OpenAPI schemas. Resolves `$ref`s
-    from the spec files, formats errors with JSON pointers and fix suggestions.
+  - `mock up|down|status|logs` — Docker Compose wrapper.
+  - `validate` — AJV-based validation against OpenAPI schemas fetched from canonical URLs.
   - `push` — Validates then POSTs to mock (localhost:1080) or sandbox (env-var configured).
     Sandbox auth uses OAuth2 client_credentials flow.
-  - `verify` — GETs complete item, optionally diffs against expected JSON using deep-diff.
-    Ignores server-set fields (created, modified, version, revision).
-  - `webhook register|list|remove|logs` — Manage webhook subscriptions and view events.
+  - `webhook events|send|logs|clear` — List event sources, send test webhooks, view/clear logs.
 
 - **`examples/payloads/`** — Realistic JSON payloads for each API, ready to validate and push.
 
-- **`datasets/`** — CSV and JSON product catalogs + ERP→Hii Retail field mapping reference.
+## API Paths
+
+Real Hii Retail API paths (v2 for most input APIs):
+
+| API | Path | Notes |
+|-----|------|-------|
+| Item (BUG level) | `/api/v2/bu-g-items` | Business Unit Group level |
+| Item (BU level) | `/api/v2/bu-items` | Business Unit level |
+| Price (BUG level) | `/api/v2/bu-g-price-specifications` | |
+| Price (BU level) | `/api/v2/bu-price-specifications` | |
+| Identifier (BUG level) | `/api/v2/bu-g-item-identifiers` | |
+| Identifier (BU level) | `/api/v2/bu-item-identifiers` | |
+| Item Category | `/api/v2/item-categories` | |
+| Business Unit | `/api/v1/business-units` | |
+| Business Unit Group | `/api/v1/groups` | |
 
 ## Key Patterns
 
@@ -91,19 +102,28 @@ cd cli && npm test
 - GTIN identifiers are validated for length and check digit by the real API.
 - The `status` field uses soft-delete: set to `DELETED` instead of removing.
 - The `version` field is an ever-increasing integer managed server-side.
-- Every mutation dispatches webhook events to registered subscribers (fire-and-forget).
-- A default webhook to the built-in receiver is auto-registered on startup and after reset.
-- 18 event types: `{item|price|identifier|business-unit-group|business-unit|item-category}.{created|updated|deleted}`
+
+## Webhook Event Sources
+
+Webhook events are based on schemas from the
+[hiiretail-json-schema-registry](https://github.com/extenda/hiiretail-json-schema-registry/tree/master/external-events).
+
+Sample event types included:
+- `scr.stock-corrections.v1` — Stock adjustment events
+- `stp.stock-level-updates.v2` — Inventory level changes
+- `grc.goods-received.v1` — Delivery receipt events
+- `cor.customer-order-updates.v2` — Order status updates
+- `rec.reconciliation.v1` — Cash drawer reconciliation
+- `stc.stock-count-completed.v1` — Inventory count completion
+- `str.store-transfer-completed.v1` — Inter-store transfers
 
 ## Spec Driven Development
 
 This project uses spec-driven development. **Write a spec before writing code.**
 
-- **API specs** live in `specs/v1/` (OpenAPI YAML) — source of truth for schema
-  validation, MockServer expectations, and contract testing.
+- **API specs** come from canonical Hii Retail URLs (not stored locally).
 - **Feature specs** live in `specs/features/` (Markdown) — describe new capabilities
-  before implementation. Each spec should include: summary, new/modified files,
-  data shapes, and verification steps.
+  before implementation.
 
 ### Workflow
 
@@ -113,23 +133,14 @@ This project uses spec-driven development. **Write a spec before writing code.**
 3. **Implement** — Build from the spec. The spec is the contract.
 4. **Mark done** — Add `Status: Implemented` and the commit hash to the spec header.
 
-### When planning a new feature
-
-Always read existing specs in `specs/features/` first to understand prior decisions
-and patterns. Check `specs/v1/` for API contracts. The spec should be detailed enough
-that implementation requires no further design decisions.
-
 ## Adding a New API
 
-1. Add spec to `specs/v1/<name>.yaml`
+1. Add spec URL to `specs/urls.json`
 2. Add schema mapping in `cli/src/lib/validator.js` → `API_SPEC_MAP`
 3. Add path mapping in `cli/src/lib/api-client.js` → `API_PATH_MAP`
-4. Add forwarding expectations in `mockserver/init/expectations/`
-5. Add corresponding routes in `state-server/server.js` if stateful behavior is needed
 
 ## Versions Pinned
 
 - MockServer Docker image: `mockserver/mockserver:5.15.0`
 - Swagger UI image: `swaggerapi/swagger-ui:v5.17.14`
 - Node.js: 22 LTS (in Dockerfiles and for local CLI)
-- OpenAPI spec format: 3.0.3

@@ -1,0 +1,11 @@
+{
+  "tenantId": "demo-tenant-001",
+  "businessUnitId": "store-stockholm-01",
+  "itemId": "erp-item-10001",
+  "stockType": "ON_HAND",
+  "quantity": 150,
+  "costAmount": 2250.00,
+  "currencyCode": "SEK",
+  "averageCostAmount": 15.00,
+  "timestamp": "2026-02-06T14:30:00.000Z"
+}

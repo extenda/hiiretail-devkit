@@ -11,13 +11,9 @@ with Hii Retail, your ERP needs to push product data to Hii Retail's input APIs.
 The DevKit provides a local mock environment that:
 
 - **Validates API contracts** — Requests are validated against Hii Retail's
-  OpenAPI specifications
+  OpenAPI specifications (fetched from canonical URLs)
 - **Returns realistic responses** — 202 Accepted on success, 400/422 on
   validation errors
-- **Stores data** — Items, prices, and identifiers persist in memory for
-  verification
-- **Dispatches webhooks** — Simulates Hii Retail's async notifications so you
-  can test your webhook receiver
 
 This gives you a fast, isolated feedback loop for developing and debugging your
 ERP integration before touching real Hii Retail infrastructure.
@@ -49,10 +45,10 @@ You'll see:
 
 ```
 Services started:
-  MockServer:        http://localhost:1080
-  State Server:      http://localhost:3001
-  Webhook Receiver:  http://localhost:3002
-  Swagger UI:        http://localhost:8080
+  MockServer:           http://localhost:1080
+  Webhook Playground:   http://localhost:8081
+  Webhook Receiver:     http://localhost:3002
+  Swagger UI:           http://localhost:8080
 ```
 
 ### 2. Find your DevKit machine's IP address
@@ -86,12 +82,15 @@ The ERP should POST to the standard Hii Retail API paths:
 
 | Data Type | Endpoint |
 |-----------|----------|
-| Items | `POST /api/v1/items` |
-| Price Specifications | `POST /api/v1/price-specifications` |
-| Item Identifiers | `POST /api/v1/item-identifiers` |
-| Business Unit Groups | `POST /api/v1/business-unit-groups` |
+| Items (BUG level) | `POST /api/v2/bu-g-items` |
+| Items (BU level) | `POST /api/v2/bu-items` |
+| Price Specifications (BUG level) | `POST /api/v2/bu-g-price-specifications` |
+| Price Specifications (BU level) | `POST /api/v2/bu-price-specifications` |
+| Item Identifiers (BUG level) | `POST /api/v2/bu-g-item-identifiers` |
+| Item Identifiers (BU level) | `POST /api/v2/bu-item-identifiers` |
+| Item Categories | `POST /api/v2/item-categories` |
 | Business Units | `POST /api/v1/business-units` |
-| Item Categories | `POST /api/v1/item-categories` |
+| Business Unit Groups | `POST /api/v1/groups` |
 
 ### 4. Handle authentication
 
@@ -106,37 +105,16 @@ This lets you test the payload format without dealing with OAuth2 token exchange
 
 Run your ERP's product export, sync job, or integration workflow. The data flows to the MockServer.
 
-### 6. Verify results
+### 6. Check MockServer logs
 
 From the DevKit machine:
 
 ```bash
-# Check what was stored
-curl http://localhost:3001/health
-```
+# View MockServer logs to see what requests were received
+npm run devkit --prefix cli -- mock logs --service mockserver
 
-Output shows counts:
-```json
-{
-  "status": "ok",
-  "items": 42,
-  "priceSpecifications": 38,
-  "itemIdentifiers": 42,
-  ...
-}
-```
-
-Fetch a specific item to inspect its structure:
-
-```bash
-# Get the complete item view (item + prices + identifiers)
-curl http://localhost:1080/api/v1/complete-items/<item-id> | jq
-```
-
-Check webhook events:
-
-```bash
-npm run devkit --prefix cli -- webhook logs
+# Or use docker compose directly
+docker compose logs mockserver
 ```
 
 ## Detailed Workflows
@@ -149,7 +127,7 @@ ERP sends an invalid payload, you'll get a 400 or 422 response with details.
 **Example: Missing required field**
 
 ```bash
-curl -X POST http://localhost:1080/api/v1/items \
+curl -X POST http://localhost:1080/api/v2/bu-g-items \
   -H "Content-Type: application/json" \
   -d '{"id": "item-1"}'
 ```
@@ -166,54 +144,50 @@ Use these errors to fix your ERP's field mappings before going to production.
 
 ### Testing webhook delivery
 
-Hii Retail sends webhook notifications when data changes. The DevKit simulates
-this behavior.
+You can test how your middleware handles Hii Retail webhook events using the
+DevKit's Webhook Playground.
 
-**Built-in receiver**: By default, all webhooks go to the built-in receiver at
-`http://localhost:3002`. View them with:
+**Using the Web UI** (recommended):
+
+1. Open http://localhost:8081 in your browser
+2. Select an event source (e.g., `scr.stock-corrections.v1`)
+3. Enter your middleware's webhook URL as the target
+4. Add Basic Auth credentials if required
+5. Add any custom headers your middleware expects
+6. Click "Send Webhook"
+
+**Using the CLI**:
+
+```bash
+# List available event sources
+npm run devkit --prefix cli -- webhook events
+
+# Send an event to your middleware
+npm run devkit --prefix cli -- webhook send scr.stock-corrections.v1 \
+  --target http://your-middleware:9000/webhook \
+  --username apiuser \
+  --password secret123
+
+# Or send to the built-in receiver for inspection
+npm run devkit --prefix cli -- webhook send grc.goods-received.v1
+npm run devkit --prefix cli -- webhook logs
+```
+
+### Viewing received webhook events
+
+The built-in webhook receiver stores events for inspection:
 
 ```bash
 npm run devkit --prefix cli -- webhook logs
-npm run devkit --prefix cli -- webhook logs --type item.created
+npm run devkit --prefix cli -- webhook logs --type scr
 npm run devkit --prefix cli -- webhook logs --follow  # live tail
 ```
 
-**Your own receiver**: If your ERP or middleware has a webhook endpoint, register it:
+Clear events when done:
 
 ```bash
-npm run devkit --prefix cli -- webhook register http://<your-host>:<port>/webhook
+npm run devkit --prefix cli -- webhook clear
 ```
-
-Now both the built-in receiver and your endpoint receive events.
-
-To test specific event types only:
-
-```bash
-npm run devkit --prefix cli -- webhook register http://<your-host>:<port>/webhook \
-  --events item.created,price.created
-```
-
-### Testing the complete item view
-
-After pushing an item, its price, and its identifier, verify the composed view:
-
-```bash
-curl http://localhost:1080/api/v1/complete-items/erp-item-10001 | jq
-```
-
-This returns the item with nested `priceSpecifications` and `itemIdentifiers` arrays —
-the same structure Hii Retail's Complete Item Query API returns.
-
-### Resetting state between tests
-
-Clear all stored data without restarting containers:
-
-```bash
-npm run devkit --prefix cli -- mock reset
-```
-
-This clears items, prices, identifiers, and webhook events. The default webhook
-subscription is re-registered automatically.
 
 ## Network and Firewall Configuration
 
@@ -286,7 +260,8 @@ For testing only, configure your ERP to trust a self-signed cert on the reverse 
 ### Requests return 404
 
 The path doesn't match any expectation. Verify:
-- The path matches exactly (e.g., `/api/v1/items`, not `/items`)
+- The path matches exactly (e.g., `/api/v2/bu-g-items`, not `/items`)
+- The API version is correct (v2 for most input APIs, v1 for business unit management)
 - The HTTP method is correct (POST for create, PUT for update)
 
 ### Requests return 400 or 422
@@ -297,18 +272,12 @@ The payload failed schema validation. Check the response body for details:
 - Invalid enum values
 - Malformed JSON
 
-### Webhooks not received
+### Webhooks not received by your middleware
 
-1. **Check registration**: `devkit webhook list`
-2. **Check events exist**: `devkit webhook logs`
-3. **Network reachable?**: Can MockServer reach your webhook URL?
-4. **Check your receiver logs**: Is it receiving and acknowledging (200)?
-
-### State not persisting
-
-Data is stored in memory and lost when containers stop. Always use
-`devkit mock reset` to clear state, not `docker compose down` (which
-destroys containers).
+1. **Can MockServer/Playground reach your URL?**: Test connectivity
+2. **Check your middleware logs**: Is it receiving requests?
+3. **Check response codes**: Your endpoint should return 2xx
+4. **Use the built-in receiver first**: Send to the default target to verify the event is correct
 
 ## Typical Integration Development Workflow
 
@@ -322,11 +291,10 @@ destroys containers).
 4. Run ERP export job → Data flows to MockServer
          ↓
 5. Check results:
-   - devkit webhook logs (what events fired?)
-   - curl /api/v1/complete-items/:id (what was stored?)
-   - Check for 400/422 errors in ERP logs
+   - MockServer logs for request/response details
+   - Fix 400/422 errors based on validation messages
          ↓
-6. Fix mappings, repeat until clean
+6. Test webhook handling separately with Webhook Playground
          ↓
 7. Switch ERP to Hii Retail sandbox, run same tests
          ↓
@@ -339,43 +307,38 @@ destroys containers).
 
 | Method | Path | Description |
 |--------|------|-------------|
-| POST | `/api/v1/items` | Create item |
-| PUT | `/api/v1/items/:id` | Update item |
-| DELETE | `/api/v1/items/:id` | Soft-delete item |
-| POST | `/api/v1/price-specifications` | Create price |
-| PUT | `/api/v1/price-specifications/:id` | Update price |
-| DELETE | `/api/v1/price-specifications/:id` | Soft-delete price |
-| POST | `/api/v1/item-identifiers` | Create identifier |
-| PUT | `/api/v1/item-identifiers/:id` | Update identifier |
-| DELETE | `/api/v1/item-identifiers/:id` | Soft-delete identifier |
-| POST | `/api/v1/business-unit-groups` | Create business unit group |
+| POST | `/api/v2/bu-g-items` | Create item (BUG level) |
+| POST | `/api/v2/bu-items` | Create item (BU level) |
+| POST | `/api/v2/bu-g-price-specifications` | Create price (BUG level) |
+| POST | `/api/v2/bu-price-specifications` | Create price (BU level) |
+| POST | `/api/v2/bu-g-item-identifiers` | Create identifier (BUG level) |
+| POST | `/api/v2/bu-item-identifiers` | Create identifier (BU level) |
+| POST | `/api/v2/item-categories` | Create item category |
 | POST | `/api/v1/business-units` | Create business unit |
-| POST | `/api/v1/item-categories` | Create item category |
-| GET | `/api/v1/complete-items/:id` | Get composed item view |
+| POST | `/api/v1/groups` | Create business unit group |
 | GET | `/health` | MockServer health check |
 
-### State server endpoints (port 3001)
+### Webhook Playground endpoints (port 8081)
 
 | Method | Path | Description |
 |--------|------|-------------|
-| GET | `/health` | Health + entity counts |
-| POST | `/api/v1/_reset` | Clear all state |
-| GET | `/api/v1/webhooks` | List webhook subscriptions |
-| POST | `/api/v1/webhooks` | Register webhook |
-| DELETE | `/api/v1/webhooks/:id` | Remove webhook |
+| GET | `/api/event-sources` | List available event sources |
+| GET | `/api/event-sources/:id` | Get event payload |
+| POST | `/api/send` | Send webhook to target URL |
+| GET | `/health` | Health check |
 
-### Webhook receiver endpoints (port 3002)
+### Webhook Receiver endpoints (port 3002)
 
 | Method | Path | Description |
 |--------|------|-------------|
 | GET | `/health` | Health + event count |
 | GET | `/api/v1/webhook-events` | List events (supports `?type=`, `?limit=`) |
-| GET | `/api/v1/webhook-events/:id` | Get single event |
+| POST | `/api/v1/webhook-events` | Receive webhook events |
 | POST | `/api/v1/_reset` | Clear events |
 
 ## Further Reading
 
 - [Hii Retail Developer Portal](https://developer.hiiretail.com) — Official API documentation
-- [OpenAPI Specs](../specs/v1/) — Bundled API specifications
+- [hiiretail-json-schema-registry](https://github.com/extenda/hiiretail-json-schema-registry) — Webhook event schemas
 - [Example Payloads](../examples/payloads/) — Sample JSON for each API
 - [README](../README.md) — DevKit overview and CLI reference

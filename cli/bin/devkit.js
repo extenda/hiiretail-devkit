@@ -3,7 +3,6 @@ import { program } from 'commander';
 import { registerMockCommand } from '../src/commands/mock.js';
 import { registerValidateCommand } from '../src/commands/validate.js';
 import { registerPushCommand } from '../src/commands/push.js';
-import { registerVerifyCommand } from '../src/commands/verify.js';
 import { registerWebhookCommand } from '../src/commands/webhook.js';
 
 program
@@ -14,7 +13,6 @@ program
 registerMockCommand(program);
 registerValidateCommand(program);
 registerPushCommand(program);
-registerVerifyCommand(program);
 registerWebhookCommand(program);
 
 program.parse();

@@ -1,0 +1,25 @@
+{
+  "tenantId": "demo-tenant-001",
+  "transferId": "transfer-2026020601",
+  "sourceBusinessUnitId": "store-stockholm-01",
+  "destinationBusinessUnitId": "store-gothenburg-01",
+  "status": "COMPLETED",
+  "initiatedAt": "2026-02-06T09:00:00.000Z",
+  "completedAt": "2026-02-06T14:30:00.000Z",
+  "initiatedBy": "user-12345",
+  "completedBy": "user-67890",
+  "items": [
+    {
+      "itemId": "erp-item-10001",
+      "requestedQuantity": 50,
+      "transferredQuantity": 50
+    },
+    {
+      "itemId": "erp-item-10002",
+      "requestedQuantity": 25,
+      "transferredQuantity": 24,
+      "reasonCode": "DAMAGED",
+      "comment": "1 unit damaged during transport"
+    }
+  ]
+}

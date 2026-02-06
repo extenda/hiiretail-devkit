@@ -7,7 +7,7 @@ export function registerValidateCommand(program) {
     .command('validate <payload>')
     .description('Validate a JSON payload against a Hii Retail OpenAPI schema')
     .requiredOption('--api <api>', `API to validate against (${Object.keys(API_SPEC_MAP).join(', ')})`)
-    .action((payloadPath, opts) => {
+    .action(async (payloadPath, opts) => {
       let raw;
       try {
         raw = readFileSync(payloadPath, 'utf-8');
@@ -30,26 +30,33 @@ export function registerValidateCommand(program) {
       const payloads = Array.isArray(payload) ? payload : [payload];
       let allValid = true;
 
+      console.log(chalk.dim('Fetching OpenAPI spec...'));
+
       for (let i = 0; i < payloads.length; i++) {
         const label = payloads.length > 1 ? ` [${i}]` : '';
-        const result = validate(payloads[i], opts.api);
+        try {
+          const result = await validate(payloads[i], opts.api);
 
-        if (result.valid) {
-          console.log(chalk.green(`✓ Payload${label} is valid against ${opts.api} schema`));
-        } else {
-          allValid = false;
-          console.log(chalk.red(`✗ Payload${label} has ${result.errors.length} validation error(s):\n`));
+          if (result.valid) {
+            console.log(chalk.green(`✓ Payload${label} is valid against ${opts.api} schema`));
+          } else {
+            allValid = false;
+            console.log(chalk.red(`✗ Payload${label} has ${result.errors.length} validation error(s):\n`));
 
-          for (const err of result.errors) {
-            console.log(chalk.red(`  ● ${err.message}`));
-            if (err.path !== '(root)') {
-              console.log(chalk.dim(`    at: ${err.path}`));
+            for (const err of result.errors) {
+              console.log(chalk.red(`  ● ${err.message}`));
+              if (err.path !== '(root)') {
+                console.log(chalk.dim(`    at: ${err.path}`));
+              }
+              if (err.suggestion) {
+                console.log(chalk.yellow(`    → ${err.suggestion}`));
+              }
+              console.log();
             }
-            if (err.suggestion) {
-              console.log(chalk.yellow(`    → ${err.suggestion}`));
-            }
-            console.log();
           }
+        } catch (err) {
+          console.error(chalk.red(`Failed to validate: ${err.message}`));
+          process.exit(1);
         }
       }
 

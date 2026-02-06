@@ -3,7 +3,7 @@ import { join } from 'path';
 import yaml from 'js-yaml';
 
 const MOCKSERVER_URL = process.env.MOCKSERVER_URL || 'http://localhost:1080';
-const SPECS_DIR = '/specs/v1';
+const SPEC_URLS_PATH = '/specs/urls.json';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -39,8 +39,13 @@ function buildExpectationsFromSpec(spec) {
         if (jsonContent.example) {
           responseBody = jsonContent.example;
         } else if (jsonContent.schema) {
-          // Generate a minimal response from the schema
-          responseBody = generateFromSchema(jsonContent.schema, spec.components?.schemas || {});
+          // Generate a minimal response from the schema (with error handling for complex schemas)
+          try {
+            responseBody = generateFromSchema(jsonContent.schema, spec.components?.schemas || {});
+          } catch {
+            // Skip response body generation for complex/circular schemas
+            responseBody = null;
+          }
         }
       }
 
@@ -76,22 +81,32 @@ function buildExpectationsFromSpec(spec) {
   return expectations;
 }
 
-function generateFromSchema(schema, allSchemas) {
+function generateFromSchema(schema, allSchemas, visited = new Set(), depth = 0) {
+  // Prevent infinite recursion with max depth
+  if (depth > 20) {
+    return null;
+  }
   if (schema.$ref) {
     const refName = schema.$ref.split('/').pop();
-    return generateFromSchema(allSchemas[refName] || {}, allSchemas);
+    // Prevent circular references
+    if (visited.has(refName)) {
+      return null;
+    }
+    const newVisited = new Set(visited);
+    newVisited.add(refName);
+    return generateFromSchema(allSchemas[refName] || {}, allSchemas, newVisited, depth + 1);
   }
   if (schema.example !== undefined) return schema.example;
   switch (schema.type) {
     case 'object': {
       const obj = {};
       for (const [key, propSchema] of Object.entries(schema.properties || {})) {
-        obj[key] = generateFromSchema(propSchema, allSchemas);
+        obj[key] = generateFromSchema(propSchema, allSchemas, visited, depth + 1);
       }
       return obj;
     }
     case 'array':
-      return schema.items ? [generateFromSchema(schema.items, allSchemas)] : [];
+      return schema.items ? [generateFromSchema(schema.items, allSchemas, visited, depth + 1)] : [];
     case 'string':
       return schema.example || schema.enum?.[0] || 'string';
     case 'integer':
@@ -126,31 +141,51 @@ async function waitForMockServer(maxRetries = 30, intervalMs = 2000) {
   throw new Error('MockServer did not become ready in time');
 }
 
+async function fetchSpec(name, url) {
+  console.log(`Fetching spec: ${name} from ${url}`);
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`Failed to fetch ${url}: ${res.status} ${res.statusText}`);
+  }
+  const text = await res.text();
+  // Parse as YAML (which also handles JSON)
+  return yaml.load(text);
+}
+
 async function main() {
   console.log(`Waiting for MockServer at ${MOCKSERVER_URL}...`);
   await waitForMockServer();
 
-  console.log(`Loading OpenAPI specs from ${SPECS_DIR} into MockServer at ${MOCKSERVER_URL}`);
-
-  const specFiles = readdirSync(SPECS_DIR).filter(f => f.endsWith('.yaml') || f.endsWith('.yml'));
+  // Load spec URLs from configuration
+  let specUrls;
+  try {
+    specUrls = JSON.parse(readFileSync(SPEC_URLS_PATH, 'utf-8'));
+    console.log(`Loaded ${Object.keys(specUrls).length} spec URLs from ${SPEC_URLS_PATH}`);
+  } catch (err) {
+    console.error(`Failed to load spec URLs from ${SPEC_URLS_PATH}: ${err.message}`);
+    process.exit(1);
+  }
 
   let total = 0;
-  for (const file of specFiles) {
-    const specPath = join(SPECS_DIR, file);
-    console.log(`Processing: ${file}`);
 
-    const raw = readFileSync(specPath, 'utf-8');
-    const spec = yaml.load(raw);
+  // Fetch and process each OpenAPI spec
+  for (const [name, url] of Object.entries(specUrls)) {
+    try {
+      const spec = await fetchSpec(name, url);
+      console.log(`Processing: ${name}`);
 
-    const expectations = buildExpectationsFromSpec(spec);
-    for (const exp of expectations) {
-      try {
-        await putExpectation(exp);
-        console.log(`  ✓ ${exp.httpRequest.method} ${exp.httpRequest.path}`);
-        total++;
-      } catch (err) {
-        console.error(`  ✗ ${exp.httpRequest.method} ${exp.httpRequest.path}: ${err.message}`);
+      const expectations = buildExpectationsFromSpec(spec);
+      for (const exp of expectations) {
+        try {
+          await putExpectation(exp);
+          console.log(`  ✓ ${exp.httpRequest.method} ${exp.httpRequest.path}`);
+          total++;
+        } catch (err) {
+          console.error(`  ✗ ${exp.httpRequest.method} ${exp.httpRequest.path}: ${err.message}`);
+        }
       }
+    } catch (err) {
+      console.error(`Failed to process ${name}: ${err.message}`);
     }
   }
 

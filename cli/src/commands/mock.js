@@ -12,12 +12,12 @@ export function registerMockCommand(program) {
 
   mock
     .command('up')
-    .description('Start MockServer, state server, and Swagger UI via docker compose')
+    .description('Start MockServer, webhook services, and Swagger UI via docker compose')
     .option('-d, --detach', 'Run in background (detached mode)', true)
     .option('--no-swagger', 'Skip starting the Swagger UI container')
     .action((opts) => {
       const services = opts.swagger === false
-        ? 'mockserver state-server mockserver-init'
+        ? 'mockserver mockserver-init webhook-receiver webhook-playground'
         : '';
       const detachFlag = opts.detach ? '-d' : '';
 
@@ -29,14 +29,15 @@ export function registerMockCommand(program) {
         );
         if (opts.detach) {
           console.log('\nServices started:');
-          console.log('  MockServer:        http://localhost:1080');
-          console.log('  State Server:      http://localhost:3001');
-          console.log('  Webhook Receiver:  http://localhost:3002');
+          console.log('  MockServer:           http://localhost:1080');
+          console.log('  Webhook Playground:   http://localhost:8081');
+          console.log('  Webhook Receiver:     http://localhost:3002');
           if (opts.swagger !== false) {
-            console.log('  Swagger UI:        http://localhost:8080');
+            console.log('  Swagger UI:           http://localhost:8080');
           }
           console.log('\nHealth check:  curl http://localhost:1080/health');
-          console.log('Webhook logs:  devkit webhook logs');
+          console.log('Send events:   devkit webhook events');
+          console.log('View logs:     devkit webhook logs');
           console.log('Stop with:     devkit mock down');
         }
       } catch (err) {
@@ -73,17 +74,20 @@ export function registerMockCommand(program) {
     });
 
   mock
-    .command('reset')
-    .description('Clear all data in the state server (keeps containers running)')
-    .action(async () => {
+    .command('logs')
+    .description('Show logs from DevKit containers')
+    .option('-f, --follow', 'Follow log output')
+    .option('--service <name>', 'Show logs for a specific service')
+    .action((opts) => {
+      const followFlag = opts.follow ? '-f' : '';
+      const service = opts.service || '';
       try {
-        const res = await fetch('http://localhost:3001/api/v1/_reset', { method: 'POST' });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        console.log('State server cleared — all items, prices, identifiers, and webhook events removed.');
+        execSync(
+          `docker compose logs ${followFlag} ${service}`.trim(),
+          { cwd: PROJECT_ROOT, stdio: 'inherit' },
+        );
       } catch (err) {
-        console.error(`Failed to reset state server: ${err.message}`);
-        console.error('Is the mock environment running? Try: devkit mock up');
-        process.exit(1);
+        process.exit(err.status || 1);
       }
     });
 }

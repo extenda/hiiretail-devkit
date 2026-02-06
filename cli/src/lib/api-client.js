@@ -1,13 +1,16 @@
+// API path mapping based on real Hii Retail API paths
+// Items, prices, and identifiers support both business-unit-group level (bu-g-) and business-unit level (bu-)
 const API_PATH_MAP = {
-  item: '/api/v1/items',
-  price: '/api/v1/price-specifications',
-  identifier: '/api/v1/item-identifiers',
-  bug: '/api/v1/business-unit-groups',
+  item: '/api/v2/bu-g-items',
+  'item-bu': '/api/v2/bu-items',
+  price: '/api/v2/bu-g-price-specifications',
+  'price-bu': '/api/v2/bu-price-specifications',
+  identifier: '/api/v2/bu-g-item-identifiers',
+  'identifier-bu': '/api/v2/bu-item-identifiers',
+  category: '/api/v2/item-categories',
   bu: '/api/v1/business-units',
-  category: '/api/v1/item-categories',
+  group: '/api/v1/groups',
 };
-
-const COMPLETE_ITEM_PATH = '/api/v1/complete-items';
 
 /**
  * Resolve target URL base from target name.
@@ -104,30 +107,4 @@ export async function push(payload, apiName, target) {
   };
 }
 
-/**
- * Fetch the complete item view for verification.
- */
-export async function fetchCompleteItem(itemId, target) {
-  const baseUrl = resolveBaseUrl(target);
-  const authHeaders = await getAuthHeaders(target);
-
-  const url = `${baseUrl}${COMPLETE_ITEM_PATH}/${encodeURIComponent(itemId)}`;
-  const res = await fetch(url, {
-    method: 'GET',
-    headers: {
-      Accept: 'application/json',
-      ...authHeaders,
-    },
-  });
-
-  const responseBody = await res.text();
-  let parsed;
-  try { parsed = JSON.parse(responseBody); } catch { parsed = responseBody; }
-
-  return {
-    status: res.status,
-    ok: res.ok,
-    body: parsed,
-    url,
-  };
-}
+export { API_PATH_MAP };

@@ -32,16 +32,23 @@ export function registerPushCommand(program) {
 
       // Validate first (unless skipped)
       if (!opts.skipValidation) {
+        console.log(chalk.dim('Validating payload against OpenAPI spec...'));
         const payloads = Array.isArray(payload) ? payload : [payload];
         for (let i = 0; i < payloads.length; i++) {
-          const result = validate(payloads[i], opts.api);
-          if (!result.valid) {
-            const label = payloads.length > 1 ? ` [${i}]` : '';
-            console.error(chalk.red(`✗ Validation failed for payload${label}:\n`));
-            for (const err of result.errors) {
-              console.error(chalk.red(`  ● ${err.message}`));
-              if (err.suggestion) console.error(chalk.yellow(`    → ${err.suggestion}`));
+          try {
+            const result = await validate(payloads[i], opts.api);
+            if (!result.valid) {
+              const label = payloads.length > 1 ? ` [${i}]` : '';
+              console.error(chalk.red(`✗ Validation failed for payload${label}:\n`));
+              for (const err of result.errors) {
+                console.error(chalk.red(`  ● ${err.message}`));
+                if (err.suggestion) console.error(chalk.yellow(`    → ${err.suggestion}`));
+              }
+              console.error(chalk.dim('\nUse --skip-validation to bypass schema checks.'));
+              process.exit(1);
             }
+          } catch (err) {
+            console.error(chalk.red(`✗ Validation error: ${err.message}`));
             console.error(chalk.dim('\nUse --skip-validation to bypass schema checks.'));
             process.exit(1);
           }
