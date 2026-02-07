@@ -52,35 +52,35 @@ open http://localhost:8081
 ## Architecture
 
 ```
-+-------------------------------------------------------------------+
-|  docker compose                                                   |
-|                                                                   |
-|  +----------------+             +-------------------+              |
-|  |  MockServer    |             |  Webhook          |              |
-|  |  :1080         |             |  Playground :8081 |              |
-|  |                |             |  (Web UI)         |              |
-|  |  - OpenAPI     |             +-------------------+              |
-|  |    contract    |                     |                         |
-|  |    validation  |                     v                         |
-|  |  - Specs from  |             +-------------------+              |
-|  |    canonical   |             |  Webhook          |              |
-|  |    URLs        |             |  Receiver :3002   |              |
-|  +----------------+             +-------------------+              |
-|                                                                   |
-|  +----------------+                                               |
-|  |  Swagger UI    |                                               |
-|  |  :8080         |                                               |
-|  +----------------+                                               |
-+-------------------------------------------------------------------+
++---------------------------------------------------------------------+
+|  docker compose                                                     |
+|                                                                     |
+|  +------------------+               +---------------------+         |
+|  |  MockServer      |               |  Webhook            |         |
+|  |  :1080           |               |  Playground :8081   |         |
+|  |                  |               |  (Web UI)           |         |
+|  |  - OpenAPI       |               +---------------------+         |
+|  |    contract      |                         |                     |
+|  |    validation    |                         v                     |
+|  |  - Specs from    |               +---------------------+         |
+|  |    canonical     |               |  Webhook            |         |
+|  |    URLs          |               |  Receiver :3002     |         |
+|  +------------------+               +---------------------+         |
+|                                                                     |
+|  +------------------+                                               |
+|  |  Swagger UI      |                                               |
+|  |  :8080           |                                               |
+|  +------------------+                                               |
++---------------------------------------------------------------------+
 
-+-------------------------------------------------------------------+
-|  CLI  (devkit)                                                    |
-|                                                                   |
-|  mock up|down|status|logs - manage Docker environment             |
-|  validate                 - offline schema validation             |
-|  push                     - POST payloads to mock or sandbox      |
-|  webhook events|send|logs|clear - webhook testing                 |
-+-------------------------------------------------------------------+
++---------------------------------------------------------------------+
+|  CLI  (devkit)                                                      |
+|                                                                     |
+|  mock up|down|status|logs   - manage Docker environment             |
+|  validate                   - offline schema validation             |
+|  push                       - POST payloads to mock or sandbox      |
+|  webhook events|send|logs   - webhook testing                       |
++---------------------------------------------------------------------+
 ```
 
 ### How It Works
