@@ -2,27 +2,17 @@
   "id": "fashion-item-wool-scarf",
   "name": "Merino Wool Scarf — Charcoal",
   "description": "Lightweight merino wool scarf in charcoal grey. 180 x 30 cm. Suitable for year-round wear.",
-  "type": "STOCK_ITEM",
+  "type": "STOCK",
   "status": "ACTIVE",
   "salesUnitOfMeasurement": "EA",
   "referencePriceUnitOfMeasurement": "EA",
   "referencePriceConversionFactor": 1.0,
-  "availableInPos": true,
-  "needsManualSending": false,
-  "needsApproval": false,
-  "needsLabelPrinting": false,
-  "assortmentPolicyType": "INCLUDED",
+  "assortmentType": "IN_ASSORTMENT",
   "businessUnitGroupId": "fashion-bug-001",
   "brand": "Ember & Thread",
   "itemCategoryId": "fashion-cat-outerwear-001",
-  "tags": [
-    "scarf",
-    "wool",
-    "merino",
-    "accessories"
-  ],
   "additionalProperties": [
-    { "key": "color", "value": "Charcoal" },
-    { "key": "material", "value": "100% Merino Wool" }
+    { "id": "color", "name": "Color", "value": "Charcoal", "dataType": "STRING", "isMandatory": false },
+    { "id": "material", "name": "Material", "value": "100% Merino Wool", "dataType": "STRING", "isMandatory": false }
   ]
 }

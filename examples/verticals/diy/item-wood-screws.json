@@ -2,28 +2,18 @@
   "id": "diy-item-wood-screws",
   "name": "Wood Screws 4x50mm — 200 pack",
   "description": "Yellow zinc-plated countersunk wood screws 4x50 mm. Torx T20 drive. Suitable for indoor and semi-exposed timber work. Box of 200.",
-  "type": "STOCK_ITEM",
+  "type": "STOCK",
   "status": "ACTIVE",
   "salesUnitOfMeasurement": "EA",
   "referencePriceUnitOfMeasurement": "EA",
   "referencePriceConversionFactor": 1.0,
-  "availableInPos": true,
-  "needsManualSending": false,
-  "needsApproval": false,
-  "needsLabelPrinting": false,
-  "assortmentPolicyType": "INCLUDED",
+  "assortmentType": "IN_ASSORTMENT",
   "businessUnitGroupId": "diy-bug-001",
   "brand": "Fixfast",
   "itemCategoryId": "diy-cat-power-tools-001",
-  "tags": [
-    "screws",
-    "fasteners",
-    "wood",
-    "bulk"
-  ],
   "additionalProperties": [
-    { "key": "dimension", "value": "4x50mm" },
-    { "key": "drive_type", "value": "Torx T20" },
-    { "key": "pack_quantity", "value": "200" }
+    { "id": "dimension", "name": "Dimension", "value": "4x50mm", "dataType": "STRING", "isMandatory": false },
+    { "id": "drive_type", "name": "Drive Type", "value": "Torx T20", "dataType": "STRING", "isMandatory": false },
+    { "id": "pack_quantity", "name": "Pack Quantity", "value": "200", "dataType": "STRING", "isMandatory": false }
   ]
 }

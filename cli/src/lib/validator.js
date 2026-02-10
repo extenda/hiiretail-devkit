@@ -79,7 +79,7 @@ async function loadSchema(apiName) {
 }
 
 /**
- * Recursively resolve $ref pointers within the components/schemas namespace.
+ * Recursively resolve $ref pointers and convert OpenAPI nullable to JSON Schema.
  */
 function resolveRefs(obj, allSchemas) {
   if (obj === null || typeof obj !== 'object') return obj;
@@ -94,6 +94,8 @@ function resolveRefs(obj, allSchemas) {
 
   const result = {};
   for (const [key, value] of Object.entries(obj)) {
+    // Skip the 'nullable' keyword - AJV doesn't understand OpenAPI's nullable
+    if (key === 'nullable') continue;
     result[key] = resolveRefs(value, allSchemas);
   }
   return result;

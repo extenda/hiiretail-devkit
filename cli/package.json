@@ -3,6 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "type": "module",
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "description": "CLI toolkit for Hii Retail ERP integration development",
   "bin": {
     "devkit": "./bin/devkit.js"

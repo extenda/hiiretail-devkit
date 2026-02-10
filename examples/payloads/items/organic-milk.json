@@ -2,23 +2,14 @@
   "id": "erp-item-10001",
   "name": "Organic Whole Milk 1L",
   "description": "Fresh organic whole milk, 3% fat. 1 litre carton.",
-  "type": "STOCK_ITEM",
+  "type": "STOCK",
   "status": "ACTIVE",
   "salesUnitOfMeasurement": "EA",
   "referencePriceUnitOfMeasurement": "LTR",
   "referencePriceConversionFactor": 1.0,
-  "availableInPos": true,
-  "needsManualSending": false,
-  "needsApproval": false,
-  "needsLabelPrinting": false,
-  "assortmentPolicyType": "INCLUDED",
+  "assortmentType": "IN_ASSORTMENT",
   "businessUnitGroupId": "bug-001",
   "brand": "EcoFarm",
   "netContent": 1.0,
-  "itemCategoryId": "cat-dairy-001",
-  "tags": [
-    "dairy",
-    "organic",
-    "chilled"
-  ]
+  "itemCategoryId": "cat-dairy-001"
 }

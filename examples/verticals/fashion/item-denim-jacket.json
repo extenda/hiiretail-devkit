@@ -2,28 +2,18 @@
   "id": "fashion-item-denim-jacket",
   "name": "Classic Denim Jacket — Indigo Wash (M)",
   "description": "100% organic cotton denim jacket, medium indigo wash. Regular fit, size M. Brass buttons, two chest pockets.",
-  "type": "STOCK_ITEM",
+  "type": "STOCK",
   "status": "ACTIVE",
   "salesUnitOfMeasurement": "EA",
   "referencePriceUnitOfMeasurement": "EA",
   "referencePriceConversionFactor": 1.0,
-  "availableInPos": true,
-  "needsManualSending": false,
-  "needsApproval": false,
-  "needsLabelPrinting": false,
-  "assortmentPolicyType": "INCLUDED",
+  "assortmentType": "IN_ASSORTMENT",
   "businessUnitGroupId": "fashion-bug-001",
   "brand": "Ironloom",
   "itemCategoryId": "fashion-cat-outerwear-001",
-  "tags": [
-    "denim",
-    "jacket",
-    "organic-cotton",
-    "size-m"
-  ],
   "additionalProperties": [
-    { "key": "color", "value": "Indigo" },
-    { "key": "size", "value": "M" },
-    { "key": "material", "value": "100% Organic Cotton" }
+    { "id": "color", "name": "Color", "value": "Indigo", "dataType": "STRING", "isMandatory": false },
+    { "id": "size", "name": "Size", "value": "M", "dataType": "STRING", "isMandatory": false },
+    { "id": "material", "name": "Material", "value": "100% Organic Cotton", "dataType": "STRING", "isMandatory": false }
   ]
 }

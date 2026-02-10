@@ -2,23 +2,13 @@
   "id": "grocery-item-salmon",
   "name": "Atlantic Salmon Fillet 400g",
   "description": "Fresh skinless Atlantic salmon fillet. ASC certified, farmed in Norway. 400g pack.",
-  "type": "STOCK_ITEM",
+  "type": "STOCK",
   "status": "ACTIVE",
   "salesUnitOfMeasurement": "EA",
-  "referencePriceUnitOfMeasurement": "KG",
+  "referencePriceUnitOfMeasurement": "KGM",
   "referencePriceConversionFactor": 0.4,
-  "availableInPos": true,
-  "needsManualSending": false,
-  "needsApproval": false,
-  "needsLabelPrinting": true,
-  "assortmentPolicyType": "INCLUDED",
+  "assortmentType": "IN_ASSORTMENT",
   "businessUnitGroupId": "grocery-bug-001",
   "netContent": 0.4,
-  "itemCategoryId": "grocery-cat-fresh-001",
-  "tags": [
-    "seafood",
-    "fish",
-    "fresh",
-    "asc-certified"
-  ]
+  "itemCategoryId": "grocery-cat-fresh-001"
 }

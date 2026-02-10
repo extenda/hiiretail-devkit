@@ -7,15 +7,7 @@
   "salesUnitOfMeasurement": "EA",
   "referencePriceUnitOfMeasurement": "EA",
   "referencePriceConversionFactor": 1.0,
-  "availableInPos": true,
-  "needsManualSending": false,
-  "needsApproval": false,
-  "needsLabelPrinting": false,
-  "assortmentPolicyType": "LOCAL",
+  "assortmentType": "IN_ASSORTMENT",
   "businessUnitGroupId": "bug-001",
-  "tags": [
-    "service",
-    "gift",
-    "seasonal"
-  ]
+  "itemCategoryId": "cat-services-001"
 }

@@ -2,28 +2,18 @@
   "id": "diy-item-cordless-drill",
   "name": "Cordless Drill/Driver 18V 2x2.0Ah Kit",
   "description": "18V lithium-ion cordless drill/driver kit. Includes 2 batteries (2.0 Ah), charger, and carry case. 13mm keyless chuck, 2-speed gearbox, 18 torque settings.",
-  "type": "STOCK_ITEM",
+  "type": "STOCK",
   "status": "ACTIVE",
   "salesUnitOfMeasurement": "EA",
   "referencePriceUnitOfMeasurement": "EA",
   "referencePriceConversionFactor": 1.0,
-  "availableInPos": true,
-  "needsManualSending": false,
-  "needsApproval": false,
-  "needsLabelPrinting": false,
-  "assortmentPolicyType": "INCLUDED",
+  "assortmentType": "IN_ASSORTMENT",
   "businessUnitGroupId": "diy-bug-001",
   "brand": "TorqueMax",
   "itemCategoryId": "diy-cat-power-tools-001",
-  "tags": [
-    "drill",
-    "cordless",
-    "18v",
-    "kit"
-  ],
   "additionalProperties": [
-    { "key": "voltage", "value": "18V" },
-    { "key": "battery_capacity", "value": "2.0 Ah" },
-    { "key": "warranty_years", "value": "3" }
+    { "id": "voltage", "name": "Voltage", "value": "18V", "dataType": "STRING", "isMandatory": false },
+    { "id": "battery_capacity", "name": "Battery Capacity", "value": "2.0 Ah", "dataType": "STRING", "isMandatory": false },
+    { "id": "warranty_years", "name": "Warranty Years", "value": "3", "dataType": "STRING", "isMandatory": false }
   ]
 }
