@@ -249,6 +249,41 @@ all API payload types with correctly cross-referenced IDs.
 | **DIY** | `verticals/diy/` | Cordless drill, wood screws | Hammerstone Retail Park |
 | **Eyewear** | `verticals/eyewear/` | Prescription frames, daily contacts | BrightSight Gallery Mall |
 
+## Postman Collections
+
+Ready-to-use Postman collections for testing the MockServer:
+
+| Collection | Description |
+|------------|-------------|
+| `postman/devkit-environment.json` | Environment variables (baseUrl, IDs) |
+| `postman/hiiretail-devkit-happy-path.json` | Happy path tests for all APIs |
+| `postman/hiiretail-devkit-negative-tests.json` | Negative tests (validation errors, invalid data) |
+
+**Import into Postman:**
+
+1. Open Postman
+2. Click **Import** → select all three JSON files from `postman/`
+3. Select the "Hii Retail DevKit" environment
+4. Run the collections
+
+**Happy path tests cover:**
+- Business Unit Groups, Business Units
+- Item Categories (with hierarchy)
+- Items (Stock Item, Service, Weighted)
+- Price Specifications (Normal, Campaign)
+- Item Identifiers (GTIN, PLU, SKU)
+- Both BUG-level and BU-level endpoints
+
+**Negative tests cover:**
+- Malformed JSON
+- Missing required fields
+- Invalid enum values
+- Wrong data types
+- Non-existent endpoints
+- Wrong HTTP methods
+- Content-Type issues
+- Scope mismatches (BUG vs BU)
+
 ## ERP Integration Testing
 
 If you're integrating an ERP system (SAP, Microsoft Dynamics, Oracle, etc.) with

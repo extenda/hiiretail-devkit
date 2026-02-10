@@ -1,0 +1,25 @@
+{
+  "id": "devkit-env-001",
+  "name": "Hii Retail DevKit",
+  "values": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:1080",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "businessUnitGroupId",
+      "value": "bug-001",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "businessUnitId",
+      "value": "bu-downtown-001",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "environment"
+}
