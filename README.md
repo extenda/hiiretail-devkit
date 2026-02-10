@@ -249,14 +249,6 @@ all API payload types with correctly cross-referenced IDs.
 | **DIY** | `verticals/diy/` | Cordless drill, wood screws | Hammerstone Retail Park |
 | **Eyewear** | `verticals/eyewear/` | Prescription frames, daily contacts | BrightSight Gallery Mall |
 
-## Datasets
-
-`datasets/` contains sample data for batch integration testing:
-
-- `erp-product-catalog.csv` — 10 products in CSV format
-- `erp-product-catalog.json` — same data as JSON
-- `field-mapping.json` — ERP → Hii Retail field mapping reference
-
 ## ERP Integration Testing
 
 If you're integrating an ERP system (SAP, Microsoft Dynamics, Oracle, etc.) with
