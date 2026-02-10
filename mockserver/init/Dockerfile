@@ -4,5 +4,6 @@ WORKDIR /app
 COPY package.json package-lock.json* ./
 RUN npm ci --production
 COPY load-expectations.js ./
-COPY expectations/ ./expectations/
+# Create expectations dir (custom expectations are optional)
+RUN mkdir -p ./expectations
 CMD ["node", "load-expectations.js"]
