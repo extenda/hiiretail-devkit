@@ -16,8 +16,8 @@ tools — so you can build and test integrations without touching production.
 | **Item Identifier Input** | `identifier` | `/api/v2/bu-g-item-identifiers` |
 | **Item Identifier (BU level)** | `identifier-bu` | `/api/v2/bu-item-identifiers` |
 | **Item Category Input** | `category` | `/api/v2/item-categories` |
-| **Business Unit** | `bu` | `/api/v1/business-units` |
-| **Business Unit Group** | `group` | `/api/v1/groups` |
+| **Business Unit** | `bu` | `/business-units` |
+| **Business Unit Group** | `group` | `/groups` |
 
 ## Prerequisites
 

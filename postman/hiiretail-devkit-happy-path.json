@@ -41,9 +41,9 @@
               "raw": "{\n  \"id\": \"{{businessUnitGroupId}}\",\n  \"name\": \"Demo Retail Group\",\n  \"type\": \"ASSORTMENT\",\n  \"status\": \"ACTIVE\",\n  \"description\": \"Assortment group for all retail stores\",\n  \"tags\": [\"demo\", \"assortment\", \"retail\"]\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/v1/groups",
+              "raw": "{{baseUrl}}/groups",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "groups"]
+              "path": ["groups"]
             }
           }
         }
@@ -72,7 +72,7 @@
             }
           ],
           "request": {
-            "method": "POST",
+            "method": "PUT",
             "header": [
               {
                 "key": "Content-Type",
@@ -81,12 +81,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"{{businessUnitId}}\",\n  \"name\": \"Downtown Flagship Store\",\n  \"type\": \"STORE\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\",\n  \"description\": \"Flagship store in the downtown shopping district\",\n  \"address\": {\n    \"street\": \"100 Main Street\",\n    \"city\": \"Millbrook\",\n    \"postalCode\": \"10002\",\n    \"country\": \"US\"\n  },\n  \"tags\": [\"flagship\", \"downtown\", \"city-center\"]\n}"
+              "raw": "{\n  \"name\": \"Downtown Flagship Store\",\n  \"type\": \"STORE\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\",\n  \"description\": \"Flagship store in the downtown shopping district\",\n  \"address\": {\n    \"street\": \"100 Main Street\",\n    \"city\": \"Millbrook\",\n    \"postalCode\": \"10002\",\n    \"country\": \"US\"\n  },\n  \"tags\": [\"flagship\", \"downtown\", \"city-center\"]\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/v1/business-units",
+              "raw": "{{baseUrl}}/business-units/{{businessUnitId}}",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "business-units"]
+              "path": ["business-units", "{{businessUnitId}}"]
             }
           }
         },
@@ -106,7 +106,7 @@
             }
           ],
           "request": {
-            "method": "POST",
+            "method": "PUT",
             "header": [
               {
                 "key": "Content-Type",
@@ -115,12 +115,12 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"bu-warehouse-001\",\n  \"name\": \"Central Distribution Warehouse\",\n  \"type\": \"WAREHOUSE\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\",\n  \"description\": \"Main distribution center\",\n  \"address\": {\n    \"street\": \"500 Industrial Park\",\n    \"city\": \"Millbrook\",\n    \"postalCode\": \"10099\",\n    \"country\": \"US\"\n  },\n  \"tags\": [\"warehouse\", \"distribution\"]\n}"
+              "raw": "{\n  \"name\": \"Central Distribution Warehouse\",\n  \"type\": \"WAREHOUSE\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\",\n  \"description\": \"Main distribution center\",\n  \"address\": {\n    \"street\": \"500 Industrial Park\",\n    \"city\": \"Millbrook\",\n    \"postalCode\": \"10099\",\n    \"country\": \"US\"\n  },\n  \"tags\": [\"warehouse\", \"distribution\"]\n}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/v1/business-units",
+              "raw": "{{baseUrl}}/business-units/bu-warehouse-001",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "v1", "business-units"]
+              "path": ["business-units", "bu-warehouse-001"]
             }
           }
         }

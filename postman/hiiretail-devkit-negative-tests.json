@@ -2,518 +2,12 @@
   "info": {
     "_postman_id": "hiiretail-devkit-negative-tests",
     "name": "Hii Retail DevKit - Negative Tests",
-    "description": "Negative tests to verify error handling. These tests send invalid payloads and verify appropriate error responses.",
+    "description": "Negative tests for the DevKit MockServer. Note: MockServer returns mock responses based on path matching only - it does NOT validate request payloads. These tests verify endpoint routing behavior.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
     {
-      "name": "Invalid JSON",
-      "item": [
-        {
-          "name": "Malformed JSON - Missing closing brace",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 400', function () {",
-                  "    pm.expect(pm.response.code).to.equal(400);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": \"test-item\",\n  \"name\": \"Test Item\""
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/v2/bu-g-items",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v2", "bu-g-items"]
-            }
-          }
-        },
-        {
-          "name": "Empty body",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 400 or 415', function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([400, 415]);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": ""
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/v2/bu-g-items",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v2", "bu-g-items"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Missing Required Fields - Items",
-      "item": [
-        {
-          "name": "Item - Missing id",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 400 or 422', function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
-                  "});",
-                  "",
-                  "pm.test('Error mentions missing field', function () {",
-                  "    var responseText = pm.response.text().toLowerCase();",
-                  "    pm.expect(responseText).to.include('id');",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"name\": \"Test Item Without ID\",\n  \"type\": \"STOCK_ITEM\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/v2/bu-g-items",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v2", "bu-g-items"]
-            }
-          }
-        },
-        {
-          "name": "Item - Missing name",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 400 or 422', function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": \"test-item-no-name\",\n  \"type\": \"STOCK_ITEM\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/v2/bu-g-items",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v2", "bu-g-items"]
-            }
-          }
-        },
-        {
-          "name": "Item - Missing businessUnitGroupId",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 400 or 422', function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": \"test-item-no-bug\",\n  \"name\": \"Test Item Without BUG\",\n  \"type\": \"STOCK_ITEM\",\n  \"status\": \"ACTIVE\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/v2/bu-g-items",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v2", "bu-g-items"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Missing Required Fields - Price Specifications",
-      "item": [
-        {
-          "name": "Price - Missing itemId",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 400 or 422', function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": \"test-price-no-item\",\n  \"type\": \"NORMAL\",\n  \"value\": 99.99,\n  \"currencyId\": \"SEK\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/v2/bu-g-price-specifications",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v2", "bu-g-price-specifications"]
-            }
-          }
-        },
-        {
-          "name": "Price - Missing value",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 400 or 422', function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": \"test-price-no-value\",\n  \"itemId\": \"erp-item-10001\",\n  \"type\": \"NORMAL\",\n  \"currencyId\": \"SEK\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/v2/bu-g-price-specifications",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v2", "bu-g-price-specifications"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Missing Required Fields - Identifiers",
-      "item": [
-        {
-          "name": "Identifier - Missing itemId",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 400 or 422', function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": \"test-ident-no-item\",\n  \"value\": \"1234567890123\",\n  \"type\": \"GTIN13\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/v2/bu-g-item-identifiers",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v2", "bu-g-item-identifiers"]
-            }
-          }
-        },
-        {
-          "name": "Identifier - Missing value",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 400 or 422', function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": \"test-ident-no-value\",\n  \"itemId\": \"erp-item-10001\",\n  \"type\": \"GTIN13\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/v2/bu-g-item-identifiers",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v2", "bu-g-item-identifiers"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Invalid Data Types",
-      "item": [
-        {
-          "name": "Item - Invalid type enum",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 400 or 422', function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": \"test-item-bad-type\",\n  \"name\": \"Test Item Bad Type\",\n  \"type\": \"INVALID_TYPE\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/v2/bu-g-items",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v2", "bu-g-items"]
-            }
-          }
-        },
-        {
-          "name": "Item - Invalid status enum",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 400 or 422', function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": \"test-item-bad-status\",\n  \"name\": \"Test Item Bad Status\",\n  \"type\": \"STOCK_ITEM\",\n  \"status\": \"INVALID_STATUS\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/v2/bu-g-items",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v2", "bu-g-items"]
-            }
-          }
-        },
-        {
-          "name": "Price - String instead of number for value",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 400 or 422', function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": \"test-price-string-value\",\n  \"itemId\": \"erp-item-10001\",\n  \"type\": \"NORMAL\",\n  \"value\": \"not-a-number\",\n  \"currencyId\": \"SEK\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/v2/bu-g-price-specifications",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v2", "bu-g-price-specifications"]
-            }
-          }
-        },
-        {
-          "name": "Price - Negative value",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 400 or 422', function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": \"test-price-negative\",\n  \"itemId\": \"erp-item-10001\",\n  \"type\": \"NORMAL\",\n  \"value\": -50.00,\n  \"currencyId\": \"SEK\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/v2/bu-g-price-specifications",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v2", "bu-g-price-specifications"]
-            }
-          }
-        },
-        {
-          "name": "Item - Boolean as string",
-          "event": [
-            {
-              "listen": "test",
-              "script": {
-                "exec": [
-                  "pm.test('Status code is 400 or 422', function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
-                  "});"
-                ],
-                "type": "text/javascript"
-              }
-            }
-          ],
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": \"test-item-bool-string\",\n  \"name\": \"Test Item Bool String\",\n  \"type\": \"STOCK_ITEM\",\n  \"status\": \"ACTIVE\",\n  \"availableInPos\": \"yes\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\"\n}"
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/v2/bu-g-items",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "v2", "bu-g-items"]
-            }
-          }
-        }
-      ]
-    },
-    {
-      "name": "Invalid Endpoints",
+      "name": "Invalid Endpoints (404 Expected)",
       "item": [
         {
           "name": "Non-existent endpoint",
@@ -607,21 +101,16 @@
               "path": ["api", "v2", "bu-g-items"]
             }
           }
-        }
-      ]
-    },
-    {
-      "name": "Content-Type Issues",
-      "item": [
+        },
         {
-          "name": "Missing Content-Type header",
+          "name": "DELETE on POST-only endpoint",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status code is 400 or 415', function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([400, 415]);",
+                  "pm.test('Status code is 404 or 405', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([404, 405]);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -629,12 +118,8 @@
             }
           ],
           "request": {
-            "method": "POST",
+            "method": "DELETE",
             "header": [],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"id\": \"test-item\",\n  \"name\": \"Test Item\",\n  \"type\": \"STOCK_ITEM\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\"\n}"
-            },
             "url": {
               "raw": "{{baseUrl}}/api/v2/bu-g-items",
               "host": ["{{baseUrl}}"],
@@ -643,14 +128,14 @@
           }
         },
         {
-          "name": "Wrong Content-Type (text/plain)",
+          "name": "Missing path segment",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status code is 400 or 415', function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([400, 415]);",
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.expect(pm.response.code).to.equal(404);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -662,34 +147,70 @@
             "header": [
               {
                 "key": "Content-Type",
-                "value": "text/plain"
+                "value": "application/json"
               }
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"test-item\",\n  \"name\": \"Test Item\",\n  \"type\": \"STOCK_ITEM\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\"\n}"
+              "raw": "{}"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/v2/bu-g-items",
+              "raw": "{{baseUrl}}/api/v2",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "v2", "bu-g-items"]
+              "path": ["api", "v2"]
             }
+          }
+        },
+        {
+          "name": "Typo in endpoint name",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.expect(pm.response.code).to.equal(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v2/bu-g-item",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v2", "bu-g-item"]
+            },
+            "description": "Missing 's' at the end - should be bu-g-items"
           }
         }
       ]
     },
     {
-      "name": "Business Unit vs Business Unit Group",
+      "name": "MockServer Accepts Any Payload (202 Expected)",
+      "description": "These tests demonstrate that MockServer does NOT validate request payloads. Use the CLI 'devkit validate' command for schema validation before pushing to MockServer.",
       "item": [
         {
-          "name": "BUG endpoint with businessUnitId (should fail)",
+          "name": "Empty body still accepted",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status code is 400 or 422', function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
+                  "pm.test('MockServer accepts empty body (no validation)', function () {",
+                  "    pm.expect(pm.response.code).to.equal(202);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -706,25 +227,24 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"test-item-wrong-scope\",\n  \"name\": \"Test Item Wrong Scope\",\n  \"type\": \"STOCK_ITEM\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitId\": \"{{businessUnitId}}\"\n}"
+              "raw": ""
             },
             "url": {
               "raw": "{{baseUrl}}/api/v2/bu-g-items",
               "host": ["{{baseUrl}}"],
               "path": ["api", "v2", "bu-g-items"]
-            },
-            "description": "Sending businessUnitId to a BUG-level endpoint should fail as it expects businessUnitGroupId"
+            }
           }
         },
         {
-          "name": "BU endpoint with businessUnitGroupId (should fail)",
+          "name": "Invalid JSON still accepted",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('Status code is 400 or 422', function () {",
-                  "    pm.expect(pm.response.code).to.be.oneOf([400, 422]);",
+                  "pm.test('MockServer accepts invalid JSON (no validation)', function () {",
+                  "    pm.expect(pm.response.code).to.equal(202);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -741,14 +261,115 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"test-item-wrong-scope-2\",\n  \"name\": \"Test Item Wrong Scope 2\",\n  \"type\": \"STOCK_ITEM\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\"\n}"
+              "raw": "{ invalid json }"
             },
             "url": {
-              "raw": "{{baseUrl}}/api/v2/bu-items",
+              "raw": "{{baseUrl}}/api/v2/bu-g-items",
               "host": ["{{baseUrl}}"],
-              "path": ["api", "v2", "bu-items"]
+              "path": ["api", "v2", "bu-g-items"]
+            }
+          }
+        },
+        {
+          "name": "Missing required fields still accepted",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('MockServer accepts missing required fields (no validation)', function () {",
+                  "    pm.expect(pm.response.code).to.equal(202);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Test Item Without ID or businessUnitGroupId\"\n}"
             },
-            "description": "Sending businessUnitGroupId to a BU-level endpoint should fail as it expects businessUnitId"
+            "url": {
+              "raw": "{{baseUrl}}/api/v2/bu-g-items",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v2", "bu-g-items"]
+            }
+          }
+        },
+        {
+          "name": "Invalid enum value still accepted",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('MockServer accepts invalid enum (no validation)', function () {",
+                  "    pm.expect(pm.response.code).to.equal(202);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"test\",\n  \"name\": \"Test\",\n  \"type\": \"INVALID_TYPE\",\n  \"status\": \"INVALID_STATUS\",\n  \"businessUnitGroupId\": \"bug-001\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v2/bu-g-items",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v2", "bu-g-items"]
+            }
+          }
+        },
+        {
+          "name": "Wrong data types still accepted",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('MockServer accepts wrong data types (no validation)', function () {",
+                  "    pm.expect(pm.response.code).to.equal(202);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": 12345,\n  \"name\": true,\n  \"type\": [\"array\", \"not\", \"string\"],\n  \"status\": {\"object\": \"not string\"},\n  \"businessUnitGroupId\": null\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v2/bu-g-items",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v2", "bu-g-items"]
+            }
           }
         }
       ]

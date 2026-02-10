@@ -89,8 +89,8 @@ The ERP should POST to the standard Hii Retail API paths:
 | Item Identifiers (BUG level) | `POST /api/v2/bu-g-item-identifiers` |
 | Item Identifiers (BU level) | `POST /api/v2/bu-item-identifiers` |
 | Item Categories | `POST /api/v2/item-categories` |
-| Business Units | `POST /api/v1/business-units` |
-| Business Unit Groups | `POST /api/v1/groups` |
+| Business Units | `POST /business-units` |
+| Business Unit Groups | `POST /groups` |
 
 ### 4. Handle authentication
 
@@ -314,8 +314,8 @@ The payload failed schema validation. Check the response body for details:
 | POST | `/api/v2/bu-g-item-identifiers` | Create identifier (BUG level) |
 | POST | `/api/v2/bu-item-identifiers` | Create identifier (BU level) |
 | POST | `/api/v2/item-categories` | Create item category |
-| POST | `/api/v1/business-units` | Create business unit |
-| POST | `/api/v1/groups` | Create business unit group |
+| POST | `/business-units` | Create business unit |
+| POST | `/groups` | Create business unit group |
 | GET | `/health` | MockServer health check |
 
 ### Webhook Playground endpoints (port 8081)

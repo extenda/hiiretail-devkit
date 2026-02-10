@@ -8,8 +8,8 @@ const API_PATH_MAP = {
   identifier: '/api/v2/bu-g-item-identifiers',
   'identifier-bu': '/api/v2/bu-item-identifiers',
   category: '/api/v2/item-categories',
-  bu: '/api/v1/business-units',
-  group: '/api/v1/groups',
+  bu: '/business-units',
+  group: '/groups',
 };
 
 /**
