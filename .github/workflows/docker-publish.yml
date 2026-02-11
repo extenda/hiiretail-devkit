@@ -1,0 +1,57 @@
+name: Publish Docker Images
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - uses: extenda/actions/gcp-secret-manager@v0
+        with:
+          service-account-key: ${{ secrets.SECRET_AUTH }}
+          secrets: |
+            DOCKER_PASSWORD: dockerhub-password
+            DOCKER_USERNAME: dockerhub-username
+
+      - name: Push mockserver-init to DockerHub
+        if: github.ref == 'refs/heads/master'
+        uses: extenda/actions/docker@v0
+        with:
+          image: extenda/hiiretail-devkit-mockserver-init
+          tag: latest
+          registry: docker.io
+          dockerfile: mockserver/init/Dockerfile
+          context: mockserver/init
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ env.DOCKER_PASSWORD }}
+
+      - name: Push webhook-playground to DockerHub
+        if: github.ref == 'refs/heads/master'
+        uses: extenda/actions/docker@v0
+        with:
+          image: extenda/hiiretail-devkit-webhook-playground
+          tag: latest
+          registry: docker.io
+          dockerfile: webhook-playground/Dockerfile
+          context: webhook-playground
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ env.DOCKER_PASSWORD }}
+
+      - name: Push webhook-receiver to DockerHub
+        if: github.ref == 'refs/heads/master'
+        uses: extenda/actions/docker@v0
+        with:
+          image: extenda/hiiretail-devkit-webhook-receiver
+          tag: latest
+          registry: docker.io
+          dockerfile: webhook-receiver/Dockerfile
+          context: webhook-receiver
+          username: ${{ env.DOCKER_USERNAME }}
+          password: ${{ env.DOCKER_PASSWORD }}

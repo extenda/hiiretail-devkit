@@ -14,6 +14,7 @@ services:
 
   # One-shot container: waits for MockServer, then fetches OpenAPI specs and loads expectations
   mockserver-init:
+    image: extenda/hiiretail-devkit-mockserver-init:latest
     build:
       context: ./mockserver/init
       dockerfile: Dockerfile
@@ -29,6 +30,7 @@ services:
       - devkit
 
   webhook-receiver:
+    image: extenda/hiiretail-devkit-webhook-receiver:latest
     build:
       context: ./webhook-receiver
       dockerfile: Dockerfile
@@ -45,6 +47,7 @@ services:
       - devkit
 
   webhook-playground:
+    image: extenda/hiiretail-devkit-webhook-playground:latest
     build:
       context: ./webhook-playground
       dockerfile: Dockerfile
