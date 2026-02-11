@@ -34,12 +34,21 @@ tools — so you can build and test integrations without touching production.
 
 ## Quick Start
 
-### Option 1: Using Pre-built Images (Recommended)
+### Option 1: Zero Install (Recommended)
 
-Docker images are published to DockerHub with all configuration baked in — no need to clone the repo:
+Docker images are published to DockerHub with all configuration baked in — just download
+one file and run. No cloning, no building, no local dependencies.
+
+**One-liner:**
 
 ```bash
-# 1. Download docker-compose.yml
+curl -O https://raw.githubusercontent.com/extenda/hiiretail-devkit/master/docker-compose.yml && docker compose up -d
+```
+
+**Step by step:**
+
+```bash
+# 1. Download docker-compose.yml (the only file you need)
 curl -O https://raw.githubusercontent.com/extenda/hiiretail-devkit/master/docker-compose.yml
 
 # 2. Start the mock environment (images pulled from DockerHub)
@@ -57,6 +66,9 @@ Services will be available at:
 - **MockServer:** http://localhost:1080 — POST your API payloads here
 - **Swagger UI:** http://localhost:8080 — Interactive API documentation
 - **Webhook Playground:** http://localhost:8081 — Test webhook delivery
+
+The Docker images include everything needed: OpenAPI specs are fetched from Hii Retail's
+canonical URLs at startup, and webhook event templates are baked into the images.
 
 ### Option 2: With CLI Tools
 
