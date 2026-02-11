@@ -6,10 +6,10 @@
 |_| |_|_|_|_| \_\___|\__\__,_|_|_| |____/ \___| \_/ |_|\_\_|\__|
 ```
 
-# Hii Retail ERP Integration DevKit
+# Hii Retail DevKit
 
-A Docker-first local development toolkit for integrating ERP systems with
-[Hii Retail](https://developer.hiiretail.com) APIs. Provides a mock environment
+A Docker-first local development toolkit for developing systems that integrate with
+[Hii Retail APIs](https://developer.hiiretail.com/api). Provides a mock environment
 with schema validation based on canonical OpenAPI specs, plus webhook testing
 tools — so you can build and test integrations without touching production.
 
