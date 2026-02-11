@@ -33,7 +33,7 @@ jobs:
       - name: Build and push mockserver-init
         uses: docker/build-push-action@v5
         with:
-          context: ./mockserver/init
+          context: .
           file: ./mockserver/init/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
@@ -42,7 +42,7 @@ jobs:
       - name: Build and push webhook-playground
         uses: docker/build-push-action@v5
         with:
-          context: ./webhook-playground
+          context: .
           file: ./webhook-playground/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true
@@ -51,7 +51,7 @@ jobs:
       - name: Build and push webhook-receiver
         uses: docker/build-push-action@v5
         with:
-          context: ./webhook-receiver
+          context: .
           file: ./webhook-receiver/Dockerfile
           platforms: linux/amd64,linux/arm64
           push: true

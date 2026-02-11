@@ -157,6 +157,32 @@ async function main() {
   console.log(`Waiting for MockServer at ${MOCKSERVER_URL}...`);
   await waitForMockServer();
 
+  // Add health check endpoint first
+  const healthExpectation = {
+    id: 'health-check',
+    priority: 100,
+    httpRequest: {
+      method: 'GET',
+      path: '/health',
+    },
+    httpResponse: {
+      statusCode: 200,
+      headers: {
+        'Content-Type': ['application/json'],
+      },
+      body: {
+        type: 'JSON',
+        json: JSON.stringify({ status: 'ok', service: 'mockserver' }),
+      },
+    },
+  };
+  try {
+    await putExpectation(healthExpectation);
+    console.log('✓ Added health check endpoint');
+  } catch (err) {
+    console.error(`✗ Failed to add health check: ${err.message}`);
+  }
+
   // Create output directory for specs (used by Swagger UI)
   try {
     mkdirSync(SPECS_OUTPUT_DIR, { recursive: true });

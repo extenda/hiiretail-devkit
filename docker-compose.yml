@@ -4,27 +4,23 @@ services:
     ports:
       - "${MOCKSERVER_PORT:-1080}:1080"
     environment:
-      MOCKSERVER_INITIALIZATION_JSON_PATH: /config/expectations/init-expectations.json
       MOCKSERVER_LOG_LEVEL: INFO
       MOCKSERVER_ENABLE_CORS_FOR_ALL_RESPONSES: "true"
-    volumes:
-      - ./mockserver:/config:ro
     networks:
       - devkit
 
-  # One-shot container: waits for MockServer, then fetches OpenAPI specs and loads expectations
+  # One-shot container: waits for MockServer, then loads OpenAPI expectations
   mockserver-init:
     image: extenda/hiiretail-devkit-mockserver-init:latest
     build:
-      context: ./mockserver/init
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: mockserver/init/Dockerfile
     depends_on:
       mockserver:
         condition: service_started
     environment:
       MOCKSERVER_URL: http://mockserver:1080
     volumes:
-      - ./specs:/specs:ro
       - swagger-specs:/output/specs
     networks:
       - devkit
@@ -32,8 +28,8 @@ services:
   webhook-receiver:
     image: extenda/hiiretail-devkit-webhook-receiver:latest
     build:
-      context: ./webhook-receiver
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: webhook-receiver/Dockerfile
     ports:
       - "${WEBHOOK_RECEIVER_PORT:-3002}:3002"
     environment:
@@ -49,15 +45,12 @@ services:
   webhook-playground:
     image: extenda/hiiretail-devkit-webhook-playground:latest
     build:
-      context: ./webhook-playground
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: webhook-playground/Dockerfile
     ports:
       - "${WEBHOOK_PLAYGROUND_PORT:-8081}:8081"
     environment:
       PORT: 8081
-      EVENTS_DIR: /events
-    volumes:
-      - ./webhooks/events:/events:ro
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:8081/health"]
       interval: 5s

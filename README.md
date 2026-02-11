@@ -36,11 +36,11 @@ tools — so you can build and test integrations without touching production.
 
 ### Option 1: Using Pre-built Images (Recommended)
 
-Docker images are published to DockerHub and pulled automatically:
+Docker images are published to DockerHub with all configuration baked in — no need to clone the repo:
 
 ```bash
-# 1. Clone the repository (needed for config files)
-git clone https://github.com/extenda/hiiretail-devkit.git && cd hiiretail-devkit
+# 1. Download docker-compose.yml
+curl -O https://raw.githubusercontent.com/extenda/hiiretail-devkit/master/docker-compose.yml
 
 # 2. Start the mock environment (images pulled from DockerHub)
 docker compose up -d
@@ -60,7 +60,7 @@ Services will be available at:
 
 ### Option 2: With CLI Tools
 
-For validation, pushing payloads, and webhook management via command line:
+Clone the repo if you want CLI tools for validation, pushing payloads, and webhook management:
 
 ```bash
 # 1. Clone and install CLI dependencies
