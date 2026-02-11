@@ -22,13 +22,41 @@ tools — so you can build and test integrations without touching production.
 ## Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/) and Docker Compose v2+
-- [Node.js 22 LTS](https://nodejs.org/) (for the CLI)
+- [Node.js 22 LTS](https://nodejs.org/) (for the CLI — optional but recommended)
 
-## 5-Minute Quickstart
+## Quick Start
+
+### Option 1: Using Pre-built Images (Recommended)
+
+Docker images are published to DockerHub and pulled automatically:
+
+```bash
+# 1. Clone the repository (needed for config files)
+git clone https://github.com/extenda/hiiretail-devkit.git && cd hiiretail-devkit
+
+# 2. Start the mock environment (images pulled from DockerHub)
+docker compose up -d
+
+# 3. Verify services are running
+docker compose ps
+
+# 4. Open the UIs
+open http://localhost:8080   # Swagger UI
+open http://localhost:8081   # Webhook Playground
+```
+
+Services will be available at:
+- **MockServer:** http://localhost:1080 — POST your API payloads here
+- **Swagger UI:** http://localhost:8080 — Interactive API documentation
+- **Webhook Playground:** http://localhost:8081 — Test webhook delivery
+
+### Option 2: With CLI Tools
+
+For validation, pushing payloads, and webhook management via command line:
 
 ```bash
 # 1. Clone and install CLI dependencies
-git clone <repo-url> && cd hiiretail-devkit
+git clone https://github.com/extenda/hiiretail-devkit.git && cd hiiretail-devkit
 cd cli && npm install && cd ..
 
 # 2. Start the mock environment
@@ -48,6 +76,25 @@ npm run devkit --prefix cli -- webhook logs     # view received events
 # 6. Open the Webhook Playground UI
 open http://localhost:8081
 ```
+
+### Building Locally (Development)
+
+If you want to build the Docker images locally instead of pulling from DockerHub:
+
+```bash
+docker compose build
+docker compose up -d
+```
+
+## Docker Images
+
+Pre-built images are available on DockerHub:
+
+| Image | Description |
+|-------|-------------|
+| `extenda/hiiretail-devkit-mockserver-init` | Fetches OpenAPI specs and configures MockServer |
+| `extenda/hiiretail-devkit-webhook-playground` | Web UI for testing webhook delivery |
+| `extenda/hiiretail-devkit-webhook-receiver` | Captures webhook events for inspection |
 
 ## Architecture
 
