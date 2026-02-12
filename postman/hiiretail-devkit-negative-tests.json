@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "hiiretail-devkit-negative-tests",
     "name": "Hii Retail DevKit - Negative Tests",
-    "description": "Negative tests for the DevKit MockServer. Note: MockServer returns mock responses based on path matching only - it does NOT validate request payloads. These tests verify endpoint routing behavior.",
+    "description": "Negative tests for the DevKit. Tests verify endpoint routing (404 for invalid paths) and request validation (400 for schema violations).",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -199,18 +199,23 @@
       ]
     },
     {
-      "name": "MockServer Accepts Any Payload (202 Expected)",
-      "description": "These tests demonstrate that MockServer does NOT validate request payloads. Use the CLI 'devkit validate' command for schema validation before pushing to MockServer.",
+      "name": "Validation Errors (400 Expected)",
+      "description": "These tests verify that the validation proxy rejects invalid payloads with 400 errors. Invalid requests never reach MockServer.",
       "item": [
         {
-          "name": "Empty body still accepted",
+          "name": "Empty body rejected",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('MockServer accepts empty body (no validation)', function () {",
-                  "    pm.expect(pm.response.code).to.equal(202);",
+                  "pm.test('Empty body returns 400', function () {",
+                  "    pm.expect(pm.response.code).to.equal(400);",
+                  "});",
+                  "",
+                  "pm.test('Response contains validation error', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.error).to.equal('Request validation failed');",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -237,14 +242,14 @@
           }
         },
         {
-          "name": "Invalid JSON still accepted",
+          "name": "Invalid JSON rejected",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('MockServer accepts invalid JSON (no validation)', function () {",
-                  "    pm.expect(pm.response.code).to.equal(202);",
+                  "pm.test('Invalid JSON returns 400', function () {",
+                  "    pm.expect(pm.response.code).to.equal(400);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -271,14 +276,20 @@
           }
         },
         {
-          "name": "Missing required fields still accepted",
+          "name": "Missing required fields rejected",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('MockServer accepts missing required fields (no validation)', function () {",
-                  "    pm.expect(pm.response.code).to.equal(202);",
+                  "pm.test('Missing required fields returns 400', function () {",
+                  "    pm.expect(pm.response.code).to.equal(400);",
+                  "});",
+                  "",
+                  "pm.test('Response lists missing fields', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.validationErrors).to.be.an('array');",
+                  "    pm.expect(json.validationErrors.length).to.be.greaterThan(0);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -305,14 +316,19 @@
           }
         },
         {
-          "name": "Invalid enum value still accepted",
+          "name": "Invalid enum value rejected",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('MockServer accepts invalid enum (no validation)', function () {",
-                  "    pm.expect(pm.response.code).to.equal(202);",
+                  "pm.test('Invalid enum returns 400', function () {",
+                  "    pm.expect(pm.response.code).to.equal(400);",
+                  "});",
+                  "",
+                  "pm.test('Response shows allowed values', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.validationErrors).to.be.an('array');",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -329,7 +345,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"test\",\n  \"name\": \"Test\",\n  \"type\": \"INVALID_TYPE\",\n  \"status\": \"INVALID_STATUS\",\n  \"businessUnitGroupId\": \"bug-001\"\n}"
+              "raw": "{\n  \"id\": \"test\",\n  \"name\": \"Test\",\n  \"itemType\": \"INVALID_TYPE\",\n  \"status\": \"INVALID_STATUS\",\n  \"businessUnitGroupId\": \"bug-001\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v2/bu-g-items",
@@ -339,14 +355,20 @@
           }
         },
         {
-          "name": "Wrong data types still accepted",
+          "name": "Wrong data types rejected",
           "event": [
             {
               "listen": "test",
               "script": {
                 "exec": [
-                  "pm.test('MockServer accepts wrong data types (no validation)', function () {",
-                  "    pm.expect(pm.response.code).to.equal(202);",
+                  "pm.test('Wrong data types returns 400', function () {",
+                  "    pm.expect(pm.response.code).to.equal(400);",
+                  "});",
+                  "",
+                  "pm.test('Response contains type errors', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.validationErrors).to.be.an('array');",
+                  "    pm.expect(json.validationErrors.length).to.be.greaterThan(0);",
                   "});"
                 ],
                 "type": "text/javascript"
@@ -363,7 +385,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": 12345,\n  \"name\": true,\n  \"type\": [\"array\", \"not\", \"string\"],\n  \"status\": {\"object\": \"not string\"},\n  \"businessUnitGroupId\": null\n}"
+              "raw": "{\n  \"id\": 12345,\n  \"name\": true,\n  \"itemType\": [\"array\", \"not\", \"string\"],\n  \"status\": {\"object\": \"not string\"},\n  \"businessUnitGroupId\": null\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v2/bu-g-items",
