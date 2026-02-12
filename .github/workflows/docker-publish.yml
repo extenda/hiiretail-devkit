@@ -1,12 +1,74 @@
-name: Publish Docker Images
+name: Build, Test, and Publish
 
 on:
   push:
     branches:
       - master
+  pull_request:
+    branches:
+      - master
 
 jobs:
-  build:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Build Docker images
+        run: docker compose build
+
+      - name: Start services
+        run: docker compose up -d
+
+      - name: Wait for services to be healthy
+        run: |
+          echo "Waiting for services to be ready..."
+          for i in {1..30}; do
+            if curl -s http://localhost:1080/health | grep -q '"status":"ok"'; then
+              echo "Validation proxy is ready"
+              break
+            fi
+            echo "Waiting... ($i/30)"
+            sleep 2
+          done
+          # Show service status
+          docker compose ps
+
+      - name: Verify services are healthy
+        run: |
+          curl -s http://localhost:1080/health | jq .
+          curl -s http://localhost:3002/health | jq .
+          curl -s http://localhost:8081/health | jq .
+
+      - name: Run happy path tests
+        run: npx newman run postman/hiiretail-devkit-happy-path.json -e postman/devkit-environment.json --reporters cli,json --reporter-json-export results-happy-path.json
+
+      - name: Run negative tests
+        run: npx newman run postman/hiiretail-devkit-negative-tests.json -e postman/devkit-environment.json --reporters cli,json --reporter-json-export results-negative.json
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results
+          path: results-*.json
+
+      - name: Show logs on failure
+        if: failure()
+        run: docker compose logs
+
+      - name: Cleanup
+        if: always()
+        run: docker compose down -v
+
+  publish:
+    needs: test
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
