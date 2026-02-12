@@ -1,0 +1,15 @@
+{
+  "name": "hiiretail-devkit-validation-proxy",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "ajv": "^8.12.0",
+    "ajv-formats": "^2.1.1",
+    "express": "^4.21.0",
+    "js-yaml": "^4.1.0"
+  }
+}

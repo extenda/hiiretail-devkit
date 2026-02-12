@@ -2,7 +2,7 @@
   "info": {
     "_postman_id": "hiiretail-devkit-happy-path",
     "name": "Hii Retail DevKit - Happy Path",
-    "description": "Happy path tests for all Hii Retail DevKit APIs. These tests verify successful API calls with valid payloads.",
+    "description": "Happy path tests for all Hii Retail DevKit APIs. These tests verify successful API calls with valid payloads that match the official OpenAPI schemas.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -38,7 +38,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"{{businessUnitGroupId}}\",\n  \"name\": \"Demo Retail Group\",\n  \"type\": \"ASSORTMENT\",\n  \"status\": \"ACTIVE\",\n  \"description\": \"Assortment group for all retail stores\",\n  \"tags\": [\"demo\", \"assortment\", \"retail\"]\n}"
+              "raw": "{\n  \"id\": \"{{businessUnitGroupId}}\",\n  \"name\": \"Demo Retail Group\",\n  \"type\": \"ASSORTMENT\",\n  \"status\": \"ACTIVE\",\n  \"description\": \"Assortment group for all retail stores\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/groups",
@@ -81,7 +81,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Downtown Flagship Store\",\n  \"type\": \"STORE\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\",\n  \"description\": \"Flagship store in the downtown shopping district\",\n  \"address\": {\n    \"street\": \"100 Main Street\",\n    \"city\": \"Millbrook\",\n    \"postalCode\": \"10002\",\n    \"country\": \"US\"\n  },\n  \"tags\": [\"flagship\", \"downtown\", \"city-center\"]\n}"
+              "raw": "{\n  \"name\": \"Downtown Flagship Store\",\n  \"type\": \"PHYSICAL_STORE\",\n  \"status\": \"Active\",\n  \"description\": \"Flagship store in the downtown shopping district\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/business-units/{{businessUnitId}}",
@@ -115,7 +115,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Central Distribution Warehouse\",\n  \"type\": \"WAREHOUSE\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\",\n  \"description\": \"Main distribution center\",\n  \"address\": {\n    \"street\": \"500 Industrial Park\",\n    \"city\": \"Millbrook\",\n    \"postalCode\": \"10099\",\n    \"country\": \"US\"\n  },\n  \"tags\": [\"warehouse\", \"distribution\"]\n}"
+              "raw": "{\n  \"name\": \"Central Distribution Warehouse\",\n  \"type\": \"WAREHOUSE\",\n  \"status\": \"Active\",\n  \"description\": \"Main distribution center\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/business-units/bu-warehouse-001",
@@ -158,7 +158,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"cat-dairy-001\",\n  \"name\": \"Dairy Products\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\",\n  \"description\": \"Milk, cheese, yoghurt and other dairy products\",\n  \"type\": \"USER_DEFINED\",\n  \"sortOrder\": 100,\n  \"tags\": [\"dairy\", \"chilled\"]\n}"
+              "raw": "{\n  \"id\": \"cat-dairy-001\",\n  \"name\": \"Dairy Products\",\n  \"status\": \"ACTIVE\",\n  \"description\": \"Milk, cheese, yoghurt and other dairy products\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v2/item-categories",
@@ -192,7 +192,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"cat-milk-001\",\n  \"name\": \"Milk\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\",\n  \"description\": \"Fresh milk products\",\n  \"type\": \"USER_DEFINED\",\n  \"parentId\": \"cat-dairy-001\",\n  \"sortOrder\": 110,\n  \"tags\": [\"milk\", \"chilled\"]\n}"
+              "raw": "{\n  \"id\": \"cat-milk-001\",\n  \"name\": \"Milk\",\n  \"status\": \"ACTIVE\",\n  \"description\": \"Fresh milk products\",\n  \"parentId\": \"cat-dairy-001\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v2/item-categories",
@@ -235,7 +235,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"erp-item-10001\",\n  \"name\": \"Organic Whole Milk 1L\",\n  \"description\": \"Fresh organic whole milk, 3% fat. 1 litre carton.\",\n  \"type\": \"STOCK_ITEM\",\n  \"status\": \"ACTIVE\",\n  \"salesUnitOfMeasurement\": \"EA\",\n  \"referencePriceUnitOfMeasurement\": \"LTR\",\n  \"referencePriceConversionFactor\": 1.0,\n  \"availableInPos\": true,\n  \"needsManualSending\": false,\n  \"needsApproval\": false,\n  \"needsLabelPrinting\": false,\n  \"assortmentPolicyType\": \"INCLUDED\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\",\n  \"brand\": \"EcoFarm\",\n  \"netContent\": 1.0,\n  \"itemCategoryId\": \"cat-dairy-001\",\n  \"tags\": [\"dairy\", \"organic\", \"chilled\"]\n}"
+              "raw": "{\n  \"id\": \"erp-item-10001\",\n  \"name\": \"Organic Whole Milk 1L\",\n  \"description\": \"Fresh organic whole milk, 3% fat. 1 litre carton.\",\n  \"type\": \"STOCK\",\n  \"status\": \"ACTIVE\",\n  \"salesUnitOfMeasurement\": \"EA\",\n  \"assortmentType\": \"IN_ASSORTMENT\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\",\n  \"itemCategoryId\": \"cat-dairy-001\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v2/bu-g-items",
@@ -269,7 +269,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"erp-item-10004\",\n  \"name\": \"Gift Wrapping Service\",\n  \"description\": \"Premium gift wrapping with ribbon and bow\",\n  \"type\": \"SERVICE\",\n  \"status\": \"ACTIVE\",\n  \"salesUnitOfMeasurement\": \"EA\",\n  \"availableInPos\": true,\n  \"needsManualSending\": false,\n  \"needsApproval\": false,\n  \"needsLabelPrinting\": false,\n  \"assortmentPolicyType\": \"INCLUDED\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\",\n  \"tags\": [\"service\", \"gift\"]\n}"
+              "raw": "{\n  \"id\": \"erp-item-10004\",\n  \"name\": \"Gift Wrapping Service\",\n  \"description\": \"Premium gift wrapping with ribbon and bow\",\n  \"type\": \"SERVICE\",\n  \"status\": \"ACTIVE\",\n  \"salesUnitOfMeasurement\": \"EA\",\n  \"assortmentType\": \"IN_ASSORTMENT\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\",\n  \"itemCategoryId\": \"cat-dairy-001\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v2/bu-g-items",
@@ -303,7 +303,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"erp-item-10003\",\n  \"name\": \"Bananas (Loose)\",\n  \"description\": \"Fresh bananas, sold by weight\",\n  \"type\": \"STOCK_ITEM\",\n  \"status\": \"ACTIVE\",\n  \"salesUnitOfMeasurement\": \"KGM\",\n  \"referencePriceUnitOfMeasurement\": \"KGM\",\n  \"referencePriceConversionFactor\": 1.0,\n  \"availableInPos\": true,\n  \"needsManualSending\": false,\n  \"needsApproval\": false,\n  \"needsLabelPrinting\": true,\n  \"assortmentPolicyType\": \"INCLUDED\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\",\n  \"tags\": [\"produce\", \"fruit\", \"weighted\"]\n}"
+              "raw": "{\n  \"id\": \"erp-item-10003\",\n  \"name\": \"Bananas (Loose)\",\n  \"description\": \"Fresh bananas, sold by weight\",\n  \"type\": \"STOCK\",\n  \"status\": \"ACTIVE\",\n  \"salesUnitOfMeasurement\": \"KGM\",\n  \"assortmentType\": \"IN_ASSORTMENT\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\",\n  \"itemCategoryId\": \"cat-dairy-001\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v2/bu-g-items",
@@ -346,7 +346,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"erp-price-20001\",\n  \"itemId\": \"erp-item-10001\",\n  \"type\": \"NORMAL\",\n  \"value\": 24.90,\n  \"currencyId\": \"SEK\",\n  \"taxableGroupId\": \"tax-food-12\",\n  \"validFrom\": \"2025-01-01T00:00:00Z\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\"\n}"
+              "raw": "{\n  \"id\": \"erp-price-20001\",\n  \"itemId\": \"erp-item-10001\",\n  \"type\": \"SALES\",\n  \"value\": 24.90,\n  \"currencyId\": \"SEK\",\n  \"status\": \"ACTIVE\",\n  \"validFrom\": \"2025-01-01T00:00:00Z\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v2/bu-g-price-specifications",
@@ -380,7 +380,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"erp-price-20010\",\n  \"itemId\": \"erp-item-10001\",\n  \"type\": \"CAMPAIGN\",\n  \"value\": 19.90,\n  \"currencyId\": \"SEK\",\n  \"taxableGroupId\": \"tax-food-12\",\n  \"validFrom\": \"2025-02-01T00:00:00Z\",\n  \"validTo\": \"2025-02-28T23:59:59Z\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\"\n}"
+              "raw": "{\n  \"id\": \"erp-price-20010\",\n  \"itemId\": \"erp-item-10001\",\n  \"type\": \"SALES\",\n  \"value\": 19.90,\n  \"currencyId\": \"SEK\",\n  \"status\": \"ACTIVE\",\n  \"validFrom\": \"2025-02-01T00:00:00Z\",\n  \"validTo\": \"2025-02-28T23:59:59Z\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v2/bu-g-price-specifications",
@@ -423,7 +423,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"erp-ident-30001\",\n  \"itemId\": \"erp-item-10001\",\n  \"value\": \"7310865001234\",\n  \"type\": \"GTIN13\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\"\n}"
+              "raw": "{\n  \"id\": \"erp-ident-30001\",\n  \"itemId\": \"erp-item-10001\",\n  \"value\": \"7310865001234\",\n  \"type\": \"GTIN13\",\n  \"status\": \"ACTIVE\",\n  \"isPrimary\": true,\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v2/bu-g-item-identifiers",
@@ -457,7 +457,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"erp-ident-30003\",\n  \"itemId\": \"erp-item-10003\",\n  \"value\": \"4011\",\n  \"type\": \"PLU\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\"\n}"
+              "raw": "{\n  \"id\": \"erp-ident-30003\",\n  \"itemId\": \"erp-item-10003\",\n  \"value\": \"4011\",\n  \"type\": \"PLU\",\n  \"status\": \"ACTIVE\",\n  \"isPrimary\": true,\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v2/bu-g-item-identifiers",
@@ -491,7 +491,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"erp-ident-30004\",\n  \"itemId\": \"erp-item-10004\",\n  \"value\": \"SVC-GIFTWRAP-001\",\n  \"type\": \"SKU\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\"\n}"
+              "raw": "{\n  \"id\": \"erp-ident-30004\",\n  \"itemId\": \"erp-item-10004\",\n  \"value\": \"SVC-GIFTWRAP-001\",\n  \"type\": \"SKU\",\n  \"status\": \"ACTIVE\",\n  \"isPrimary\": true,\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v2/bu-g-item-identifiers",
@@ -530,7 +530,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"erp-item-bu-50001\",\n  \"name\": \"Local Store Special - Fresh Bread\",\n  \"description\": \"Fresh baked bread, store exclusive\",\n  \"type\": \"STOCK_ITEM\",\n  \"status\": \"ACTIVE\",\n  \"salesUnitOfMeasurement\": \"EA\",\n  \"availableInPos\": true,\n  \"needsManualSending\": false,\n  \"needsApproval\": false,\n  \"needsLabelPrinting\": true,\n  \"assortmentPolicyType\": \"INCLUDED\",\n  \"businessUnitId\": \"{{businessUnitId}}\",\n  \"tags\": [\"bakery\", \"local\", \"fresh\"]\n}"
+              "raw": "{\n  \"id\": \"erp-item-bu-50001\",\n  \"name\": \"Local Store Special - Fresh Bread\",\n  \"description\": \"Fresh baked bread, store exclusive\",\n  \"type\": \"STOCK\",\n  \"status\": \"ACTIVE\",\n  \"salesUnitOfMeasurement\": \"EA\",\n  \"assortmentType\": \"IN_ASSORTMENT\",\n  \"businessUnitId\": \"{{businessUnitId}}\",\n  \"itemCategoryId\": \"cat-dairy-001\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v2/bu-items",
@@ -569,7 +569,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"erp-price-bu-60001\",\n  \"itemId\": \"erp-item-bu-50001\",\n  \"type\": \"NORMAL\",\n  \"value\": 35.00,\n  \"currencyId\": \"SEK\",\n  \"taxableGroupId\": \"tax-food-12\",\n  \"validFrom\": \"2025-01-01T00:00:00Z\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitId\": \"{{businessUnitId}}\"\n}"
+              "raw": "{\n  \"id\": \"erp-price-bu-60001\",\n  \"itemId\": \"erp-item-bu-50001\",\n  \"type\": \"SALES\",\n  \"value\": 35.00,\n  \"currencyId\": \"SEK\",\n  \"status\": \"ACTIVE\",\n  \"validFrom\": \"2025-01-01T00:00:00Z\",\n  \"businessUnitId\": \"{{businessUnitId}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v2/bu-price-specifications",
@@ -608,7 +608,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id\": \"erp-ident-bu-70001\",\n  \"itemId\": \"erp-item-bu-50001\",\n  \"value\": \"LOCAL-BREAD-001\",\n  \"type\": \"SKU\",\n  \"status\": \"ACTIVE\",\n  \"businessUnitId\": \"{{businessUnitId}}\"\n}"
+              "raw": "{\n  \"id\": \"erp-ident-bu-70001\",\n  \"itemId\": \"erp-item-bu-50001\",\n  \"value\": \"LOCAL-BREAD-001\",\n  \"type\": \"SKU\",\n  \"status\": \"ACTIVE\",\n  \"isPrimary\": true,\n  \"businessUnitId\": \"{{businessUnitId}}\"\n}"
             },
             "url": {
               "raw": "{{baseUrl}}/api/v2/bu-item-identifiers",

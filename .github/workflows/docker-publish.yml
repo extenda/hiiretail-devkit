@@ -56,3 +56,12 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: extenda/hiiretail-devkit-webhook-receiver:latest
+
+      - name: Build and push validation-proxy
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./validation-proxy/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: extenda/hiiretail-devkit-validation-proxy:latest

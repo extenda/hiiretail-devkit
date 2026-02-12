@@ -1,8 +1,7 @@
 services:
   mockserver:
     image: mockserver/mockserver:5.15.0
-    ports:
-      - "${MOCKSERVER_PORT:-1080}:1080"
+    # No external port - accessed only via validation-proxy
     environment:
       MOCKSERVER_LOG_LEVEL: INFO
       MOCKSERVER_ENABLE_CORS_FOR_ALL_RESPONSES: "true"
@@ -22,6 +21,31 @@ services:
       MOCKSERVER_URL: http://mockserver:1080
     volumes:
       - swagger-specs:/output/specs
+    networks:
+      - devkit
+
+  # Validation proxy: validates requests against OpenAPI schemas before forwarding
+  validation-proxy:
+    image: extenda/hiiretail-devkit-validation-proxy:latest
+    build:
+      context: .
+      dockerfile: validation-proxy/Dockerfile
+    ports:
+      - "${MOCKSERVER_PORT:-1080}:1080"
+    depends_on:
+      mockserver-init:
+        condition: service_completed_successfully
+    environment:
+      PORT: 1080
+      MOCKSERVER_URL: http://mockserver:1080
+      SPECS_DIR: /specs
+    volumes:
+      - swagger-specs:/specs:ro
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:1080/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
     networks:
       - devkit
 

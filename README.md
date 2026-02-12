@@ -63,7 +63,7 @@ open http://localhost:8081   # Webhook Playground
 ```
 
 Services will be available at:
-- **MockServer:** http://localhost:1080 — POST your API payloads here
+- **API Endpoint:** http://localhost:1080 — POST your API payloads here (validated against OpenAPI schemas)
 - **Swagger UI:** http://localhost:8080 — Interactive API documentation
 - **Webhook Playground:** http://localhost:8081 — Test webhook delivery
 
@@ -113,6 +113,7 @@ Pre-built images are available on DockerHub:
 | Image | Description |
 |-------|-------------|
 | `extenda/hiiretail-devkit-mockserver-init` | Fetches OpenAPI specs and configures MockServer |
+| `extenda/hiiretail-devkit-validation-proxy` | Validates requests against OpenAPI schemas |
 | `extenda/hiiretail-devkit-webhook-playground` | Web UI for testing webhook delivery |
 | `extenda/hiiretail-devkit-webhook-receiver` | Captures webhook events for inspection |
 
@@ -122,22 +123,26 @@ Pre-built images are available on DockerHub:
 +---------------------------------------------------------------------+
 |  docker compose                                                     |
 |                                                                     |
-|  +------------------+               +---------------------+         |
-|  |  MockServer      |               |  Webhook            |         |
-|  |  :1080           |               |  Playground :8081   |         |
-|  |                  |               |  (Web UI)           |         |
-|  |  - OpenAPI       |               +---------------------+         |
-|  |    contract      |                         |                     |
-|  |    validation    |                         v                     |
-|  |  - Specs from    |               +---------------------+         |
-|  |    canonical     |               |  Webhook            |         |
-|  |    URLs          |               |  Receiver :3002     |         |
-|  +------------------+               +---------------------+         |
-|                                                                     |
+|  +------------------+     +------------------+                      |
+|  |  Validation      | --> |  MockServer      |                      |
+|  |  Proxy :1080     |     |  (internal)      |                      |
+|  |                  |     |                  |                      |
+|  |  - Schema        |     |  - Response      |                      |
+|  |    validation    |     |    mocking       |                      |
+|  |  - 400 errors    |     |  - Path routing  |                      |
+|  |    for invalid   |     +------------------+                      |
 |  +------------------+                                               |
-|  |  Swagger UI      |                                               |
-|  |  :8080           |                                               |
-|  +------------------+                                               |
+|                                     +---------------------+         |
+|  +------------------+               |  Webhook            |         |
+|  |  Swagger UI      |               |  Playground :8081   |         |
+|  |  :8080           |               |  (Web UI)           |         |
+|  +------------------+               +---------------------+         |
+|                                               |                     |
+|                                               v                     |
+|                                     +---------------------+         |
+|                                     |  Webhook            |         |
+|                                     |  Receiver :3002     |         |
+|                                     +---------------------+         |
 +---------------------------------------------------------------------+
 
 +---------------------------------------------------------------------+
@@ -152,22 +157,62 @@ Pre-built images are available on DockerHub:
 
 ### How It Works
 
-1. **MockServer** (port 1080) is the entry point for all API calls. OpenAPI specs
-   are fetched from Hii Retail's canonical URLs at startup and used to generate
-   request expectations with contract validation.
+1. **Validation Proxy** (port 1080) is the entry point for all API calls.
+   Validates request bodies against OpenAPI schemas before forwarding to
+   MockServer. Invalid payloads return 400 with detailed validation errors.
 
-2. **Webhook Playground** (port 8081) is a web UI for testing webhook receivers.
+2. **MockServer** (internal) handles response mocking after requests pass
+   validation. Returns 202 Accepted for valid payloads, matching real Hii
+   Retail API behavior.
+
+3. **Webhook Playground** (port 8081) is a web UI for testing webhook receivers.
    Select from pre-built event sources (based on real Hii Retail event schemas),
    configure the target URL, authentication, and custom headers, then send.
 
-3. **Webhook Receiver** (port 3002) is a built-in service that captures webhook
+4. **Webhook Receiver** (port 3002) is a built-in service that captures webhook
    events. Use it as a test target or inspect events via `devkit webhook logs`.
 
-4. **Swagger UI** (port 8080) serves OpenAPI specs directly from Hii Retail's
+5. **Swagger UI** (port 8080) serves OpenAPI specs directly from Hii Retail's
    canonical URLs for interactive exploration.
 
-5. **mockserver-init** is a one-shot container that fetches OpenAPI specs from
-   canonical URLs and loads expectations into MockServer.
+6. **mockserver-init** is a one-shot container that fetches OpenAPI specs from
+   canonical URLs, loads expectations into MockServer, and provides specs to the
+   validation proxy.
+
+### Request Validation
+
+All POST, PUT, and PATCH requests are validated against the OpenAPI schemas
+before being forwarded to MockServer. This catches schema violations early,
+just like the real Hii Retail APIs would.
+
+**Invalid payloads return 400 with detailed errors:**
+
+```json
+{
+  "error": "Request validation failed",
+  "message": "The request body does not match the createItem schema",
+  "validationErrors": [
+    {
+      "path": "/itemType",
+      "message": "must be equal to one of the allowed values",
+      "details": "allowed values: STOCK, SERVICE, BUNDLE"
+    },
+    {
+      "path": "",
+      "message": "must have required property 'businessUnitGroupId'",
+      "details": "missing required property 'businessUnitGroupId'"
+    }
+  ],
+  "hint": "Use the CLI to validate payloads offline: devkit validate <file> --api <name>"
+}
+```
+
+**Validation checks include:**
+- Required fields
+- Enum values (itemType, status, priceType, etc.)
+- Data types (string, number, boolean, array)
+- String formats (date-time, uuid, etc.)
+- Nested object schemas
 
 ## CLI Reference
 
