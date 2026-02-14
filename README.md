@@ -23,6 +23,8 @@ tools — so you can build and test integrations without touching production.
 | **Price Specification (BU level)** | `price-bu` | `/api/v2/bu-price-specifications` |
 | **Item Identifier Input** | `identifier` | `/api/v2/bu-g-item-identifiers` |
 | **Item Identifier (BU level)** | `identifier-bu` | `/api/v2/bu-item-identifiers` |
+| **Promotion Input** | `promotion` | `/api/v2/bu-g-promotions` |
+| **Promotion Input (BU level)** | `promotion-bu` | `/api/v2/bu-promotions` |
 | **Item Category Input** | `category` | `/api/v2/item-categories` |
 | **Business Unit** | `bu` | `/business-units` |
 | **Business Unit Group** | `group` | `/groups` |
@@ -345,6 +347,7 @@ devkit push --api item --file examples/payloads/items/organic-milk.json --target
 | `items/` | `item` | Organic milk, sourdough bread, bananas (KG), gift wrapping (SERVICE), sparkling water (BUNDLE) |
 | `price-specifications/` | `price` | Normal and campaign prices |
 | `item-identifiers/` | `identifier` | GTIN13, PLU, and SKU codes |
+| `promotions/` | `promotion` | Summer sale, member discounts, coupon promotions |
 | `business-unit-groups/` | `group` | Assortment, pricing, and tax groups |
 | `business-units/` | `bu` | Stores and warehouses |
 | `item-categories/` | `category` | Product categories with hierarchy |
@@ -384,6 +387,7 @@ Ready-to-use Postman collections for testing the MockServer:
 - Items (Stock Item, Service, Weighted)
 - Price Specifications (Normal, Campaign)
 - Item Identifiers (GTIN, PLU, SKU)
+- Promotions (Normal, Coupon, Member)
 - Both BUG-level and BU-level endpoints
 
 **Negative tests cover:**

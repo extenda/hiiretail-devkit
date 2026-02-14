@@ -98,7 +98,8 @@ services:
           {"url": "/specs/price-specification-input.json", "name": "Price Specification Input API"},
           {"url": "/specs/item-identifier-input.json", "name": "Item Identifier Input API"},
           {"url": "/specs/business-unit.json", "name": "Business Unit Management API"},
-          {"url": "/specs/item-category-input.json", "name": "Item Category Input API"}
+          {"url": "/specs/item-category-input.json", "name": "Item Category Input API"},
+          {"url": "/specs/promotion-input.json", "name": "Promotion Input API"}
         ]
       URLS_PRIMARY_NAME: "Item Input API"
     volumes:

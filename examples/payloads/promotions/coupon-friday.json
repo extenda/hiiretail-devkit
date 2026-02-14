@@ -1,0 +1,27 @@
+{
+  "id": "promo-coupon-friday-15",
+  "name": "Friday Coupon 15% Off",
+  "description": "Use code FRIDAY for 15% off",
+  "businessUnitGroupId": "bug-retail-001",
+  "status": "ACTIVE",
+  "promotionType": "COUPON",
+  "from": "2026-02-01T00:00:00Z",
+  "to": "2026-02-28T23:59:59Z",
+  "promotionContent": "<Promotion id=\"friday-coupon\"><EffectiveDate>2026-02-01T00:00:00Z</EffectiveDate><ExpiryDate>2026-02-28T23:59:59Z</ExpiryDate><Descriptions><Description language=\"enUS\" description=\"15% off with code FRIDAY\" name=\"Friday Coupon\"/></Descriptions><SimpleOffer><Reward><PercentageReward>15</PercentageReward></Reward></SimpleOffer></Promotion>",
+  "additionalProperties": [
+    {
+      "id": "PromotionCode",
+      "name": "Coupon Code",
+      "value": "FRIDAY",
+      "dataType": "STRING",
+      "isMandatory": true
+    },
+    {
+      "id": "Pos.ReceiptText",
+      "name": "Receipt Text",
+      "value": "COUPON FRIDAY -15%",
+      "dataType": "STRING",
+      "isMandatory": true
+    }
+  ]
+}

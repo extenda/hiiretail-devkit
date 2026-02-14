@@ -1,5 +1,5 @@
 // API path mapping based on real Hii Retail API paths
-// Items, prices, and identifiers support both business-unit-group level (bu-g-) and business-unit level (bu-)
+// Items, prices, identifiers, and promotions support both business-unit-group level (bu-g-) and business-unit level (bu-)
 const API_PATH_MAP = {
   item: '/api/v2/bu-g-items',
   'item-bu': '/api/v2/bu-items',
@@ -10,6 +10,8 @@ const API_PATH_MAP = {
   category: '/api/v2/item-categories',
   bu: '/business-units',
   group: '/groups',
+  promotion: '/api/v2/bu-g-promotions',
+  'promotion-bu': '/api/v2/bu-promotions',
 };
 
 /**

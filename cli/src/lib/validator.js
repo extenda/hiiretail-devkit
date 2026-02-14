@@ -18,6 +18,8 @@ const API_SPEC_MAP = {
   bu: { spec: 'business-unit', schema: 'BusinessUnit' },
   group: { spec: 'business-unit', schema: 'BusinessUnitGroup' },
   category: { spec: 'item-category-input', schema: 'ItemCategory' },
+  promotion: { spec: 'promotion-input', schema: 'PromotionInput' },
+  'promotion-bu': { spec: 'promotion-input', schema: 'BUPromotionInput' },
 };
 
 /**

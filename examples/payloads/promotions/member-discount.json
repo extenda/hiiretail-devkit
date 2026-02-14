@@ -1,0 +1,27 @@
+{
+  "id": "promo-member-10-percent",
+  "name": "Member Exclusive 10% Off",
+  "description": "10% discount for loyalty members",
+  "businessUnitGroupId": "bug-retail-001",
+  "status": "ACTIVE",
+  "promotionType": "MEMBER",
+  "from": "2026-01-01T00:00:00Z",
+  "to": "2026-12-31T23:59:59Z",
+  "promotionContent": "<Promotion id=\"member-10\"><EffectiveDate>2026-01-01T00:00:00Z</EffectiveDate><ExpiryDate>2026-12-31T23:59:59Z</ExpiryDate><Descriptions><Description language=\"enUS\" description=\"10% off for members\" name=\"Member Discount\"/></Descriptions><SimpleOffer><Reward><PercentageReward>10</PercentageReward></Reward></SimpleOffer></Promotion>",
+  "additionalProperties": [
+    {
+      "id": "Pos.ReceiptText",
+      "name": "Receipt Text",
+      "value": "MEMBER DISCOUNT -10%",
+      "dataType": "STRING",
+      "isMandatory": true
+    },
+    {
+      "id": "Loyalty.RequiresMembership",
+      "name": "Requires Membership",
+      "value": "true",
+      "dataType": "BOOL",
+      "isMandatory": true
+    }
+  ]
+}

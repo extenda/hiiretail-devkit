@@ -618,6 +618,156 @@
           }
         }
       ]
+    },
+    {
+      "name": "Promotions (BUG Level)",
+      "item": [
+        {
+          "name": "Create Promotion - Normal",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 or 202', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 202]);",
+                  "});",
+                  "",
+                  "pm.test('Response time is acceptable', function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(2000);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"promo-summer-sale-2026\",\n  \"name\": \"Summer Sale 2026\",\n  \"description\": \"20% off all summer items\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\",\n  \"status\": \"ACTIVE\",\n  \"promotionType\": \"NORMAL\",\n  \"from\": \"2026-06-01T00:00:00Z\",\n  \"to\": \"2026-08-31T23:59:59Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v2/bu-g-promotions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v2", "bu-g-promotions"]
+            }
+          }
+        },
+        {
+          "name": "Create Promotion - Coupon",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 or 202', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 202]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"promo-coupon-friday-15\",\n  \"name\": \"Friday Coupon 15% Off\",\n  \"description\": \"Use code FRIDAY for 15% off\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\",\n  \"status\": \"ACTIVE\",\n  \"promotionType\": \"COUPON\",\n  \"from\": \"2026-02-01T00:00:00Z\",\n  \"to\": \"2026-02-28T23:59:59Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v2/bu-g-promotions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v2", "bu-g-promotions"]
+            }
+          }
+        },
+        {
+          "name": "Create Promotion - Member",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 or 202', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 202]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"promo-member-10-percent\",\n  \"name\": \"Member Exclusive 10% Off\",\n  \"description\": \"10% discount for loyalty members\",\n  \"businessUnitGroupId\": \"{{businessUnitGroupId}}\",\n  \"status\": \"ACTIVE\",\n  \"promotionType\": \"MEMBER\",\n  \"from\": \"2026-01-01T00:00:00Z\",\n  \"to\": \"2026-12-31T23:59:59Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v2/bu-g-promotions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v2", "bu-g-promotions"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Promotions (BU Level)",
+      "item": [
+        {
+          "name": "Create Promotion at BU Level",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200 or 202', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([200, 202]);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"promo-store-opening-downtown\",\n  \"name\": \"Downtown Store Grand Opening\",\n  \"description\": \"25% off for store grand opening\",\n  \"businessUnitId\": \"{{businessUnitId}}\",\n  \"status\": \"ACTIVE\",\n  \"promotionType\": \"NORMAL\",\n  \"from\": \"2026-03-01T00:00:00Z\",\n  \"to\": \"2026-03-07T23:59:59Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v2/bu-promotions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v2", "bu-promotions"]
+            }
+          }
+        }
+      ]
     }
   ]
 }

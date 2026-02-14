@@ -1,0 +1,20 @@
+{
+  "id": "promo-store-opening-downtown",
+  "name": "Downtown Store Grand Opening",
+  "description": "25% off for store grand opening",
+  "businessUnitId": "bu-downtown-001",
+  "status": "ACTIVE",
+  "promotionType": "NORMAL",
+  "from": "2026-03-01T00:00:00Z",
+  "to": "2026-03-07T23:59:59Z",
+  "promotionContent": "<Promotion id=\"grand-opening\"><EffectiveDate>2026-03-01T00:00:00Z</EffectiveDate><ExpiryDate>2026-03-07T23:59:59Z</ExpiryDate><Descriptions><Description language=\"enUS\" description=\"25% off grand opening\" name=\"Grand Opening\"/></Descriptions><SimpleOffer><Reward><PercentageReward>25</PercentageReward></Reward></SimpleOffer></Promotion>",
+  "additionalProperties": [
+    {
+      "id": "Pos.ReceiptText",
+      "name": "Receipt Text",
+      "value": "GRAND OPENING -25%",
+      "dataType": "STRING",
+      "isMandatory": true
+    }
+  ]
+}

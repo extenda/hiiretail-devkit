@@ -393,6 +393,124 @@
               "path": ["api", "v2", "bu-g-items"]
             }
           }
+        },
+        {
+          "name": "Promotion - missing required fields rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Missing required fields returns 400', function () {",
+                  "    pm.expect(pm.response.code).to.equal(400);",
+                  "});",
+                  "",
+                  "pm.test('Response lists missing fields', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.validationErrors).to.be.an('array');",
+                  "    pm.expect(json.validationErrors.length).to.be.greaterThan(0);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Incomplete Promotion\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v2/bu-g-promotions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v2", "bu-g-promotions"]
+            }
+          }
+        },
+        {
+          "name": "Promotion - invalid promotionType rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Invalid promotionType returns 400', function () {",
+                  "    pm.expect(pm.response.code).to.equal(400);",
+                  "});",
+                  "",
+                  "pm.test('Response shows allowed values', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.validationErrors).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"promo-invalid\",\n  \"businessUnitGroupId\": \"bug-001\",\n  \"status\": \"ACTIVE\",\n  \"promotionType\": \"INVALID_TYPE\",\n  \"from\": \"2026-01-01T00:00:00Z\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v2/bu-g-promotions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v2", "bu-g-promotions"]
+            }
+          }
+        },
+        {
+          "name": "Promotion - invalid date format rejected",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Invalid date format returns 400', function () {",
+                  "    pm.expect(pm.response.code).to.equal(400);",
+                  "});",
+                  "",
+                  "pm.test('Response contains format error', function () {",
+                  "    var json = pm.response.json();",
+                  "    pm.expect(json.validationErrors).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id\": \"promo-bad-date\",\n  \"businessUnitGroupId\": \"bug-001\",\n  \"status\": \"ACTIVE\",\n  \"promotionType\": \"NORMAL\",\n  \"from\": \"not-a-date\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v2/bu-g-promotions",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v2", "bu-g-promotions"]
+            }
+          }
         }
       ]
     }

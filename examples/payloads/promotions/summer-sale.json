@@ -1,0 +1,20 @@
+{
+  "id": "promo-summer-sale-2026",
+  "name": "Summer Sale 2026",
+  "description": "20% off all summer items",
+  "businessUnitGroupId": "bug-retail-001",
+  "status": "ACTIVE",
+  "promotionType": "NORMAL",
+  "from": "2026-06-01T00:00:00Z",
+  "to": "2026-08-31T23:59:59Z",
+  "promotionContent": "<Promotion id=\"summer-sale\"><EffectiveDate>2026-06-01T00:00:00Z</EffectiveDate><ExpiryDate>2026-08-31T23:59:59Z</ExpiryDate><Descriptions><Description language=\"enUS\" description=\"20% off summer items\" name=\"Summer Sale\"/></Descriptions><SimpleOffer><Reward><PercentageReward>20</PercentageReward></Reward></SimpleOffer></Promotion>",
+  "additionalProperties": [
+    {
+      "id": "Pos.ReceiptText",
+      "name": "Receipt Text",
+      "value": "SUMMER SALE -20%",
+      "dataType": "STRING",
+      "isMandatory": true
+    }
+  ]
+}
