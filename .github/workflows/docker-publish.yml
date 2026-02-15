@@ -43,6 +43,7 @@ jobs:
         run: |
           curl -s http://localhost:1080/health | jq .
           curl -s http://localhost:3002/health | jq .
+          curl -s http://localhost:3003/health | jq .
           curl -s http://localhost:8081/health | jq .
 
       - name: Run happy path tests
@@ -50,6 +51,9 @@ jobs:
 
       - name: Run negative tests
         run: npx newman run postman/hiiretail-devkit-negative-tests.json -e postman/devkit-environment.json --reporters cli,json --reporter-json-export results-negative.json
+
+      - name: Run CCC tests
+        run: npx newman run postman/hiiretail-devkit-ccc-tests.json -e postman/devkit-environment.json --reporters cli,json --reporter-json-export results-ccc.json
 
       - name: Upload test results
         uses: actions/upload-artifact@v4
@@ -127,3 +131,12 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: extenda/hiiretail-devkit-validation-proxy:latest
+
+      - name: Build and push ccc-server
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./ccc-server/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: extenda/hiiretail-devkit-ccc-server:latest

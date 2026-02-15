@@ -4,6 +4,7 @@ import { registerMockCommand } from '../src/commands/mock.js';
 import { registerValidateCommand } from '../src/commands/validate.js';
 import { registerPushCommand } from '../src/commands/push.js';
 import { registerWebhookCommand } from '../src/commands/webhook.js';
+import { registerCccCommand } from '../src/commands/ccc.js';
 
 program
   .name('devkit')
@@ -14,5 +15,6 @@ registerMockCommand(program);
 registerValidateCommand(program);
 registerPushCommand(program);
 registerWebhookCommand(program);
+registerCccCommand(program);
 
 program.parse();

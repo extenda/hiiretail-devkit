@@ -1,5 +1,6 @@
 import express from 'express';
 import Ajv from 'ajv';
+import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 import { readFileSync, readdirSync, existsSync } from 'fs';
 import { join } from 'path';
@@ -9,8 +10,148 @@ const app = express();
 app.use(express.json({ limit: '10mb' }));
 
 const MOCKSERVER_URL = process.env.MOCKSERVER_URL || 'http://mockserver:1080';
+const CCC_SERVER_URL = process.env.CCC_SERVER_URL || 'http://ccc-server:3003';
 const SPECS_DIR = process.env.SPECS_DIR || '/specs';
 const PORT = process.env.PORT || 1080;
+
+// ---------------------------------------------------------------------------
+// CCC (Customer Controlled Configuration) Support
+// ---------------------------------------------------------------------------
+const CCC_PATH_PREFIX = '/api/v1/config';
+
+// Known CCC kinds with category mappings for schema fetching
+const CCC_KINDS = new Map([
+  ['rco.reason-codes.v1', { category: 'reason-codes' }],
+]);
+
+// Cache for CCC schema validators
+const cccValidators = new Map();
+
+/**
+ * Check if path is a CCC path
+ */
+function isCccPath(path) {
+  return path.startsWith(CCC_PATH_PREFIX);
+}
+
+/**
+ * Parse CCC path to extract kind and level
+ * Returns { kind, level: 'tenant' | 'business-unit', buId? }
+ */
+function parseCccPath(path) {
+  // /api/v1/config/:kind/values/tenant
+  // /api/v1/config/:kind/values/business-units/:buId
+  const tenantMatch = path.match(/^\/api\/v1\/config\/([^/]+)\/values\/tenant$/);
+  if (tenantMatch) {
+    return { kind: tenantMatch[1], level: 'tenant' };
+  }
+
+  const buMatch = path.match(/^\/api\/v1\/config\/([^/]+)\/values\/business-units\/([^/]+)$/);
+  if (buMatch) {
+    return { kind: buMatch[1], level: 'business-unit', buId: buMatch[2] };
+  }
+
+  return null;
+}
+
+/**
+ * Get or create CCC validator for a kind
+ */
+async function getCccValidator(kind) {
+  if (cccValidators.has(kind)) {
+    return cccValidators.get(kind);
+  }
+
+  const kindInfo = CCC_KINDS.get(kind);
+  if (!kindInfo) {
+    return null; // Unknown kind, let ccc-server return 404
+  }
+
+  const schemaUrl = `https://raw.githubusercontent.com/extenda/hiiretail-json-schema-registry/master/customer-config/${kindInfo.category}/${kind}.json`;
+
+  try {
+    console.log(`Fetching CCC schema: ${schemaUrl}`);
+    const res = await fetch(schemaUrl);
+    if (!res.ok) {
+      console.error(`Failed to fetch CCC schema for ${kind}: ${res.status}`);
+      return null;
+    }
+
+    const schema = await res.json();
+    // CCC schemas use JSON Schema 2020-12
+    const ajv = new Ajv2020({ allErrors: true, strict: false, validateFormats: true });
+    addFormats(ajv);
+    const validate = ajv.compile(schema);
+    cccValidators.set(kind, validate);
+    console.log(`Compiled CCC validator for ${kind}`);
+    return validate;
+  } catch (err) {
+    console.error(`Error fetching/compiling CCC schema for ${kind}: ${err.message}`);
+    return null;
+  }
+}
+
+/**
+ * Handle CCC request: validate PUT/PATCH bodies and forward to ccc-server
+ */
+async function handleCccRequest(req, res) {
+  const { method, path, body, headers } = req;
+  const contentType = headers['content-type'] || '';
+  const hasBody = ['PUT', 'PATCH'].includes(method) && contentType.includes('application/json');
+
+  // Validate PUT/PATCH requests
+  if (hasBody) {
+    const parsed = parseCccPath(path);
+    if (parsed) {
+      const validate = await getCccValidator(parsed.kind);
+      if (validate) {
+        const valid = validate(body);
+        if (!valid) {
+          const errors = formatErrors(validate.errors || []);
+          return res.status(400).json({
+            error: 'CCC validation failed',
+            message: `The request body does not match the ${parsed.kind} schema`,
+            validationErrors: errors,
+            hint: `Use the CLI to validate payloads: devkit ccc validate --kind ${parsed.kind} -f <file>`,
+          });
+        }
+      }
+    }
+  }
+
+  // Forward to CCC server
+  try {
+    const targetUrl = `${CCC_SERVER_URL}${path}`;
+    const fetchOptions = {
+      method,
+      headers: {
+        'Content-Type': contentType || 'application/json',
+      },
+    };
+
+    if (hasBody) {
+      fetchOptions.body = JSON.stringify(body);
+    }
+
+    const response = await fetch(targetUrl, fetchOptions);
+    const responseBody = await response.text();
+
+    res.status(response.status);
+    response.headers.forEach((value, key) => {
+      if (!['content-encoding', 'transfer-encoding', 'content-length'].includes(key.toLowerCase())) {
+        res.set(key, value);
+      }
+    });
+
+    res.send(responseBody);
+  } catch (err) {
+    console.error(`CCC proxy error: ${err.message}`);
+    res.status(502).json({
+      error: 'CCC proxy error',
+      message: `Failed to forward request to CCC server: ${err.message}`,
+    });
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Schema storage: maps path patterns to validators
@@ -190,6 +331,11 @@ app.get('/health', (_req, res) => {
 // ---------------------------------------------------------------------------
 app.all('*', async (req, res) => {
   const { method, path, body, headers } = req;
+
+  // Route CCC requests to CCC server (before OpenAPI validation)
+  if (isCccPath(path)) {
+    return handleCccRequest(req, res);
+  }
 
   // Skip validation for non-JSON or GET/DELETE requests
   const contentType = headers['content-type'] || '';

@@ -1,0 +1,688 @@
+{
+  "info": {
+    "_postman_id": "hiiretail-devkit-ccc-tests",
+    "name": "Hii Retail DevKit - CCC Tests",
+    "description": "Tests for Customer Controlled Configuration (CCC) API. Includes happy path tests for CRUD operations and negative tests for validation.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "CCC Health & Discovery",
+      "item": [
+        {
+          "name": "CCC Server Health Check",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has correct structure', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.status).to.equal('ok');",
+                  "    pm.expect(json.service).to.equal('ccc-server');",
+                  "    pm.expect(json).to.have.property('tenantConfigs');",
+                  "    pm.expect(json).to.have.property('buConfigs');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3003/health",
+              "host": ["http://localhost:3003"],
+              "path": ["health"]
+            }
+          }
+        },
+        {
+          "name": "List Available CCC Kinds",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "pm.test('Response contains kinds array', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('kinds');",
+                  "    pm.expect(json.kinds).to.be.an('array');",
+                  "});",
+                  "",
+                  "pm.test('Reason codes kind is available', function () {",
+                  "    const json = pm.response.json();",
+                  "    const reasonCodes = json.kinds.find(k => k.kind === 'rco.reason-codes.v1');",
+                  "    pm.expect(reasonCodes).to.not.be.undefined;",
+                  "    pm.expect(reasonCodes.category).to.equal('reason-codes');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/config",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "config"]
+            }
+          }
+        },
+        {
+          "name": "Get Kind Definition",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has kind details', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.kind).to.equal('rco.reason-codes.v1');",
+                  "    pm.expect(json.category).to.equal('reason-codes');",
+                  "    pm.expect(json).to.have.property('schemaUrl');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/config/rco.reason-codes.v1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "config", "rco.reason-codes.v1"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "CCC Happy Path - Tenant Level",
+      "item": [
+        {
+          "name": "Reset CCC Configs (Setup)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:3003/api/v1/_reset",
+              "host": ["http://localhost:3003"],
+              "path": ["api", "v1", "_reset"]
+            }
+          }
+        },
+        {
+          "name": "PUT Tenant Reason Codes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 202', function () {",
+                  "    pm.expect(pm.response.code).to.equal(202);",
+                  "});",
+                  "",
+                  "pm.test('Response confirms tenant level', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.level).to.equal('tenant');",
+                  "    pm.expect(json.kind).to.equal('rco.reason-codes.v1');",
+                  "});",
+                  "",
+                  "pm.test('Response time is acceptable', function () {",
+                  "    pm.expect(pm.response.responseTime).to.be.below(3000);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reasonCodes\": [\n    {\n      \"id\": \"REFUND-001\",\n      \"name\": \"Customer Return - Defective\",\n      \"description\": \"Item returned due to defect\",\n      \"status\": \"Activated\",\n      \"groups\": [\"Refund\"],\n      \"isCommentRequired\": true\n    },\n    {\n      \"id\": \"VOID-001\",\n      \"name\": \"Customer Changed Mind\",\n      \"status\": \"Activated\",\n      \"groups\": [\"CancelOrder\"]\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/config/rco.reason-codes.v1/values/tenant",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "config", "rco.reason-codes.v1", "values", "tenant"]
+            }
+          }
+        },
+        {
+          "name": "GET Tenant Reason Codes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has reasonCodes array', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('reasonCodes');",
+                  "    pm.expect(json.reasonCodes).to.be.an('array');",
+                  "    pm.expect(json.reasonCodes.length).to.equal(2);",
+                  "});",
+                  "",
+                  "pm.test('Reason codes have correct structure', function () {",
+                  "    const json = pm.response.json();",
+                  "    const refund = json.reasonCodes.find(r => r.id === 'REFUND-001');",
+                  "    pm.expect(refund.name).to.equal('Customer Return - Defective');",
+                  "    pm.expect(refund.status).to.equal('Activated');",
+                  "    pm.expect(refund.groups).to.include('Refund');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/config/rco.reason-codes.v1/values/tenant",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "config", "rco.reason-codes.v1", "values", "tenant"]
+            }
+          }
+        },
+        {
+          "name": "DELETE Tenant Reason Codes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "pm.test('Response confirms deletion', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.message).to.include('deleted');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/config/rco.reason-codes.v1/values/tenant",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "config", "rco.reason-codes.v1", "values", "tenant"]
+            }
+          }
+        },
+        {
+          "name": "GET Deleted Tenant Config (404 Expected)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.expect(pm.response.code).to.equal(404);",
+                  "});",
+                  "",
+                  "pm.test('Error message indicates not found', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.equal('Config not found');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/config/rco.reason-codes.v1/values/tenant",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "config", "rco.reason-codes.v1", "values", "tenant"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "CCC Happy Path - Business Unit Level",
+      "item": [
+        {
+          "name": "PUT BU Reason Codes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 202', function () {",
+                  "    pm.expect(pm.response.code).to.equal(202);",
+                  "});",
+                  "",
+                  "pm.test('Response confirms BU level', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.level).to.equal('business-unit');",
+                  "    pm.expect(json.businessUnitId).to.equal('store-001');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reasonCodes\": [\n    {\n      \"id\": \"LOCAL-001\",\n      \"name\": \"Store-Specific Override\",\n      \"status\": \"Activated\",\n      \"groups\": [\"StockCorrection\"]\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/config/rco.reason-codes.v1/values/business-units/store-001",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "config", "rco.reason-codes.v1", "values", "business-units", "store-001"]
+            }
+          }
+        },
+        {
+          "name": "GET BU Reason Codes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has BU-specific reason codes', function () {",
+                  "    const json = pm.response.json();",
+                  "    const local = json.reasonCodes.find(r => r.id === 'LOCAL-001');",
+                  "    pm.expect(local).to.not.be.undefined;",
+                  "    pm.expect(local.name).to.equal('Store-Specific Override');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/config/rco.reason-codes.v1/values/business-units/store-001",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "config", "rco.reason-codes.v1", "values", "business-units", "store-001"]
+            }
+          }
+        },
+        {
+          "name": "DELETE BU Reason Codes",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 200', function () {",
+                  "    pm.expect(pm.response.code).to.equal(200);",
+                  "});",
+                  "",
+                  "pm.test('Response confirms BU deletion', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.businessUnitId).to.equal('store-001');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/config/rco.reason-codes.v1/values/business-units/store-001",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "config", "rco.reason-codes.v1", "values", "business-units", "store-001"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "CCC Negative Tests - Validation Errors (400)",
+      "item": [
+        {
+          "name": "Missing reasonCodes field",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.expect(pm.response.code).to.equal(400);",
+                  "});",
+                  "",
+                  "pm.test('Error indicates validation failure', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.equal('CCC validation failed');",
+                  "});",
+                  "",
+                  "pm.test('Error mentions missing reasonCodes', function () {",
+                  "    const json = pm.response.json();",
+                  "    const hasError = json.validationErrors.some(e => ",
+                  "        e.message.includes('reasonCodes') || e.details.includes('reasonCodes')",
+                  "    );",
+                  "    pm.expect(hasError).to.be.true;",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"invalid\": \"payload\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/config/rco.reason-codes.v1/values/tenant",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "config", "rco.reason-codes.v1", "values", "tenant"]
+            }
+          }
+        },
+        {
+          "name": "Missing required id field",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.expect(pm.response.code).to.equal(400);",
+                  "});",
+                  "",
+                  "pm.test('Error indicates validation failure', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.equal('CCC validation failed');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reasonCodes\": [\n    {\n      \"name\": \"Missing ID\",\n      \"status\": \"Activated\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/config/rco.reason-codes.v1/values/tenant",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "config", "rco.reason-codes.v1", "values", "tenant"]
+            }
+          }
+        },
+        {
+          "name": "Invalid status enum value",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.expect(pm.response.code).to.equal(400);",
+                  "});",
+                  "",
+                  "pm.test('Error indicates validation failure', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.equal('CCC validation failed');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reasonCodes\": [\n    {\n      \"id\": \"TEST-001\",\n      \"name\": \"Invalid Status\",\n      \"status\": \"INVALID_STATUS\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/config/rco.reason-codes.v1/values/tenant",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "config", "rco.reason-codes.v1", "values", "tenant"]
+            }
+          }
+        },
+        {
+          "name": "Name too short (min 3 chars)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 400', function () {",
+                  "    pm.expect(pm.response.code).to.equal(400);",
+                  "});",
+                  "",
+                  "pm.test('Error indicates validation failure', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.equal('CCC validation failed');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reasonCodes\": [\n    {\n      \"id\": \"TEST-001\",\n      \"name\": \"AB\",\n      \"status\": \"Activated\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/config/rco.reason-codes.v1/values/tenant",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "config", "rco.reason-codes.v1", "values", "tenant"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "CCC Negative Tests - Not Found (404)",
+      "item": [
+        {
+          "name": "Unknown kind",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.expect(pm.response.code).to.equal(404);",
+                  "});",
+                  "",
+                  "pm.test('Error indicates kind not found', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.equal('Kind not found');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/config/unknown.kind.v1/values/tenant",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "config", "unknown.kind.v1", "values", "tenant"]
+            }
+          }
+        },
+        {
+          "name": "GET non-existent tenant config",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.expect(pm.response.code).to.equal(404);",
+                  "});",
+                  "",
+                  "pm.test('Error indicates config not found', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.equal('Config not found');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/config/rco.reason-codes.v1/values/tenant",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "config", "rco.reason-codes.v1", "values", "tenant"]
+            }
+          }
+        },
+        {
+          "name": "GET non-existent BU config",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.expect(pm.response.code).to.equal(404);",
+                  "});",
+                  "",
+                  "pm.test('Error indicates config not found', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.equal('Config not found');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/config/rco.reason-codes.v1/values/business-units/non-existent-bu",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "config", "rco.reason-codes.v1", "values", "business-units", "non-existent-bu"]
+            }
+          }
+        },
+        {
+          "name": "DELETE non-existent config",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status code is 404', function () {",
+                  "    pm.expect(pm.response.code).to.equal(404);",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/config/rco.reason-codes.v1/values/tenant",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "config", "rco.reason-codes.v1", "values", "tenant"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

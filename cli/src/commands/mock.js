@@ -32,12 +32,14 @@ export function registerMockCommand(program) {
           console.log('  MockServer:           http://localhost:1080');
           console.log('  Webhook Playground:   http://localhost:8081');
           console.log('  Webhook Receiver:     http://localhost:3002');
+          console.log('  CCC Server:           http://localhost:3003');
           if (opts.swagger !== false) {
             console.log('  Swagger UI:           http://localhost:8080');
           }
           console.log('\nHealth check:  curl http://localhost:1080/health');
           console.log('Send events:   devkit webhook events');
           console.log('View logs:     devkit webhook logs');
+          console.log('CCC kinds:     devkit ccc list');
           console.log('Stop with:     devkit mock down');
         }
       } catch (err) {

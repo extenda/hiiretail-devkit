@@ -1,0 +1,56 @@
+{
+  "reasonCodes": [
+    {
+      "id": "REFUND-001",
+      "name": "Customer Return - Defective",
+      "description": "Item returned due to manufacturing defect or damage",
+      "status": "Activated",
+      "groups": ["Refund"],
+      "isCommentRequired": true,
+      "isReferenceNumberRequired": true
+    },
+    {
+      "id": "REFUND-002",
+      "name": "Customer Return - Wrong Item",
+      "description": "Customer received or selected the wrong item",
+      "status": "Activated",
+      "groups": ["Refund"],
+      "isCommentRequired": false,
+      "isReferenceNumberRequired": true
+    },
+    {
+      "id": "PRICE-001",
+      "name": "Price Match Guarantee",
+      "description": "Price override to match competitor pricing",
+      "status": "Activated",
+      "groups": ["PriceOverride"],
+      "isManualEntryRequired": true,
+      "minimumAmount": 0,
+      "maximumAmount": 100
+    },
+    {
+      "id": "STOCK-001",
+      "name": "Damaged in Store",
+      "description": "Item damaged while on display or in storage",
+      "status": "Activated",
+      "groups": ["StockCorrection"],
+      "isNegativeQuantityByDefault": true,
+      "isCommentRequired": true
+    },
+    {
+      "id": "STOCK-002",
+      "name": "Inventory Count Adjustment",
+      "description": "Correction after physical inventory count",
+      "status": "Activated",
+      "groups": ["StockCorrection"],
+      "isCommentRequired": false
+    },
+    {
+      "id": "VOID-001",
+      "name": "Customer Changed Mind",
+      "description": "Transaction voided because customer decided not to purchase",
+      "status": "Activated",
+      "groups": ["CancelOrder"]
+    }
+  ]
+}

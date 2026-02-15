@@ -29,6 +29,12 @@ tools — so you can build and test integrations without touching production.
 | **Business Unit** | `bu` | `/business-units` |
 | **Business Unit Group** | `group` | `/groups` |
 
+**Customer Controlled Configuration (CCC):**
+
+| Kind | CLI `--kind` key | Description |
+|------|------------------|-------------|
+| **Reason Codes** | `rco.reason-codes.v1` | Reason codes for refunds, voids, price overrides, stock corrections |
+
 ## Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/) and Docker Compose v2+
@@ -66,8 +72,10 @@ open http://localhost:8081   # Webhook Playground
 
 Services will be available at:
 - **API Endpoint:** http://localhost:1080 — POST your API payloads here (validated against OpenAPI schemas)
+- **CCC API:** http://localhost:1080/api/v1/config — Customer Controlled Configuration (reason codes, etc.)
 - **Swagger UI:** http://localhost:8080 — Interactive API documentation
 - **Webhook Playground:** http://localhost:8081 — Test webhook delivery
+- **CCC Server:** http://localhost:3003 — Direct CCC server access (health check, debugging)
 
 The Docker images include everything needed: OpenAPI specs are fetched from Hii Retail's
 canonical URLs at startup, and webhook event templates are baked into the images.
@@ -95,7 +103,12 @@ npm run devkit --prefix cli -- webhook events   # list available event sources
 npm run devkit --prefix cli -- webhook send scr.stock-corrections.v1
 npm run devkit --prefix cli -- webhook logs     # view received events
 
-# 6. Open the Webhook Playground UI
+# 6. Test CCC (Customer Controlled Configuration)
+npm run devkit --prefix cli -- ccc list         # list available CCC kinds
+npm run devkit --prefix cli -- ccc push --kind rco.reason-codes.v1 -f examples/payloads/ccc/reason-codes-tenant.json
+npm run devkit --prefix cli -- ccc get --kind rco.reason-codes.v1
+
+# 7. Open the Webhook Playground UI
 open http://localhost:8081
 ```
 
@@ -118,6 +131,7 @@ Pre-built images are available on DockerHub:
 | `extenda/hiiretail-devkit-validation-proxy` | Validates requests against OpenAPI schemas |
 | `extenda/hiiretail-devkit-webhook-playground` | Web UI for testing webhook delivery |
 | `extenda/hiiretail-devkit-webhook-receiver` | Captures webhook events for inspection |
+| `extenda/hiiretail-devkit-ccc-server` | Customer Controlled Configuration storage |
 
 ## Architecture
 
@@ -133,18 +147,24 @@ Pre-built images are available on DockerHub:
 |  |    validation    |     |    mocking       |                      |
 |  |  - 400 errors    |     |  - Path routing  |                      |
 |  |    for invalid   |     +------------------+                      |
-|  +------------------+                                               |
-|                                     +---------------------+         |
-|  +------------------+               |  Webhook            |         |
-|  |  Swagger UI      |               |  Playground :8081   |         |
-|  |  :8080           |               |  (Web UI)           |         |
-|  +------------------+               +---------------------+         |
-|                                               |                     |
-|                                               v                     |
-|                                     +---------------------+         |
-|                                     |  Webhook            |         |
-|                                     |  Receiver :3002     |         |
-|                                     +---------------------+         |
+|  |                  |                                               |
+|  |  - CCC routing --+---> +------------------+                      |
+|  +------------------+     |  CCC Server      |                      |
+|                           |  :3003           |                      |
+|  +------------------+     |  - Config store  |                      |
+|  |  Swagger UI      |     +------------------+                      |
+|  |  :8080           |                                               |
+|  +------------------+     +---------------------+                   |
+|                           |  Webhook            |                   |
+|                           |  Playground :8081   |                   |
+|                           |  (Web UI)           |                   |
+|                           +---------------------+                   |
+|                                     |                               |
+|                                     v                               |
+|                           +---------------------+                   |
+|                           |  Webhook            |                   |
+|                           |  Receiver :3002     |                   |
+|                           +---------------------+                   |
 +---------------------------------------------------------------------+
 
 +---------------------------------------------------------------------+
@@ -154,6 +174,7 @@ Pre-built images are available on DockerHub:
 |  validate                   - offline schema validation             |
 |  push                       - POST payloads to mock or sandbox      |
 |  webhook events|send|logs   - webhook testing                       |
+|  ccc list|validate|push|get - CCC config management                 |
 +---------------------------------------------------------------------+
 ```
 
@@ -180,6 +201,10 @@ Pre-built images are available on DockerHub:
 6. **mockserver-init** is a one-shot container that fetches OpenAPI specs from
    canonical URLs, loads expectations into MockServer, and provides specs to the
    validation proxy.
+
+7. **CCC Server** (port 3003) stores Customer Controlled Configuration values
+   (like reason codes) in memory. Accessed via the validation-proxy which validates
+   payloads against schemas from the Hii Retail JSON Schema Registry.
 
 ### Request Validation
 
@@ -312,6 +337,185 @@ The web UI provides:
 - Payload preview
 - Response display
 
+### `devkit ccc`
+
+Manage Customer Controlled Configuration (CCC) for reason codes and other configuration kinds.
+
+```bash
+devkit ccc list                                    # list available CCC kinds
+devkit ccc validate --kind rco.reason-codes.v1 -f payload.json  # validate payload
+devkit ccc push --kind rco.reason-codes.v1 -f payload.json      # push to tenant
+devkit ccc push --kind rco.reason-codes.v1 -f payload.json --bu store-001  # push to BU
+devkit ccc get --kind rco.reason-codes.v1          # get tenant config
+devkit ccc get --kind rco.reason-codes.v1 --bu store-001  # get BU config
+devkit ccc delete --kind rco.reason-codes.v1       # delete tenant config
+```
+
+CCC supports hierarchical configuration: tenant-level configs apply to all business units,
+while BU-level configs override tenant settings for specific stores.
+
+## Customer Controlled Configuration (CCC)
+
+CCC is Hii Retail's system for tenant-managed configurations like reason codes. The DevKit
+provides a mock CCC server that validates payloads against JSON schemas from the
+[hiiretail-json-schema-registry](https://github.com/extenda/hiiretail-json-schema-registry/tree/master/customer-config).
+
+### CCC HTTP API
+
+All CCC endpoints are accessible via the validation proxy at `http://localhost:1080`:
+
+| Method | Path | Description |
+|--------|------|-------------|
+| GET | `/api/v1/config` | List available config kinds |
+| GET | `/api/v1/config/{kind}` | Get kind definition and schema URL |
+| PUT | `/api/v1/config/{kind}/values/tenant` | Set tenant-level config |
+| GET | `/api/v1/config/{kind}/values/tenant` | Get tenant-level config |
+| DELETE | `/api/v1/config/{kind}/values/tenant` | Delete tenant-level config |
+| PUT | `/api/v1/config/{kind}/values/business-units/{buId}` | Set BU-level config |
+| GET | `/api/v1/config/{kind}/values/business-units/{buId}` | Get BU-level config |
+| DELETE | `/api/v1/config/{kind}/values/business-units/{buId}` | Delete BU-level config |
+
+### CCC HTTP Examples
+
+**List available kinds:**
+```bash
+curl http://localhost:1080/api/v1/config
+```
+
+**Push tenant-level reason codes:**
+```bash
+curl -X PUT http://localhost:1080/api/v1/config/rco.reason-codes.v1/values/tenant \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "reasonCodes": [
+      {
+        "id": "REFUND-001",
+        "name": "Customer Return",
+        "status": "Activated",
+        "groups": ["Refund"],
+        "isCommentRequired": true
+      }
+    ]
+  }'
+```
+
+**Push BU-level override:**
+```bash
+curl -X PUT http://localhost:1080/api/v1/config/rco.reason-codes.v1/values/business-units/store-001 \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "reasonCodes": [
+      {
+        "id": "LOCAL-001",
+        "name": "Store-Specific Reason",
+        "status": "Activated"
+      }
+    ]
+  }'
+```
+
+**Get current config:**
+```bash
+curl http://localhost:1080/api/v1/config/rco.reason-codes.v1/values/tenant
+```
+
+### CCC Validation
+
+All PUT requests to CCC endpoints are validated against JSON schemas fetched from the
+Hii Retail JSON Schema Registry. Invalid payloads return 400 with detailed errors:
+
+```json
+{
+  "error": "CCC validation failed",
+  "message": "The request body does not match the rco.reason-codes.v1 schema",
+  "validationErrors": [
+    {
+      "path": "/",
+      "message": "must have required property 'reasonCodes'",
+      "details": "missing required property 'reasonCodes'"
+    }
+  ],
+  "hint": "Use the CLI to validate payloads: devkit ccc validate --kind rco.reason-codes.v1 -f <file>"
+}
+```
+
+### Reason Codes Schema
+
+The `rco.reason-codes.v1` schema defines reason codes for POS operations:
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `id` | string | Yes | Unique identifier (max 20 chars) |
+| `name` | string | Yes | Display name (3-40 chars) |
+| `status` | enum | Yes | `Activated` or `Deactivated` |
+| `description` | string | No | Detailed description (3-255 chars) |
+| `groups` | array | No | Categories: `Refund`, `CancelOrder`, `StockCorrection`, `PriceOverride`, `TaxExempt`, `CashManagement`, etc. |
+| `isManualEntryRequired` | boolean | No | Require manual value entry |
+| `isReferenceNumberRequired` | boolean | No | Require reference number |
+| `isCommentRequired` | boolean | No | Require comment |
+| `isNegativeQuantityByDefault` | boolean | No | Default to negative quantity |
+| `minimumAmount` | number | No | Minimum allowed amount |
+| `maximumAmount` | number | No | Maximum allowed amount |
+
+### Adding New CCC Kinds
+
+To add support for a new CCC kind:
+
+1. Add to `cli/src/lib/ccc-client.js`:
+   ```javascript
+   const KIND_CATEGORY_MAP = {
+     'rco.reason-codes.v1': 'reason-codes',
+     'new.kind.v1': 'category-folder',  // ADD
+   };
+   ```
+
+2. Add to `validation-proxy/server.js`:
+   ```javascript
+   const CCC_KINDS = new Map([
+     ['rco.reason-codes.v1', { category: 'reason-codes' }],
+     ['new.kind.v1', { category: 'category-folder' }],  // ADD
+   ]);
+   ```
+
+3. Add to `ccc-server/server.js`:
+   ```javascript
+   const KNOWN_KINDS = new Map([
+     ['rco.reason-codes.v1', { category: 'reason-codes', description: '...' }],
+     ['new.kind.v1', { category: 'category-folder', description: '...' }],  // ADD
+   ]);
+   ```
+
+4. Add example payload in `examples/payloads/ccc/`
+
+5. Rebuild: `docker compose up -d --build`
+
+### CCC Troubleshooting
+
+**"Config not found" error:**
+```bash
+# Check if config was pushed
+curl http://localhost:1080/api/v1/config/rco.reason-codes.v1/values/tenant
+
+# List what's stored
+curl http://localhost:3003/health
+# Shows: {"tenantConfigs": N, "buConfigs": M}
+```
+
+**Validation errors:**
+```bash
+# Validate offline before pushing
+devkit ccc validate --kind rco.reason-codes.v1 -f payload.json
+
+# Check the schema requirements
+curl http://localhost:1080/api/v1/config/rco.reason-codes.v1
+# Returns schema URL for reference
+```
+
+**Reset all CCC configs:**
+```bash
+curl -X POST http://localhost:3003/api/v1/_reset
+```
+
 ## Working with the Sandbox
 
 To push payloads against the real Hii Retail sandbox, copy `.env.example` to
@@ -351,6 +555,7 @@ devkit push --api item --file examples/payloads/items/organic-milk.json --target
 | `business-unit-groups/` | `group` | Assortment, pricing, and tax groups |
 | `business-units/` | `bu` | Stores and warehouses |
 | `item-categories/` | `category` | Product categories with hierarchy |
+| `ccc/` | CCC kinds | Reason codes for tenant and BU levels |
 
 ### Vertical examples (`examples/verticals/`)
 
@@ -413,6 +618,23 @@ See **[ERP Integration Testing Guide](docs/erp-integration-testing.md)** for:
 - Testing webhook delivery to your middleware
 - Network and firewall configuration
 - Troubleshooting common issues
+
+## Port Customization
+
+Default ports can be overridden with environment variables:
+
+| Variable | Default | Service |
+|----------|---------|---------|
+| `MOCKSERVER_PORT` | 1080 | API endpoint (validation proxy) |
+| `SWAGGER_UI_PORT` | 8080 | Swagger UI |
+| `WEBHOOK_PLAYGROUND_PORT` | 8081 | Webhook Playground |
+| `WEBHOOK_RECEIVER_PORT` | 3002 | Webhook Receiver |
+| `CCC_SERVER_PORT` | 3003 | CCC Server |
+
+Example:
+```bash
+MOCKSERVER_PORT=9080 SWAGGER_UI_PORT=9090 docker compose up -d
+```
 
 ## Adding New APIs
 

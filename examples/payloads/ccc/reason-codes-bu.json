@@ -1,0 +1,33 @@
+{
+  "reasonCodes": [
+    {
+      "id": "REFUND-001",
+      "name": "Customer Return - Defective",
+      "description": "Item returned due to manufacturing defect or damage - Store override with manager approval required",
+      "status": "Activated",
+      "groups": ["Refund"],
+      "isCommentRequired": true,
+      "isReferenceNumberRequired": true
+    },
+    {
+      "id": "PRICE-LOCAL-001",
+      "name": "Local Competitor Match",
+      "description": "Price match for local competitors only (store-specific)",
+      "status": "Activated",
+      "groups": ["PriceOverride"],
+      "isManualEntryRequired": true,
+      "minimumAmount": 0,
+      "maximumAmount": 50
+    },
+    {
+      "id": "STOCK-LOCAL-001",
+      "name": "Store Transfer Loss",
+      "description": "Stock loss during inter-store transfer",
+      "status": "Activated",
+      "groups": ["StockCorrection"],
+      "isNegativeQuantityByDefault": true,
+      "isCommentRequired": true,
+      "isReferenceNumberRequired": true
+    }
+  ]
+}

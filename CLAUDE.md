@@ -31,6 +31,11 @@ npm run devkit --prefix cli -- webhook events
 npm run devkit --prefix cli -- webhook send <event-source> --target <url>
 npm run devkit --prefix cli -- webhook logs
 npm run devkit --prefix cli -- webhook clear
+npm run devkit --prefix cli -- ccc list
+npm run devkit --prefix cli -- ccc validate --kind <kind> -f <file>
+npm run devkit --prefix cli -- ccc push --kind <kind> -f <file> [--bu <businessUnitId>]
+npm run devkit --prefix cli -- ccc get --kind <kind> [--bu <businessUnitId>]
+npm run devkit --prefix cli -- ccc delete --kind <kind> [--bu <businessUnitId>]
 
 # Run CLI tests
 cd cli && npm test
@@ -41,7 +46,7 @@ cd cli && npm test
 - **`specs/urls.json`** — Canonical URLs for Hii Retail OpenAPI specs. These are fetched
   at startup by MockServer and at runtime by the CLI validator. No local spec copies.
 
-- **`docker-compose.yml`** — Orchestrates four services:
+- **`docker-compose.yml`** — Orchestrates services:
   - `mockserver` (port 1080): MockServer 5.15.0 — validates requests against OpenAPI specs.
     Returns mock responses based on spec definitions.
   - `mockserver-init`: One-shot container that fetches OpenAPI specs from canonical URLs
@@ -50,6 +55,8 @@ cd cli && npm test
     inspection via CLI (`devkit webhook logs`) or direct HTTP.
   - `webhook-playground` (port 8081): Web UI for sending test webhook events. Select from
     event sources, configure target URL, auth, and headers.
+  - `ccc-server` (port 3003): Customer Controlled Configuration server. Stores CCC configs
+    (like reason codes) in memory for testing. Accessed via validation-proxy.
   - `swagger-ui` (port 8080): Swagger UI loading specs directly from Hii Retail URLs.
 
 - **`mockserver/`** — MockServer configuration:
@@ -75,6 +82,11 @@ cd cli && npm test
   - `push` — Validates then POSTs to mock (localhost:1080) or sandbox (env-var configured).
     Sandbox auth uses OAuth2 client_credentials flow.
   - `webhook events|send|logs|clear` — List event sources, send test webhooks, view/clear logs.
+  - `ccc list|validate|push|get|delete` — Manage Customer Controlled Configuration (CCC).
+
+- **`ccc-server/`** — Lightweight Express app (ESM, Node 22). Stores CCC configs in memory
+  for tenant and business unit levels. Endpoints: `GET /api/v1/config`, `PUT/GET/DELETE`
+  for `/api/v1/config/{kind}/values/tenant` and `/api/v1/config/{kind}/values/business-units/{buId}`.
 
 - **`examples/payloads/`** — Realistic JSON payloads for each API, ready to validate and push.
 
@@ -116,6 +128,58 @@ Sample event types included:
 - `rec.reconciliation.v1` — Cash drawer reconciliation
 - `stc.stock-count-completed.v1` — Inventory count completion
 - `str.store-transfer-completed.v1` — Inter-store transfers
+
+## Customer Controlled Configuration (CCC)
+
+CCC is Hii Retail's system for managing tenant and business unit level configurations
+like reason codes. The DevKit provides a mock CCC server for testing.
+
+### CCC CLI Commands
+
+```bash
+devkit ccc list                                    # List available kinds
+devkit ccc validate --kind rco.reason-codes.v1 -f payload.json  # Validate
+devkit ccc push --kind rco.reason-codes.v1 -f payload.json      # Push to tenant
+devkit ccc push --kind rco.reason-codes.v1 -f payload.json --bu store-001  # Push to BU
+devkit ccc get --kind rco.reason-codes.v1          # Get tenant config
+devkit ccc get --kind rco.reason-codes.v1 --bu store-001  # Get BU config
+devkit ccc delete --kind rco.reason-codes.v1       # Delete tenant config
+```
+
+### Adding a New CCC Kind
+
+1. Add to `cli/src/lib/ccc-client.js`:
+   ```javascript
+   const KIND_CATEGORY_MAP = {
+     'rco.reason-codes.v1': 'reason-codes',
+     'new.kind.v1': 'category-folder',  // ADD
+   };
+   ```
+
+2. Add to `validation-proxy/server.js`:
+   ```javascript
+   const CCC_KINDS = new Map([
+     ['rco.reason-codes.v1', { category: 'reason-codes' }],
+     ['new.kind.v1', { category: 'category-folder' }],  // ADD
+   ]);
+   ```
+
+3. Add to `ccc-server/server.js`:
+   ```javascript
+   const KNOWN_KINDS = new Map([
+     ['rco.reason-codes.v1', { category: 'reason-codes', description: '...' }],
+     ['new.kind.v1', { category: 'category-folder', description: '...' }],  // ADD
+   ]);
+   ```
+
+4. Add example payload in `examples/payloads/ccc/`
+
+### CCC Schema Source
+
+Schemas are fetched from the Hii Retail JSON Schema Registry:
+```
+https://raw.githubusercontent.com/extenda/hiiretail-json-schema-registry/master/customer-config/{category}/{kind}.json
+```
 
 ## Spec Driven Development
 
