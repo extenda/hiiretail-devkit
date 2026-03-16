@@ -1,8 +1,8 @@
 {
   "id": "eyewear-bu-001",
   "name": "BrightSight Gallery Mall",
-  "type": "STORE",
-  "status": "ACTIVE",
+  "type": "PHYSICAL_STORE",
+  "status": "Active",
   "businessUnitGroupId": "eyewear-bug-001",
   "description": "Optical retail store in the Gallery Mall shopping center",
   "address": {

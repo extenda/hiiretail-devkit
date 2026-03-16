@@ -3,6 +3,7 @@
   "itemId": "eyewear-item-wayfarer",
   "value": "8056597140010",
   "type": "GTIN13",
+  "isPrimary": true,
   "status": "ACTIVE",
   "businessUnitGroupId": "eyewear-bug-001"
 }

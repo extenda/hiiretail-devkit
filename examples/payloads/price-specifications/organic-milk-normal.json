@@ -1,7 +1,7 @@
 {
   "id": "erp-price-20001",
   "itemId": "erp-item-10001",
-  "type": "NORMAL",
+  "type": "SALES",
   "value": 24.90,
   "currencyId": "SEK",
   "taxableGroupId": "tax-food-12",

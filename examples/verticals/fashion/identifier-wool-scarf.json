@@ -3,6 +3,7 @@
   "itemId": "fashion-item-wool-scarf",
   "value": "7332627053017",
   "type": "GTIN13",
+  "isPrimary": true,
   "status": "ACTIVE",
   "businessUnitGroupId": "fashion-bug-001"
 }

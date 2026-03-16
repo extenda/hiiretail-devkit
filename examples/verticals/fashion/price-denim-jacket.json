@@ -1,7 +1,7 @@
 {
   "id": "fashion-price-denim-jacket",
   "itemId": "fashion-item-denim-jacket",
-  "type": "NORMAL",
+  "type": "SALES",
   "value": 1899.00,
   "currencyId": "SEK",
   "taxableGroupId": "tax-standard-25",

@@ -3,6 +3,7 @@
   "itemId": "fashion-item-denim-jacket",
   "value": "7332627052010",
   "type": "GTIN13",
+  "isPrimary": true,
   "status": "ACTIVE",
   "businessUnitGroupId": "fashion-bug-001"
 }

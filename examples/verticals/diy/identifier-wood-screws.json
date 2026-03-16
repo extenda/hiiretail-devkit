@@ -3,6 +3,7 @@
   "itemId": "diy-item-wood-screws",
   "value": "7330025041015",
   "type": "GTIN13",
+  "isPrimary": true,
   "status": "ACTIVE",
   "businessUnitGroupId": "diy-bug-001"
 }

@@ -1,7 +1,7 @@
 {
   "id": "fashion-price-wool-scarf",
   "itemId": "fashion-item-wool-scarf",
-  "type": "NORMAL",
+  "type": "SALES",
   "value": 1200.00,
   "currencyId": "SEK",
   "taxableGroupId": "tax-standard-25",

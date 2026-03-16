@@ -3,6 +3,7 @@
   "itemId": "erp-item-10001",
   "value": "7310001000002",
   "type": "GTIN13",
+  "isPrimary": true,
   "status": "ACTIVE",
   "businessUnitGroupId": "bug-001"
 }

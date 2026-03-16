@@ -3,6 +3,7 @@
   "itemId": "erp-item-10003",
   "value": "4011",
   "type": "PLU",
+  "isPrimary": true,
   "status": "ACTIVE",
   "businessUnitGroupId": "bug-001"
 }

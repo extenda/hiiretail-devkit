@@ -2,7 +2,7 @@
   "id": "bu-warehouse-001",
   "name": "Central Distribution Warehouse",
   "type": "WAREHOUSE",
-  "status": "ACTIVE",
+  "status": "Active",
   "businessUnitGroupId": "bug-001",
   "description": "Main distribution warehouse serving all stores",
   "address": {

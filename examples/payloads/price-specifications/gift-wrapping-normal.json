@@ -1,7 +1,7 @@
 {
   "id": "erp-price-20004",
   "itemId": "erp-item-10004",
-  "type": "NORMAL",
+  "type": "SALES",
   "value": 39.00,
   "currencyId": "SEK",
   "taxableGroupId": "tax-standard-25",

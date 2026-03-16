@@ -1,8 +1,8 @@
 {
   "id": "diy-bu-001",
   "name": "Hammerstone Retail Park",
-  "type": "STORE",
-  "status": "ACTIVE",
+  "type": "PHYSICAL_STORE",
+  "status": "Active",
   "businessUnitGroupId": "diy-bug-001",
   "description": "DIY warehouse store in the south retail park",
   "address": {

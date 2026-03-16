@@ -2,14 +2,6 @@
   "id": "cat-produce-fruit-001",
   "name": "Produce — Fruit",
   "status": "ACTIVE",
-  "businessUnitGroupId": "bug-001",
   "description": "Fresh fruit including citrus, berries, and tropical fruit",
-  "parentCategoryId": "cat-produce-001",
-  "type": "USER_DEFINED",
-  "sortOrder": 110,
-  "tags": [
-    "produce",
-    "fruit",
-    "fresh"
-  ]
+  "parentId": "cat-produce-001"
 }

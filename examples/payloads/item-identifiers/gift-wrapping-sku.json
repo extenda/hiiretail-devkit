@@ -3,6 +3,7 @@
   "itemId": "erp-item-10004",
   "value": "SVC-GIFTWRAP-001",
   "type": "SKU",
+  "isPrimary": true,
   "status": "ACTIVE",
   "businessUnitGroupId": "bug-001"
 }

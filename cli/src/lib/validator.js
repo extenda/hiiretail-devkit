@@ -15,9 +15,9 @@ const API_SPEC_MAP = {
   item: { spec: 'item-input', schema: 'ItemInput' },
   price: { spec: 'price-specification-input', schema: 'PriceSpecificationInput' },
   identifier: { spec: 'item-identifier-input', schema: 'ItemIdentifierInput' },
-  bu: { spec: 'business-unit', schema: 'BusinessUnit' },
-  group: { spec: 'business-unit', schema: 'BusinessUnitGroup' },
-  category: { spec: 'item-category-input', schema: 'ItemCategory' },
+  bu: { spec: 'business-unit', schema: 'BusinessUnitRequest' },
+  group: { spec: 'business-unit', schema: 'CreateGroupBodyDto' },
+  category: { spec: 'item-category-input', schema: 'ItemCategoryInput' },
   promotion: { spec: 'promotion-input', schema: 'PromotionInput' },
   'promotion-bu': { spec: 'promotion-input', schema: 'BUPromotionInput' },
 };

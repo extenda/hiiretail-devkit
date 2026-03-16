@@ -1,7 +1,7 @@
 {
   "id": "eyewear-price-dailies",
   "itemId": "eyewear-item-dailies",
-  "type": "NORMAL",
+  "type": "SALES",
   "value": 399.00,
   "currencyId": "SEK",
   "taxableGroupId": "tax-standard-25",

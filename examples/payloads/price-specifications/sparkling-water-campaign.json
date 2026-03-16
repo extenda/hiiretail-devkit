@@ -1,7 +1,7 @@
 {
   "id": "erp-price-20005",
   "itemId": "erp-item-10005",
-  "type": "CAMPAIGN",
+  "type": "SALES",
   "value": 44.90,
   "currencyId": "SEK",
   "taxableGroupId": "tax-food-12",

@@ -1,7 +1,7 @@
 {
   "id": "grocery-price-oat-milk",
   "itemId": "grocery-item-oat-milk",
-  "type": "NORMAL",
+  "type": "SALES",
   "value": 32.90,
   "currencyId": "SEK",
   "taxableGroupId": "tax-food-12",

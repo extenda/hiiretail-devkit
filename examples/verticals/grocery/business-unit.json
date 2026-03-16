@@ -1,8 +1,8 @@
 {
   "id": "grocery-bu-001",
   "name": "FreshMart Downtown",
-  "type": "STORE",
-  "status": "ACTIVE",
+  "type": "PHYSICAL_STORE",
+  "status": "Active",
   "businessUnitGroupId": "grocery-bug-001",
   "description": "Full-range grocery supermarket in the downtown shopping district",
   "address": {
