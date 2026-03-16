@@ -118,18 +118,100 @@
     .add-header-btn:hover {
       background: #5a6268;
     }
-    .payload-preview {
+    .payload-container {
+      position: relative;
+    }
+    .payload-toolbar {
+      position: absolute;
+      top: 8px;
+      right: 12px;
+      z-index: 10;
+    }
+    .payload-toolbar button {
+      background: rgba(78, 201, 176, 0.15);
+      border: 1px solid #4ec9b0;
+      border-radius: 4px;
+      padding: 6px 10px;
+      cursor: pointer;
+      color: #4ec9b0;
+      font-size: 16px;
+      transition: all 0.2s;
+    }
+    .payload-toolbar button:hover {
+      background: rgba(78, 201, 176, 0.3);
+      color: #6fe0c8;
+      border-color: #6fe0c8;
+    }
+    .payload-toolbar button.hidden {
+      display: none;
+    }
+    .payload-view {
       background: #1e1e1e;
       color: #d4d4d4;
       padding: 15px;
+      padding-top: 40px;
       border-radius: 4px;
       font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
       font-size: 12px;
       overflow-x: auto;
-      max-height: 300px;
+      min-height: 300px;
+      max-height: 400px;
       overflow-y: auto;
-      white-space: pre-wrap;
+      white-space: pre;
       word-break: break-all;
+      width: 100%;
+      border: 1px solid #333;
+    }
+    .payload-edit {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 15px;
+      padding-top: 40px;
+      border-radius: 4px;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 12px;
+      overflow-x: auto;
+      min-height: 300px;
+      max-height: 400px;
+      overflow-y: auto;
+      white-space: pre;
+      word-break: break-all;
+      width: 100%;
+      border: 1px solid #4ec9b0;
+      caret-color: #4ec9b0;
+    }
+    .payload-edit:focus {
+      outline: none;
+      border-color: #4ec9b0;
+      box-shadow: 0 0 0 3px rgba(78, 201, 176, 0.2);
+    }
+    .payload-edit.invalid {
+      border-color: #dc3545;
+      box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.2);
+    }
+    .payload-error {
+      color: #dc3545;
+      font-size: 12px;
+      margin-top: 5px;
+    }
+    /* JSON Syntax Highlighting */
+    .json-key {
+      color: #9cdcfe;
+    }
+    .json-string {
+      color: #ce9178;
+    }
+    .json-number {
+      color: #b5cea8;
+    }
+    .json-boolean {
+      color: #569cd6;
+    }
+    .json-null {
+      color: #569cd6;
+    }
+    .json-bracket {
+      color: #d4d4d4;
     }
     .buttons {
       display: flex;
@@ -260,7 +342,15 @@
 
     <div class="form-group">
       <label>Payload Preview</label>
-      <div id="payloadPreview" class="payload-preview">Select an event source to see the payload</div>
+      <div class="payload-container">
+        <div class="payload-toolbar">
+          <button type="button" id="editBtn" onclick="enterEditMode()" title="Edit">&#9998;</button>
+          <button type="button" id="saveBtn" class="hidden" onclick="exitEditMode()" title="Save">&#10003;</button>
+        </div>
+        <div id="payloadView" class="payload-view">Select an event source to see the payload</div>
+        <div id="payloadEdit" class="payload-edit hidden" contenteditable="true" spellcheck="false"></div>
+      </div>
+      <div id="payloadError" class="payload-error hidden"></div>
     </div>
 
     <div class="buttons">
@@ -280,6 +370,168 @@
 
   <script>
     let currentPayload = null;
+    let isEditMode = false;
+    let highlightTimeout = null;
+
+    // Syntax highlight JSON
+    function highlightJson(json) {
+      if (typeof json !== 'string') {
+        json = JSON.stringify(json, null, 2);
+      }
+      // Escape HTML
+      json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      // Apply syntax highlighting
+      return json.replace(
+        /("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,
+        function (match) {
+          let cls = 'json-number';
+          if (/^"/.test(match)) {
+            if (/:$/.test(match)) {
+              cls = 'json-key';
+            } else {
+              cls = 'json-string';
+            }
+          } else if (/true|false/.test(match)) {
+            cls = 'json-boolean';
+          } else if (/null/.test(match)) {
+            cls = 'json-null';
+          }
+          return '<span class="' + cls + '">' + match + '</span>';
+        }
+      );
+    }
+
+    // Get plain text from contenteditable
+    function getEditText() {
+      const edit = document.getElementById('payloadEdit');
+      return edit.innerText || edit.textContent || '';
+    }
+
+    // Save and restore cursor position
+    function saveCursorPosition(el) {
+      const sel = window.getSelection();
+      if (sel.rangeCount === 0) return null;
+      const range = sel.getRangeAt(0);
+      const preCaretRange = range.cloneRange();
+      preCaretRange.selectNodeContents(el);
+      preCaretRange.setEnd(range.endContainer, range.endOffset);
+      return preCaretRange.toString().length;
+    }
+
+    function restoreCursorPosition(el, pos) {
+      if (pos === null) return;
+      const sel = window.getSelection();
+      const range = document.createRange();
+      let charCount = 0;
+      let found = false;
+
+      function traverseNodes(node) {
+        if (found) return;
+        if (node.nodeType === Node.TEXT_NODE) {
+          const nextCount = charCount + node.length;
+          if (pos <= nextCount) {
+            range.setStart(node, pos - charCount);
+            range.collapse(true);
+            found = true;
+          }
+          charCount = nextCount;
+        } else {
+          for (const child of node.childNodes) {
+            traverseNodes(child);
+            if (found) break;
+          }
+        }
+      }
+
+      traverseNodes(el);
+      if (found) {
+        sel.removeAllRanges();
+        sel.addRange(range);
+      }
+    }
+
+    // Apply syntax highlighting to edit area with cursor preservation
+    function applyEditHighlighting() {
+      const edit = document.getElementById('payloadEdit');
+      const text = getEditText().trim();
+
+      if (!text) {
+        edit.innerHTML = '';
+        return;
+      }
+
+      const cursorPos = saveCursorPosition(edit);
+      edit.innerHTML = highlightJson(text);
+      restoreCursorPosition(edit, cursorPos);
+    }
+
+    // Update the view with syntax highlighting
+    function updatePayloadView(payload) {
+      const view = document.getElementById('payloadView');
+      if (!payload) {
+        view.innerHTML = 'Select an event source to see the payload';
+        return;
+      }
+      const jsonStr = JSON.stringify(payload, null, 2);
+      view.innerHTML = highlightJson(jsonStr);
+    }
+
+    // Enter edit mode
+    function enterEditMode() {
+      isEditMode = true;
+      const view = document.getElementById('payloadView');
+      const edit = document.getElementById('payloadEdit');
+      const editBtn = document.getElementById('editBtn');
+      const saveBtn = document.getElementById('saveBtn');
+
+      // Transfer content with syntax highlighting
+      if (currentPayload) {
+        const jsonStr = JSON.stringify(currentPayload, null, 2);
+        edit.innerHTML = highlightJson(jsonStr);
+      } else {
+        edit.innerHTML = '';
+      }
+
+      view.classList.add('hidden');
+      edit.classList.remove('hidden');
+      editBtn.classList.add('hidden');
+      saveBtn.classList.remove('hidden');
+      edit.focus();
+    }
+
+    // Exit edit mode
+    function exitEditMode() {
+      const view = document.getElementById('payloadView');
+      const edit = document.getElementById('payloadEdit');
+      const editBtn = document.getElementById('editBtn');
+      const saveBtn = document.getElementById('saveBtn');
+      const errorDiv = document.getElementById('payloadError');
+
+      // Validate and save
+      const value = getEditText().trim();
+      if (value) {
+        try {
+          currentPayload = JSON.parse(value);
+          errorDiv.classList.add('hidden');
+          edit.classList.remove('invalid');
+        } catch (err) {
+          errorDiv.textContent = `Invalid JSON: ${err.message}`;
+          errorDiv.classList.remove('hidden');
+          edit.classList.add('invalid');
+          return; // Don't exit edit mode if JSON is invalid
+        }
+      } else {
+        currentPayload = null;
+      }
+
+      isEditMode = false;
+      updatePayloadView(currentPayload);
+
+      edit.classList.add('hidden');
+      view.classList.remove('hidden');
+      saveBtn.classList.add('hidden');
+      editBtn.classList.remove('hidden');
+    }
 
     // Load event sources on page load
     async function loadEventSources() {
@@ -301,19 +553,94 @@
 
     // Load payload when event source changes
     async function loadPayload(eventSource) {
+      const errorDiv = document.getElementById('payloadError');
+      errorDiv.classList.add('hidden');
+
+      // Exit edit mode if active
+      if (isEditMode) {
+        const view = document.getElementById('payloadView');
+        const edit = document.getElementById('payloadEdit');
+        const editBtn = document.getElementById('editBtn');
+        const saveBtn = document.getElementById('saveBtn');
+        edit.classList.add('hidden');
+        edit.classList.remove('invalid');
+        view.classList.remove('hidden');
+        saveBtn.classList.add('hidden');
+        editBtn.classList.remove('hidden');
+        isEditMode = false;
+      }
+
       if (!eventSource) {
         currentPayload = null;
-        document.getElementById('payloadPreview').textContent = 'Select an event source to see the payload';
+        updatePayloadView(null);
         return;
       }
       try {
         const res = await fetch(`/api/event-sources/${eventSource}`);
         currentPayload = await res.json();
-        document.getElementById('payloadPreview').textContent = JSON.stringify(currentPayload, null, 2);
+        updatePayloadView(currentPayload);
       } catch (err) {
-        document.getElementById('payloadPreview').textContent = 'Failed to load payload';
+        document.getElementById('payloadView').innerHTML = 'Failed to load payload';
         currentPayload = null;
       }
+    }
+
+    // Validate JSON in edit area
+    function validateEditPayload() {
+      const edit = document.getElementById('payloadEdit');
+      const errorDiv = document.getElementById('payloadError');
+      const value = getEditText().trim();
+
+      if (!value) {
+        errorDiv.classList.add('hidden');
+        edit.classList.remove('invalid');
+        return null;
+      }
+
+      try {
+        const parsed = JSON.parse(value);
+        errorDiv.classList.add('hidden');
+        edit.classList.remove('invalid');
+        return parsed;
+      } catch (err) {
+        errorDiv.textContent = `Invalid JSON: ${err.message}`;
+        errorDiv.classList.remove('hidden');
+        edit.classList.add('invalid');
+        return null;
+      }
+    }
+
+    // Handle input in edit area - debounced highlighting
+    function handleEditInput() {
+      validateEditPayload();
+
+      // Debounce syntax highlighting to avoid interfering with typing
+      clearTimeout(highlightTimeout);
+      highlightTimeout = setTimeout(() => {
+        const edit = document.getElementById('payloadEdit');
+        const text = getEditText().trim();
+        // Only re-highlight if it's valid JSON (to preserve formatting while typing)
+        try {
+          JSON.parse(text);
+          applyEditHighlighting();
+        } catch (e) {
+          // Don't re-highlight invalid JSON
+        }
+      }, 500);
+    }
+
+    // Get the current payload
+    function getCurrentPayload() {
+      if (isEditMode) {
+        const value = getEditText().trim();
+        if (!value) return null;
+        try {
+          return JSON.parse(value);
+        } catch (err) {
+          return null;
+        }
+      }
+      return currentPayload;
     }
 
     // Toggle auth fields visibility
@@ -352,11 +679,25 @@
 
     // Send the webhook
     async function sendWebhook() {
-      const eventSource = document.getElementById('eventSource').value;
       const targetUrl = document.getElementById('targetUrl').value;
 
-      if (!eventSource || !targetUrl) {
-        alert('Please select an event source and enter a target URL');
+      if (!targetUrl) {
+        alert('Please enter a target URL');
+        return;
+      }
+
+      // If in edit mode, validate first
+      if (isEditMode) {
+        const validated = validateEditPayload();
+        if (!validated) {
+          alert('Invalid JSON in payload. Please fix the errors before sending.');
+          return;
+        }
+      }
+
+      const payload = getCurrentPayload();
+      if (!payload) {
+        alert('Please select an event source or enter a valid JSON payload');
         return;
       }
 
@@ -377,7 +718,7 @@
         const res = await fetch('/api/send', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ eventSource, targetUrl, auth, headers }),
+          body: JSON.stringify({ payload, targetUrl, auth, headers }),
         });
         const result = await res.json();
         showResponse(result);
@@ -421,7 +762,22 @@
       document.getElementById('authUsername').value = '';
       document.getElementById('authPassword').value = '';
       document.getElementById('headerRows').innerHTML = '';
-      document.getElementById('payloadPreview').textContent = 'Select an event source to see the payload';
+
+      // Reset payload view/edit
+      const view = document.getElementById('payloadView');
+      const edit = document.getElementById('payloadEdit');
+      const editBtn = document.getElementById('editBtn');
+      const saveBtn = document.getElementById('saveBtn');
+      view.innerHTML = 'Select an event source to see the payload';
+      edit.innerHTML = '';
+      edit.classList.add('hidden');
+      edit.classList.remove('invalid');
+      view.classList.remove('hidden');
+      saveBtn.classList.add('hidden');
+      editBtn.classList.remove('hidden');
+      isEditMode = false;
+
+      document.getElementById('payloadError').classList.add('hidden');
       document.getElementById('responseSection').classList.add('hidden');
       toggleAuthFields();
       currentPayload = null;
@@ -432,6 +788,7 @@
     document.querySelectorAll('input[name="authType"]').forEach(radio => {
       radio.addEventListener('change', toggleAuthFields);
     });
+    document.getElementById('payloadEdit').addEventListener('input', handleEditInput);
 
     // Initialize
     loadEventSources();

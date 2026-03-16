@@ -49,27 +49,20 @@ app.get('/api/event-sources/:id', async (req, res) => {
 // Send webhook to target URL
 // ---------------------------------------------------------------------------
 app.post('/api/send', async (req, res) => {
-  const { eventSource, targetUrl, auth, headers: customHeaders } = req.body;
+  const { payload: customPayload, targetUrl, auth, headers: customHeaders } = req.body;
 
-  if (!eventSource || !targetUrl) {
-    return res.status(400).json({ error: 'eventSource and targetUrl are required' });
+  if (!targetUrl) {
+    return res.status(400).json({ error: 'targetUrl is required' });
   }
 
-  // Load the event payload
-  let payload;
-  try {
-    const filePath = join(EVENTS_DIR, `${eventSource}.json`);
-    const content = await readFile(filePath, 'utf-8');
-    payload = JSON.parse(content);
-    // Update timestamp to now
-    payload.timestamp = new Date().toISOString();
-    payload.id = `evt-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-  } catch (err) {
-    if (err.code === 'ENOENT') {
-      return res.status(404).json({ error: 'Event source not found' });
-    }
-    return res.status(500).json({ error: 'Failed to load event payload' });
+  if (!customPayload || typeof customPayload !== 'object') {
+    return res.status(400).json({ error: 'payload is required and must be a valid object' });
   }
+
+  // Use the provided payload and update timestamp/id
+  const payload = { ...customPayload };
+  payload.timestamp = new Date().toISOString();
+  payload.id = `evt-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
   // Build headers
   const headers = {
